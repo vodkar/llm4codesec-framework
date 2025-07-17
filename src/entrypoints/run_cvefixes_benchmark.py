@@ -18,7 +18,7 @@ from typing import Any
 
 from benchmark.benchmark_framework import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
-from benchmark.response_parser import ResponseParser
+from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesJSONDatasetLoader
 
 
@@ -57,7 +57,7 @@ class CVEFixesBenchmarkRunner:
             # Initialize components
             llm = HuggingFaceLLM(self.config)
             prompt_generator = PromptGenerator()
-            response_parser = ResponseParser(self.config.task_type)
+            response_parser = ResponseParserFactory.create_parser(self.config.task_type)
 
             # Create output directory
             Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)

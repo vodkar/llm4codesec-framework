@@ -16,6 +16,7 @@ from typing import Any, Dict, Optional
 
 from benchmark.benchmark_framework import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
+from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoaderFramework
 
 
@@ -39,7 +40,6 @@ class VulBenchBenchmarkRunner:
             HuggingFaceLLM,
             MetricsCalculator,
             PromptGenerator,
-            VulBenchResponseParser,
         )
 
         logging.info("Starting VulBench benchmark execution")
@@ -62,7 +62,9 @@ class VulBenchBenchmarkRunner:
             llm = HuggingFaceLLM(self.config)
             prompt_generator = PromptGenerator()
             # Use VulBench-specific response parser for better VulBench pattern matching
-            response_parser = VulBenchResponseParser(self.config.task_type)
+            response_parser = ResponseParserFactory.create_parser(
+                self.config.task_type, is_vulbench=True
+            )
             metrics_calculator = MetricsCalculator()
 
             # Create output directory

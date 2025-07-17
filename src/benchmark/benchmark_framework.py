@@ -9,7 +9,6 @@ import importlib.util
 import json
 import logging
 import os
-import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
@@ -30,7 +29,7 @@ from transformers import (
 from benchmark.enums import ModelType, TaskType
 from benchmark.metrics_calculator import MetricsCalculator
 from benchmark.models import BenchmarkSample, PredictionResult
-from benchmark.response_parser import ResponseParser
+from benchmark.response_parser import IResponseParser, ResponseParserFactory
 
 
 def _is_flash_attention_available() -> bool:
@@ -715,71 +714,6 @@ class HuggingFaceLLM(LLMInterface):
         torch.cuda.empty_cache()
 
 
-class VulBenchResponseParser(ResponseParser):
-    """VulBench-specific response parser that handles VulBench vulnerability types."""
-
-    def parse_response(self, response: str) -> int | str:
-        """
-        Parse model response into standardized format for VulBench.
-
-        Args:
-            response (str): Raw model response
-
-        Returns:
-            int | str: Parsed response
-        """
-        response = response.strip()  # Don't convert to uppercase here
-
-        if self.task_type == TaskType.BINARY_VULNERABILITY:
-            return self._parse_binary_response(response.upper())
-        elif self.task_type == TaskType.BINARY_CWE_SPECIFIC:
-            return self._parse_binary_response(response.upper())
-        elif self.task_type == TaskType.BINARY_VULNERABILITY_SPECIFIC:
-            return self._parse_binary_response(response.upper())
-        elif self.task_type == TaskType.MULTICLASS_VULNERABILITY:
-            return self._parse_multiclass_response(response)
-
-        return response
-
-    def _parse_multiclass_response(self, response: str) -> str:
-        """Parse multiclass response for VulBench datasets."""
-        # First check for CWE patterns (in case someone uses CWE format)
-        cwe_pattern = r"CWE-\d+"
-        cwe_match = re.search(cwe_pattern, response)
-        if cwe_match:
-            return cwe_match.group()
-
-        # Convert to uppercase for case-insensitive matching
-        response_upper = response.upper()
-
-        # Look for VulBench vulnerability type patterns
-        vulbench_patterns = {
-            "INTEGER-OVERFLOW": "Integer-Overflow",
-            "BUFFER-OVERFLOW": "Buffer-Overflow",
-            "NULL-POINTER-DEREFERENCE": "Null-Pointer-Dereference",
-            "USE-AFTER-FREE": "Use-After-Free",
-            "DOUBLE-FREE": "Double-Free",
-            "MEMORY-LEAK": "Memory-Leak",
-            "FORMAT-STRING": "Format-String",
-            "RACE-CONDITION": "Race-Condition",
-            "IMPROPER-ACCESS-CONTROL": "Improper-Access-Control",
-            "NO-VULNERABILITY": "No-Vulnerability",
-        }
-
-        for pattern_upper, pattern_original in vulbench_patterns.items():
-            if pattern_upper in response_upper or pattern_original in response:
-                return pattern_original
-
-        # Check for common safe indicators
-        if any(
-            safe_word in response_upper
-            for safe_word in ["SAFE", "NO-VULNERABILITY", "CLEAN"]
-        ):
-            return "No-Vulnerability"
-        else:
-            return "UNKNOWN"
-
-
 class BenchmarkRunner:
     """Main benchmark execution class."""
 
@@ -787,7 +721,7 @@ class BenchmarkRunner:
         self.config = config
         self.dataset_loader = VulBenchLoader()
         self.prompt_generator = PromptGenerator()
-        self.response_parser = ResponseParser(config.task_type)
+        self.response_parser = ResponseParserFactory.create_parser(config.task_type)
         self.metrics_calculator = MetricsCalculator.create_calculator(config.task_type)
         self.llm: Optional[LLMInterface] = None
 
@@ -1045,7 +979,7 @@ class BenchmarkRunner:
         llm: LLMInterface,
         system_prompt: str,
         prompt_generator: PromptGenerator,
-        response_parser: ResponseParser,
+        response_parser: IResponseParser,
         config: BenchmarkConfig,
     ) -> list[PredictionResult]:
         """
@@ -1167,79 +1101,3 @@ class BenchmarkRunner:
 
         logging.info(f"Completed processing all {len(samples)} samples")
         return predictions
-
-
-def main():
-    """Example usage of the benchmark framework."""
-
-    # Example configurations for different models
-
-    # Example 1: Using the new factory method with Qwen3-4B
-    BenchmarkConfig.create_for_model(
-        model_type=ModelType.QWEN3_4B,
-        task_type=TaskType.BINARY_VULNERABILITY,
-        dataset_path="./data/vulbench_sample.json",
-        output_dir="./results/qwen3_4b",
-        description="Qwen3-4B Binary Vulnerability Detection",
-        max_tokens=256,
-        temperature=0.1,
-    )
-
-    # Example 2: Using DeepSeek-R1 model
-    BenchmarkConfig.create_for_model(
-        model_type=ModelType.DEEPSEEK_R1_DISTILL_QWEN_1_5B,
-        task_type=TaskType.MULTICLASS_VULNERABILITY,
-        dataset_path="./data/vulbench_sample.json",
-        output_dir="./results/deepseek_r1",
-        temperature=0.0,  # Deterministic for code analysis
-    )
-
-    # Example 3: Using Llama-3.2 for CWE-specific detection
-    BenchmarkConfig.create_for_model(
-        model_type=ModelType.LLAMA_3_2_3B_INSTRUCT,
-        task_type=TaskType.BINARY_CWE_SPECIFIC,
-        dataset_path="./data/vulbench_sample.json",
-        output_dir="./results/llama_3_2",
-        cwe_type="CWE-89",  # SQL Injection
-    )
-
-    # Example 4: Traditional configuration method
-    config_traditional = BenchmarkConfig(
-        model_name="microsoft/DialoGPT-medium",  # Use a smaller model for testing
-        model_type=ModelType.CUSTOM,
-        task_type=TaskType.BINARY_VULNERABILITY,
-        description="Traditional configuration example",
-        dataset_path="./data/vulbench_sample.json",
-        output_dir="./results/traditional",
-        batch_size=8,  # Use larger batch size for efficient GPU utilization
-        max_tokens=128,
-        temperature=0.1,
-        use_quantization=True,
-    )
-
-    # Print available models
-    print("Available models by family:")
-    for family, models in BenchmarkConfig.get_available_models().items():
-        print(f"\n{family}:")
-        for model in models:
-            print(f"  - {model}")
-
-    # Choose which configuration to run (for this example, use the smaller model)
-    config = config_traditional
-
-    print(f"\nRunning benchmark with: {config.description}")
-    print(f"Model: {config.model_name}")
-    print(f"Task: {config.task_type.value}")
-
-    # Create and run benchmark
-    runner = BenchmarkRunner(config)
-    results = runner.run_benchmark()
-
-    print("Benchmark completed!")
-    print(f"Accuracy: {results['metrics']['accuracy']:.4f}")
-    if "f1_score" in results["metrics"]:
-        print(f"F1 Score: {results['metrics']['f1_score']:.4f}")
-
-
-if __name__ == "__main__":
-    main()

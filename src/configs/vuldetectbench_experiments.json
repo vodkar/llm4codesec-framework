@@ -1,0 +1,452 @@
+{
+    "experiment_metadata": {
+        "name": "VulDetectBench LLM Evaluation",
+        "description": "Comprehensive evaluation of LLMs on VulDetectBench with 5 tasks of increasing difficulty",
+        "version": "1.0",
+        "dataset": "VulDetectBench v1.0",
+        "created_date": "2025-06-17"
+    },
+    "dataset_configurations": {
+        "task1_vulnerability": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task1.json",
+            "task_type": "binary_vulnerability",
+            "description": "Task 1: Binary vulnerability existence detection (YES/NO)"
+        },
+        "task2_multiclass": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task2.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Task 2: Multi-choice vulnerability type inference"
+        },
+        "task3_objects": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task3.json",
+            "task_type": "code_analysis",
+            "description": "Task 3: Key objects and functions identification"
+        },
+        "task4_root_cause": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task4.json",
+            "task_type": "code_analysis",
+            "description": "Task 4: Root cause location identification"
+        },
+        "task5_trigger_point": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task5.json",
+            "task_type": "code_analysis",
+            "description": "Task 5: Trigger point location identification"
+        }
+    },
+    "prompt_strategies": {
+        "basic_security": {
+            "name": "Basic Security Analysis",
+            "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Base your decision on concrete security risks, not coding style issues",
+            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "detailed_analysis": {
+            "name": "Detailed Security Analysis",
+            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, double-free patterns\n- Consider null pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices",
+            "user_prompt": "Please analyze the following code for security vulnerabilities:\n\n```c\n{code}\n```"
+        },
+        "task1_specific": {
+            "name": "Task 1 Specific - Vulnerability Existence",
+            "system_prompt": "Assuming you are an experienced code vulnerability analyst and the following code may have vulnerabilities.",
+            "user_prompt": "Is the code vulnerable?(YES/NO)\n{code}\nYour answer should either be 'YES' or 'NO' only."
+        },
+        "task2_specific": {
+            "name": "Task 2 Specific - Vulnerability Type Inference",
+            "system_prompt": "You are an outstanding code vulnerability analyst and expert in single-choice questions. You are only able to pick up 1 answer from given choices.",
+            "user_prompt": "What is the vulnerability type of the code?(A/B/C/D/E)\n{code}\nOutput 'A.' or 'B.' or 'C.' or 'D.' or 'E.' only."
+        },
+        "task3_specific": {
+            "name": "Task 3 Specific - Key Objects Identification",
+            "system_prompt": "Assuming you are an experienced code vulnerability analyst who can only output code snippets and the following code may have vulnerabilities.",
+            "user_prompt": "What data objects and functions in the code may lead to vulnerability?\n{code}\nOutput data objects and functions in the format: `{{code}}` if your answer contains any."
+        },
+        "task4_specific": {
+            "name": "Task 4 Specific - Root Cause Location",
+            "system_prompt": "Assuming you are an experienced code vulnerability analyst who can only output code snippets and the following code may have vulnerabilities.",
+            "user_prompt": "Which line of code is the root cause point of the vulnerability?\n{code}\nOutput your answer code in the format: `{{code}}`."
+        },
+        "task5_specific": {
+            "name": "Task 5 Specific - Trigger Point Location",
+            "system_prompt": "Assuming you are an experienced code vulnerability analyst who can only output code snippets and the following code may have vulnerabilities.",
+            "user_prompt": "Which line of code is the trigger point of the vulnerability?\n{code}\nOutput your answer code in the format: `{{code}}`."
+        },
+        "step_by_step": {
+            "name": "Step-by-Step Analysis",
+            "system_prompt": "You are an expert vulnerability analyst. Analyze code systematically by following these steps:\n1. Understand the code's purpose and flow\n2. Identify potential entry points and data flows\n3. Look for security-relevant operations\n4. Assess potential vulnerabilities\n5. Provide your conclusion",
+            "user_prompt": "Analyze this code step by step for security vulnerabilities:\n\n{code}\n\nPlease follow the systematic approach outlined in the system prompt."
+        }
+    },
+    "model_configurations": {
+        "qwen3-4b": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true
+        },
+        "qwen3-4b-thinking": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true,
+            "enable_thinking": true
+        },
+        "qwen3-8b": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 15,
+            "use_quantization": true
+        },
+        "qwen3-8b-thinking": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 15,
+            "use_quantization": true,
+            "enable_thinking": true
+        },
+        "qwen3-30b": {
+            "model_name": "Qwen/Qwen3-30B-A3B",
+            "model_type": "QWEN",
+            "batch_size": 2,
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "use_quantization": true,
+            "enable_thinking": false
+        },
+        "qwen3-30b-thinking": {
+            "model_name": "Qwen/Qwen3-30B-A3B",
+            "model_type": "QWEN",
+            "batch_size": 2,
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "use_quantization": true,
+            "enabile_thinking": true
+        },
+        "deepseek-coder-v2-lite-16b": {
+            "model_name": "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "deepseek-r1-distill-qwen2.5-7b": {
+            "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true
+        },
+        "deepseek-r1-distill-qwen2.5-32b": {
+            "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "wizard-coder-34b": {
+            "model_name": "WizardLMTeam/WizardCoder-33B-V1.1",
+            "model_type": "WIZARD",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "llama3.2-3B": {
+            "model_name": "meta-llama/Llama-3.2-3B-Instruct",
+            "model_type": "LLAMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 15,
+            "use_quantization": true
+        },
+        "llama4-scout-17b-16e": {
+            "model_name": "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+            "model_type": "LLAMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "gemma3-4b": {
+            "model_name": "google/gemma-3-4b-it-qat-q4_0-unquantized",
+            "model_type": "GEMMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 40,
+            "use_quantization": true
+        },
+        "gemma3-27b": {
+            "model_name": "google/gemma-3-27b-it",
+            "model_type": "GEMMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        }
+    },
+    "experiment_plans": {
+        "quick_test": {
+            "description": "Quick test with limited samples for development",
+            "datasets": [
+                "task1_vulnerability"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "gemma3-4b"
+            ],
+            "prompts": [
+                "basic_security",
+                "task1_specific"
+            ],
+            "sample_limit": 10
+        },
+        "task1_small_models": {
+            "description": "Evaluate small models on Task 1 - Vulnerability Existence Detection",
+            "datasets": [
+                "task1_vulnerability"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "task1_specific"
+            ],
+            "sample_limit": 200
+        },
+        "task1_large_models": {
+            "description": "Evaluate large models on Task 1 - Vulnerability Existence Detection",
+            "datasets": [
+                "task1_vulnerability"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "task1_specific"
+            ],
+            "sample_limit": 100
+        },
+        "task2_small_models": {
+            "description": "Evaluate small models on Task 2 - Vulnerability Type Inference",
+            "datasets": [
+                "task2_multiclass"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "task2_specific"
+            ],
+            "sample_limit": 200
+        },
+        "task2_large_models": {
+            "description": "Evaluate large models on Task 2 - Vulnerability Type Inference",
+            "datasets": [
+                "task2_multiclass"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "task2_specific"
+            ],
+            "sample_limit": 100
+        },
+        "task3_small_models": {
+            "description": "Evaluate small models on Task 3 - Key Objects Identification",
+            "datasets": [
+                "task3_objects"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "task3_specific"
+            ],
+            "sample_limit": 200
+        },
+        "task3_large_models": {
+            "description": "Evaluate large models on Task 3 - Key Objects Identification",
+            "datasets": [
+                "task3_objects"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "detailed_analysis",
+                "step_by_step",
+                "task3_specific"
+            ],
+            "sample_limit": 100
+        },
+        "task4_small_models": {
+            "description": "Evaluate small models on Task 4 - Root Cause Location",
+            "datasets": [
+                "task4_root_cause"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "task4_specific"
+            ],
+            "sample_limit": 200
+        },
+        "task4_large_models": {
+            "description": "Evaluate large models on Task 4 - Root Cause Location",
+            "datasets": [
+                "task4_root_cause"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "task4_specific"
+            ],
+            "sample_limit": null
+        },
+        "task5_small_models": {
+            "description": "Evaluate small models on Task 5 - Trigger Point Location",
+            "datasets": [
+                "task5_trigger_point"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "task5_specific"
+            ],
+            "sample_limit": 200
+        },
+        "task5_large_models": {
+            "description": "Evaluate large models on Task 5 - Trigger Point Location",
+            "datasets": [
+                "task5_trigger_point"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "task5_specific"
+            ],
+            "sample_limit": 100
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/vuldetectbench_experiments",
+        "create_subdirs": true,
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    },
+    "evaluation_settings": {
+        "metrics": [
+            "accuracy",
+            "precision",
+            "recall",
+            "f1",
+            "token_recall",
+            "line_recall"
+        ],
+        "task_specific_metrics": {
+            "task1": [
+                "accuracy",
+                "f1",
+                "precision",
+                "recall"
+            ],
+            "task2": [
+                "accuracy",
+                "moderate_evaluation_score",
+                "strict_evaluation_score"
+            ],
+            "task3": [
+                "token_recall",
+                "macro_token_recall",
+                "micro_token_recall"
+            ],
+            "task4": [
+                "union_line_recall",
+                "line_recall"
+            ],
+            "task5": [
+                "union_line_recall",
+                "line_recall"
+            ]
+        },
+        "create_confusion_matrix": true,
+        "analyze_errors": true
+    }
+}

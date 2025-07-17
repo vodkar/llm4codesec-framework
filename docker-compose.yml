@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  llm4codesec-benchmark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llm4codesec-benchmark:latest
+    container_name: llm4codesec-benchmark
+    
+    # GPU configuration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: 
+              - gpu
+              - utility # nvidia-smi
+              - compute # CUDA
+              - video
+    
+    environment:
+      # Python settings
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      
+      # Hugging Face cache (optional)
+      - HF_HOME=/app/.cache/huggingface
+
+      - CUDA_LAUNCH_BLOCKING=1
+
+    env_file:
+      - .env
+      
+    volumes:
+      # Persistent storage for results
+      - ./results:/app/results
+      - ./datasets_processed:/app/datasets_processed
+      - ./benchmarks:/app/benchmarks
+      
+      # Optional: Cache directories for models (to avoid re-downloading)
+      - huggingface_cache:/app/.cache/huggingface
+      - torch_cache:/app/.cache/torch
+      
+      
+    working_dir: /app
+    
+    # Network mode for better performance
+    network_mode: host
+    
+    # Keep container running for interactive use
+    tty: true
+    stdin_open: true
+    
+    # Optional: Restart policy
+    restart: unless-stopped
+
+  # Alternative service for CPU-only benchmarks
+  llm4codesec-benchmark-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: llm4codesec-benchmark:cpu
+    container_name: llm4codesec-benchmark-cpu
+    
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - CUDA_VISIBLE_DEVICES=""  # Disable CUDA
+      
+    volumes:
+      - ./results:/app/results
+      - ./datasets_processed:/app/datasets_processed
+      - ./benchmarks:/app/benchmarks
+      
+    working_dir: /app
+    mem_limit: 16g
+    
+    profiles:
+      - cpu-only
+
+volumes:
+  huggingface_cache:
+    driver: local
+  torch_cache:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

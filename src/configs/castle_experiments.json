@@ -1,0 +1,423 @@
+{
+    "experiment_metadata": {
+        "name": "CASTLE Benchmark LLM Evaluation",
+        "description": "Comprehensive evaluation of LLMs on CASTLE benchmark with multiple prompt strategies",
+        "version": "1.0",
+        "dataset": "CASTLE-Benchmark v1.2",
+        "created_date": "2025-06-09"
+    },
+    "dataset_configurations": {
+        "binary_all": {
+            "dataset_path": "datasets_processed/castle/castle_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: all vulnerability types"
+        },
+        "multiclass_all": {
+            "dataset_path": "datasets_processed/castle/castle_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: vulnerability type identification"
+        },
+        "cwe_125": {
+            "dataset_path": "datasets_processed/castle/castle_cwe_125.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-125",
+            "description": "CWE-125: Out-of-bounds Read detection"
+        },
+        "cwe_190": {
+            "dataset_path": "datasets_processed/castle/castle_cwe_190.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-190",
+            "description": "CWE-190: Integer Overflow detection"
+        },
+        "cwe_476": {
+            "dataset_path": "datasets_processed/castle/castle_cwe_476.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-476",
+            "description": "CWE-476: NULL Pointer Dereference detection"
+        },
+        "cwe_787": {
+            "dataset_path": "datasets_processed/castle/castle_cwe_787.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-787",
+            "description": "CWE-787: Out-of-bounds Write detection"
+        }
+    },
+    "prompt_strategies": {
+        "basic_security": {
+            "name": "Basic Security Analysis",
+            "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision on concrete security risks, not coding style issues",
+            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "detailed_analysis": {
+            "name": "Detailed Security Analysis",
+            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of C/C++ code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, double-free patterns\n- Consider null pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices\n\nResponse Format: Respond with only \"VULNERABLE\" or \"SAFE\"",
+            "user_prompt": "Please analyze the following C code for security vulnerabilities:\n\n```c\n{code}\n```"
+        },
+        "cwe_focused": {
+            "name": "CWE-Focused Analysis",
+            "system_prompt": "You are a static analysis security expert specializing in detecting specific vulnerability patterns. Your task is to analyze code snippets for {cwe_type} vulnerabilities specifically.\n\nFocus Areas for {cwe_type}:\n- Look specifically for patterns that match {cwe_type} vulnerability characteristics\n- Ignore other types of vulnerabilities that don't match {cwe_type}\n- Consider the specific weakness enumeration definition for {cwe_type}\n\nInstructions:\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision solely on {cwe_type} patterns",
+            "user_prompt": "Analyze this code specifically for {cwe_type} vulnerabilities:\n\n{code}"
+        },
+        "context_aware": {
+            "name": "Context-Aware Analysis",
+            "system_prompt": "You are an experienced security code reviewer working on a critical system. Your responsibility is to identify potential security vulnerabilities that could be exploited in production.\n\nContext: You are reviewing C code that will be deployed in a security-sensitive environment. The code may contain subtle vulnerabilities that could lead to system compromise.\n\nAnalysis approach:\n- Consider both obvious and subtle vulnerability patterns\n- Think about how an attacker might exploit the code\n- Pay attention to edge cases and error conditions\n- Consider the full execution context\n\nRespond with only \"VULNERABLE\" or \"SAFE\"",
+            "user_prompt": "Review this production code for security vulnerabilities:\n\n{code}\n\nIs this code vulnerable to security exploits?"
+        },
+        "step_by_step": {
+            "name": "Step-by-Step Analysis",
+            "system_prompt": "You are a methodical security analyst who follows a systematic approach to vulnerability detection.\n\nAnalysis Steps:\n1. Read through the code to understand its purpose\n2. Identify all input sources and data flows\n3. Check for proper input validation and bounds checking\n4. Look for memory management issues\n5. Examine error handling and edge cases\n6. Determine if vulnerabilities exist\n\nFinal Answer: After your analysis, respond with only \"VULNERABLE\" or \"SAFE\"",
+            "user_prompt": "Systematically analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "multiclass_basic": {
+            "name": "Basic Multiclass Vulnerability Analysis",
+            "system_prompt": "You are an expert security analyst specializing in vulnerability classification. Your task is to analyze code snippets and identify the specific type of vulnerability present, or determine if the code is safe.\n\nInstructions:\n- Analyze the provided code carefully for security vulnerabilities\n- If vulnerable, identify the specific CWE (Common Weakness Enumeration) type\n- If safe, respond with \"SAFE\"\n- Common vulnerability types include: CWE-125 (Out-of-bounds Read), CWE-134 (Format String), CWE-190 (Integer Overflow), CWE-22 (Path Traversal), CWE-253 (Incorrect Check), CWE-327 (Weak Crypto), CWE-362 (Race Condition), CWE-369 (Divide by Zero), CWE-401 (Memory Leak), CWE-415 (Double Free), CWE-416 (Use After Free), CWE-476 (NULL Pointer Dereference), CWE-787 (Out-of-bounds Write), etc.\n- Respond with only the CWE identifier (e.g., \"CWE-125\") or \"SAFE\" - no additional explanation",
+            "user_prompt": "Classify the vulnerability type in this code:\n\n{code}"
+        },
+        "multiclass_detailed": {
+            "name": "Detailed Multiclass Vulnerability Analysis",
+            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of Common Weakness Enumeration (CWE) patterns. Your task is to perform thorough static analysis of C/C++ code to identify and classify specific vulnerability types.\n\nAnalysis Guidelines:\n- Examine the code for various vulnerability patterns:\n  * Buffer overflows/underflows (CWE-125, CWE-787)\n  * Integer overflows/underflows (CWE-190)\n  * Memory management issues (CWE-401, CWE-415, CWE-416)\n  * Null pointer dereferences (CWE-476)\n  * Format string vulnerabilities (CWE-134)\n  * Path traversal issues (CWE-22)\n  * Race conditions (CWE-362)\n  * Cryptographic weaknesses (CWE-327)\n  * Division by zero (CWE-369)\n  * Incorrect validation (CWE-253)\n- Consider the specific characteristics of each CWE type\n- Pay attention to context and data flow\n\nResponse Format: Respond with only the specific CWE identifier (e.g., \"CWE-125\") or \"SAFE\" if no vulnerabilities are found",
+            "user_prompt": "Analyze and classify the vulnerability type in this C code:\n\n```c\n{code}\n```"
+        },
+        "multiclass_comprehensive": {
+            "name": "Comprehensive Multiclass Analysis",
+            "system_prompt": "You are an experienced security code reviewer specializing in vulnerability classification for production systems. Your responsibility is to identify and classify the specific type of security vulnerability present in code snippets.\n\nContext: You are reviewing C code that needs precise vulnerability classification for security assessment. Each vulnerability type has distinct characteristics and exploitation patterns.\n\nClassification approach:\n- Systematically examine the code for known vulnerability patterns\n- Consider the root cause and exploitation mechanism\n- Match patterns to specific CWE classifications\n- Distinguish between similar vulnerability types (e.g., CWE-125 vs CWE-787)\n- Consider edge cases and subtle vulnerability indicators\n\nAvailable CWE types: CWE-125, CWE-134, CWE-190, CWE-22, CWE-253, CWE-327, CWE-362, CWE-369, CWE-401, CWE-415, CWE-416, CWE-476, CWE-787\n\nRespond with only the specific CWE identifier or \"SAFE\"",
+            "user_prompt": "Classify the specific vulnerability type in this production code:\n\n{code}\n\nWhat is the precise CWE classification?"
+        }
+    },
+    "model_configurations": {
+        "qwen3-4b": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 50,
+            "use_quantization": true
+        },
+        "qwen3-4b-thinking": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 50,
+            "use_quantization": true,
+            "enable_thinking": true
+        },
+        "qwen3-8b": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true
+        },
+        "qwen3-8b-thinking": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "QWEN",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true,
+            "enable_thinking": true
+        },
+        "qwen3-30b": {
+            "model_name": "Qwen/Qwen3-30B-A3B",
+            "model_type": "QWEN",
+            "batch_size": 2,
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "use_quantization": true,
+            "enable_thinking": false
+        },
+        "qwen3-30b-thinking": {
+            "model_name": "Qwen/Qwen3-30B-A3B",
+            "model_type": "QWEN",
+            "batch_size": 2,
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "use_quantization": true,
+            "enabile_thinking": true
+        },
+        "deepseek-coder-v2-lite-16b": {
+            "model_name": "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "deepseek-r1-distill-qwen2.5-7b": {
+            "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 50,
+            "use_quantization": true
+        },
+        "deepseek-r1-distill-qwen2.5-32b": {
+            "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+            "model_type": "DEEPSEEK",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "wizard-coder-34b": {
+            "model_name": "WizardLMTeam/WizardCoder-33B-V1.1",
+            "model_type": "WIZARD",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "llama3.2-3B": {
+            "model_name": "meta-llama/Llama-3.2-3B-Instruct",
+            "model_type": "LLAMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 30,
+            "use_quantization": true
+        },
+        "llama4-scout-17b-16e": {
+            "model_name": "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+            "model_type": "LLAMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "gemma3-4b": {
+            "model_name": "google/gemma-3-4b-it-qat-q4_0-unquantized",
+            "model_type": "GEMMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 50,
+            "use_quantization": true
+        },
+        "gemma3-27b": {
+            "model_name": "google/gemma-3-27b-it",
+            "model_type": "GEMMA",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        }
+    },
+    "experiment_plans": {
+        "test_problematic_models": {
+            "description": "Test Problematic Models",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "llama4-scout-17b-16e",
+                "gemma3-27b",
+                "deepseek-coder-v2-lite-16b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 10
+        },
+        "quick_test": {
+            "description": "Quick test with limited samples for development",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-1.5b"
+            ],
+            "prompts": [
+                "basic_security",
+                "detailed_analysis",
+                "context_aware"
+            ],
+            "sample_limit": 10
+        },
+        "multiclass_quick_test": {
+            "description": "Quick test for multiclass classification with limited samples",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "gemma3-4b"
+            ],
+            "prompts": [
+                "multiclass_basic",
+                "multiclass_detailed"
+            ],
+            "sample_limit": 10
+        },
+        "prompt_comparison": {
+            "description": "Compare different prompt strategies on binary classification",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "detailed_analysis"
+            ],
+            "sample_limit": 100
+        },
+        "multiclass_prompt_comparison": {
+            "description": "Compare different prompt strategies on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "multiclass_detailed",
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_cwe_specific_analysis": {
+            "description": "CWE-specific vulnerability detection",
+            "datasets": [
+                "cwe_125",
+                "cwe_190",
+                "cwe_476",
+                "cwe_787"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "cwe_focused"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_cwe_specific_analysis": {
+            "description": "CWE-specific vulnerability detection",
+            "datasets": [
+                "cwe_125",
+                "cwe_190",
+                "cwe_476",
+                "cwe_787"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "cwe_focused"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_binary": {
+            "description": "Small models evaluation on binary classification tasks",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "detailed_analysis"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_multiclass": {
+            "description": "Small models evaluation on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_binary": {
+            "description": "Large models evaluation on binary classification tasks",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "detailed_analysis"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_multiclass": {
+            "description": "Large models evaluation on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/castle_experiments",
+        "create_subdirs": true,
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    },
+    "evaluation_settings": {
+        "metrics": [
+            "accuracy",
+            "precision",
+            "recall",
+            "f1",
+            "auc"
+        ],
+        "calculate_per_cwe": true,
+        "create_confusion_matrix": true,
+        "analyze_errors": true
+    }
+}

@@ -1,0 +1,15 @@
+[submodule "benchmarks/VulDetectBench"]
+	path = benchmarks/VulDetectBench
+	url = https://github.com/Sweetaroo/VulDetectBench.git
+[submodule "benchmarks/VulBench"]
+	path = benchmarks/VulBench
+	url = git@github.com:vodkar/VulBench.git
+[submodule "benchmarks/VulnerabilityDetection"]
+	path = benchmarks/VulnerabilityDetection
+	url = git@github.com:LauraWartschinski/VulnerabilityDetection.git
+[submodule "benchmarks/CASTLE-Source"]
+	path = benchmarks/CASTLE-Source
+	url = git@github.com:CASTLE-Benchmark/CASTLE-Source.git
+[submodule "benchmarks/CVEfixes"]
+	path = benchmarks/CVEfixes
+	url = git@github.com:secureIT-project/CVEfixes.git

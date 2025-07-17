@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "llm4codesec-llm-benchmark"
+version = "0.1.0"
+description = ""
+authors = ["vodkar <boombarah@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = {version = ">=2.0.0", source = "pytorch"}
+torchvision = {version = ">=0.15.0", source = "pytorch"}
+torchaudio = {version = ">=2.0.0", source = "pytorch"}
+transformers = ">=4.51.0"
+tokenizers = ">=0.14.0"
+accelerate = ">=0.24.0"
+bitsandbytes = ">=0.41.0"
+pandas = ">=2.0.0"
+numpy = ">=1.24.0"
+scikit-learn = ">=1.3.0"
+datasets = ">=2.14.0"
+tqdm = ">=4.65.0"
+psutil = ">=5.9.0"
+huggingface-hub = {version = "^0.32.4", extras = ["hf_xet"]}
+packaging = "^25.0"
+ninja = "^1.11.1.4"
+fbgemm-gpu = {version = "^1.2.0", source = "pytorch"}
+tiktoken = "^0.9.0"
+protobuf = "^6.31.1"
+ipykernel = "^6.29.5"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu128"
+priority = "explicit"
+
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.13"
+
+
+[tool.poetry.group.analytics.dependencies]
+matplotlib = "^3.10.3"
+seaborn = "^0.13.2"
+plotly = "^6.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

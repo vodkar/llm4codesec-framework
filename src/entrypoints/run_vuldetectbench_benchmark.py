@@ -16,17 +16,17 @@ from typing import Any
 
 from benchmark.benchmark_framework import (
     BenchmarkConfig,
-    BenchmarkSample,
+    HuggingFaceLLM,
+    PromptGenerator,
+)
+from benchmark.enums import ModelType, TaskType
+from benchmark.metrics_calculator import (
     BinaryMetricsCalculator,
     CodeAnalysisMetricsCalculator,
-    HuggingFaceLLM,
-    ModelType,
     MulticlassMetricsCalculator,
-    PredictionResult,
-    PromptGenerator,
-    ResponseParser,
-    TaskType,
 )
+from benchmark.models import BenchmarkSample, PredictionResult
+from benchmark.response_parser import ResponseParser
 from datasets.loaders.vuldetectbench_dataset_loader import (
     VulDetectBenchDatasetLoaderFramework,
 )

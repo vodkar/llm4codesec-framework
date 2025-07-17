@@ -16,7 +16,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import BenchmarkConfig, ModelType, TaskType
+from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.enums import ModelType, TaskType
+from benchmark.response_parser import ResponseParser
 from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoaderFramework
 
 
@@ -33,8 +35,6 @@ class JitVulBenchmarkRunner:
             HuggingFaceLLM,
             MetricsCalculator,
             PromptGenerator,
-            ResponseParser,
-            TaskType,
         )
 
         logging.info("Starting JitVul benchmark execution")
@@ -76,7 +76,7 @@ class JitVulBenchmarkRunner:
             augmented_samples = []
             for sample in samples:
                 # Create a copy of the sample with augmented code
-                from benchmark.benchmark_framework import BenchmarkSample
+                from benchmark.models import BenchmarkSample
 
                 augmented_code = self._augment_code_with_context(sample)
                 augmented_sample = BenchmarkSample(

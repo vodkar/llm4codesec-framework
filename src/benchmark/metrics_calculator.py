@@ -4,6 +4,9 @@ from typing import Any
 
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
+from benchmark.enums import TaskType
+from benchmark.models import PredictionResult
+
 
 class IMetricsCalculator(ABC):
     """
@@ -53,7 +56,7 @@ class BinaryMetricsCalculator(IMetricsCalculator):
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
 
         # Calculate metrics
-        accuracy = accuracy_score(y_true, y_pred)
+        accuracy = float(accuracy_score(y_true, y_pred))
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         f1 = (
@@ -84,10 +87,12 @@ class MulticlassMetricsCalculator(IMetricsCalculator):
         y_true = [pred.true_label for pred in predictions]
         y_pred = [pred.predicted_label for pred in predictions]
 
-        accuracy = accuracy_score(y_true, y_pred)
+        accuracy = float(accuracy_score(y_true, y_pred))
         report = classification_report(
             y_true, y_pred, output_dict=True, zero_division=0
         )
+        if not isinstance(report, dict):
+            raise ValueError("Classification report is not a dictionary")
 
         return {
             "accuracy": accuracy,

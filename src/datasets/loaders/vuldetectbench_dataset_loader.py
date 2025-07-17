@@ -14,7 +14,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
-from benchmark.benchmark_framework import BenchmarkSample
+from benchmark.models import BenchmarkSample
 
 
 class VulDetectBenchDatasetLoader:

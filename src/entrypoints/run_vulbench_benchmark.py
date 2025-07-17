@@ -14,7 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from benchmark.benchmark_framework import BenchmarkConfig, ModelType, TaskType
+from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.enums import ModelType, TaskType
 from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoaderFramework
 
 
@@ -38,7 +39,6 @@ class VulBenchBenchmarkRunner:
             HuggingFaceLLM,
             MetricsCalculator,
             PromptGenerator,
-            TaskType,
             VulBenchResponseParser,
         )
 

@@ -15,7 +15,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import BenchmarkConfig, ModelType, TaskType
+from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.enums import ModelType, TaskType
+from benchmark.response_parser import ResponseParser
 from datasets.loaders.castle_dataset_loader import CastleDatasetLoaderFramework
 
 
@@ -36,7 +38,6 @@ class CastleBenchmarkRunner:
             HuggingFaceLLM,
             MetricsCalculator,
             PromptGenerator,
-            ResponseParser,
         )
 
         logging.info("Starting CASTLE benchmark execution")

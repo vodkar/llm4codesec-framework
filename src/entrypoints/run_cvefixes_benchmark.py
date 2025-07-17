@@ -16,7 +16,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import BenchmarkConfig, ModelType, TaskType
+from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.enums import ModelType, TaskType
+from benchmark.response_parser import ResponseParser
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesJSONDatasetLoader
 
 
@@ -34,8 +36,6 @@ class CVEFixesBenchmarkRunner:
             HuggingFaceLLM,
             MulticlassMetricsCalculator,
             PromptGenerator,
-            ResponseParser,
-            TaskType,
         )
 
         logging.info("Starting CVEFixes benchmark execution")

@@ -13,7 +13,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from benchmark.benchmark_framework import BenchmarkSample, DatasetLoader
+from benchmark.benchmark_framework import DatasetLoader
+from benchmark.models import BenchmarkSample
 
 
 class JitVulDatasetLoader:

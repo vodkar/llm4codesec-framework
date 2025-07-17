@@ -12,7 +12,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from benchmark.benchmark_framework import BenchmarkSample, DatasetLoader
+from benchmark.benchmark_framework import DatasetLoader
+from benchmark.models import BenchmarkSample
 
 
 class CVEFixesDatasetLoader:

@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from benchmark.benchmark_framework import BenchmarkSample, DatasetLoader
+from benchmark.benchmark_framework import DatasetLoader
+from benchmark.models import BenchmarkSample
 
 
 @dataclass

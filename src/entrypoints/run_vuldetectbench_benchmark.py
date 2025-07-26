@@ -14,11 +14,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import (
-    BenchmarkConfig,
-    HuggingFaceLLM,
-    PromptGenerator,
-)
+from llm.hugging_face import HuggingFaceLLM
+from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
 from benchmark.metrics_calculator import (
     BinaryMetricsCalculator,
@@ -26,6 +23,7 @@ from benchmark.metrics_calculator import (
     MulticlassMetricsCalculator,
 )
 from benchmark.models import BenchmarkSample, PredictionResult
+from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParser
 from datasets.loaders.vuldetectbench_dataset_loader import (
     VulDetectBenchDatasetLoaderFramework,
@@ -148,7 +146,7 @@ class VulDetectBenchBenchmarkRunner:
                 processed_samples.append(processed_sample)
 
             # Run predictions using batch optimization with processed samples
-            from benchmark.benchmark_framework import BenchmarkRunner
+            from benchmark.benchmark_runner import BenchmarkRunner
 
             predictions = BenchmarkRunner.process_samples_with_batch_optimization(
                 samples=processed_samples,
@@ -273,7 +271,7 @@ def create_benchmark_config(
         cwe_type=dataset_config.get("cwe_type"),
         system_prompt_template=prompt_config.get("system_prompt"),
         user_prompt_template=prompt_config["user_prompt"],
-        enable_thinking=prompt_config.get("enable_thinking", False),
+        is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
 
 

@@ -12,5 +12,8 @@ for sample in data["samples"]:
         "code_len": len(sample["code"]),
     }
 
-print("Average code length:", sum(s["code_len"] for s in stats.values()) / len(stats)))
-print("Median code length:", sorted(s["code_len"] for s in stats.values())[len(stats) // 2])
+print("Average code length:", sum(s["code_len"] for s in stats.values()) / len(stats))
+print(
+    "Median code length:",
+    sorted(s["code_len"] for s in stats.values())[len(stats) // 2],
+)

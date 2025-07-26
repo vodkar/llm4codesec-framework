@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from benchmark.benchmark_framework import DatasetLoader
+from benchmark.IDatasetLoader import IDatasetLoader
 from benchmark.models import BenchmarkSample
 
 
@@ -271,7 +271,7 @@ class CastleDatasetLoader:
         self.logger.info(f"CWE distribution: {cwe_counts}")
 
 
-class CastleDatasetLoaderFramework(DatasetLoader):
+class CastleDatasetLoaderFramework(IDatasetLoader):
     """
     CASTLE dataset loader that implements the DatasetLoader protocol
     for use with the benchmark framework.

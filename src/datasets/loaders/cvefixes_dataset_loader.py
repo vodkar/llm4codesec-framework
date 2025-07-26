@@ -12,7 +12,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from benchmark.benchmark_framework import DatasetLoader
+from benchmark.IDatasetLoader import IDatasetLoader
 from benchmark.models import BenchmarkSample
 
 
@@ -596,7 +596,7 @@ class CVEFixesDatasetLoader:
         return stats
 
 
-class CVEFixesJSONDatasetLoader(DatasetLoader):
+class CVEFixesJSONDatasetLoader(IDatasetLoader):
     """Loads CVEFixes datasets from JSON files created by CVEFixesDatasetLoader."""
 
     def __init__(self):

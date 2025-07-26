@@ -16,10 +16,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
+from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoaderFramework
+from llm.hugging_face import HuggingFaceLLM
 
 
 class JitVulBenchmarkRunner:
@@ -31,11 +33,7 @@ class JitVulBenchmarkRunner:
 
     def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
         """Run benchmark with JitVul-specific dataset loading."""
-        from benchmark.benchmark_framework import (
-            HuggingFaceLLM,
-            MetricsCalculator,
-            PromptGenerator,
-        )
+        from benchmark.flash_attention import MetricsCalculator
 
         logging.info("Starting JitVul benchmark execution")
         start_time = time.time()
@@ -90,7 +88,7 @@ class JitVulBenchmarkRunner:
                 augmented_samples.append(augmented_sample)
 
             # Run predictions using batch optimization with augmented samples
-            from benchmark.benchmark_framework import BenchmarkRunner
+            from benchmark.benchmark_runner import BenchmarkRunner
 
             predictions = BenchmarkRunner.process_samples_with_batch_optimization(
                 samples=augmented_samples,
@@ -216,7 +214,7 @@ def create_benchmark_config(
         cwe_type=dataset_config.get("cwe_type"),
         system_prompt_template=prompt_config.get("system_prompt"),
         user_prompt_template=prompt_config["user_prompt"],
-        enable_thinking=prompt_config.get("enable_thinking", False),
+        is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
 
 

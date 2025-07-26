@@ -185,15 +185,15 @@ Additional documentation can be found in [docs/](docs/) directory
 - [CASTLE](docs/CASTLE_README.md)
 - [CVEFixes](docs/CVEFIXES_README.md)
 
-## Citation
+## Citation (NOT PUBLISHED YET ⚠️)
 
 If you use this framework in your research, please cite:
 
 ```bibtex
-@misc{llm4codesec-benchmark,
-    title={LLM Code Security Benchmark Framework},
-    author={Your Name},
-    year={2024},
-    url={https://github.com/your-repo}
+@misc{llm4codesec-framework,
+    title={...},
+    author={Kirill Gladkikh},
+    year={2025},
+    url={https://github.com/vodkar/llm4codesec-framework}
 }
 ```

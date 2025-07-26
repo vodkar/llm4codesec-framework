@@ -14,10 +14,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
+from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoaderFramework
+from llm.hugging_face import HuggingFaceLLM
 
 
 class VulBenchBenchmarkRunner:
@@ -36,11 +38,7 @@ class VulBenchBenchmarkRunner:
         import time
         from pathlib import Path
 
-        from benchmark.benchmark_framework import (
-            HuggingFaceLLM,
-            MetricsCalculator,
-            PromptGenerator,
-        )
+        from benchmark.flash_attention import MetricsCalculator
 
         logging.info("Starting VulBench benchmark execution")
         start_time = time.time()
@@ -80,7 +78,7 @@ class VulBenchBenchmarkRunner:
             )
 
             # Run predictions using batch optimization
-            from benchmark.benchmark_framework import BenchmarkRunner
+            from benchmark.benchmark_runner import BenchmarkRunner
 
             predictions = BenchmarkRunner.process_samples_with_batch_optimization(
                 samples=samples,
@@ -188,7 +186,7 @@ def create_benchmark_config(
         or dataset_config.get("vulnerability_type"),
         system_prompt_template=prompt_config.get("system_prompt"),
         user_prompt_template=prompt_config["user_prompt"],
-        enable_thinking=prompt_config.get("enable_thinking", False),
+        is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
 
 

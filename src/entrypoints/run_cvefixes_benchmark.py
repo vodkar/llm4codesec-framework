@@ -16,10 +16,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.benchmark_framework import BenchmarkConfig
+from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
+from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesJSONDatasetLoader
+from llm.hugging_face import HuggingFaceLLM
 
 
 class CVEFixesBenchmarkRunner:
@@ -31,11 +33,9 @@ class CVEFixesBenchmarkRunner:
 
     def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
         """Run benchmark with CVEFixes-specific dataset loading."""
-        from benchmark.benchmark_framework import (
+        from benchmark.flash_attention import (
             BinaryMetricsCalculator,
-            HuggingFaceLLM,
             MulticlassMetricsCalculator,
-            PromptGenerator,
         )
 
         logging.info("Starting CVEFixes benchmark execution")
@@ -71,7 +71,7 @@ class CVEFixesBenchmarkRunner:
             )
 
             # Run predictions using batch optimization
-            from benchmark.benchmark_framework import BenchmarkRunner
+            from benchmark.benchmark_runner import BenchmarkRunner
 
             predictions = BenchmarkRunner.process_samples_with_batch_optimization(
                 samples=samples,
@@ -178,7 +178,7 @@ def create_benchmark_config(
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type"),
         system_prompt_template=prompt_config.get("system_prompt"),
-        enable_thinking=prompt_config.get("enable_thinking", False),
+        is_thinking_enabled=prompt_config.get("enable_thinking", False),
         user_prompt_template=prompt_config["user_prompt"],
     )
 

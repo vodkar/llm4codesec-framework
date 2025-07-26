@@ -134,95 +134,95 @@ else
     exit 1
 fi
 
-# # Test the image
-# print_status "Testing the Docker image..."
+# Test the image
+print_status "Testing the Docker image..."
 
-# # Python imports test
-# print_status "Testing Python imports..."
-# PYTHON_TEST_CMD="python -c \"
-# import sys
-# print(f'Python version: {sys.version}')
+# Python imports test
+print_status "Testing Python imports..."
+PYTHON_TEST_CMD="python -c \"
+import sys
+print(f'Python version: {sys.version}')
 
-# try:
-#     import torch
-#     print(f'PyTorch version: {torch.__version__}')
-#     print(f'CUDA available: {torch.cuda.is_available()}')
-#     if torch.cuda.is_available():
-#         print(f'CUDA version: {torch.version.cuda}')
-#         print(f'GPU count: {torch.cuda.device_count()}')
-#         for i in range(torch.cuda.device_count()):
-#             print(f'GPU {i}: {torch.cuda.get_device_name(i)}')
-# except ImportError as e:
-#     print(f'PyTorch import failed: {e}')
-#     sys.exit(1)
+try:
+    import torch
+    print(f'PyTorch version: {torch.__version__}')
+    print(f'CUDA available: {torch.cuda.is_available()}')
+    if torch.cuda.is_available():
+        print(f'CUDA version: {torch.version.cuda}')
+        print(f'GPU count: {torch.cuda.device_count()}')
+        for i in range(torch.cuda.device_count()):
+            print(f'GPU {i}: {torch.cuda.get_device_name(i)}')
+except ImportError as e:
+    print(f'PyTorch import failed: {e}')
+    sys.exit(1)
 
-# try:
-#     import transformers
-#     print(f'Transformers version: {transformers.__version__}')
-# except ImportError as e:
-#     print(f'Transformers import failed: {e}')
-#     sys.exit(1)
+try:
+    import transformers
+    print(f'Transformers version: {transformers.__version__}')
+except ImportError as e:
+    print(f'Transformers import failed: {e}')
+    sys.exit(1)
 
-# try:
-#     from pathlib import Path
-#     src_dir = Path('/app')
-#     if src_dir.exists():
-#         print('Source directory found.')
-#     else:
-#         print('Warning: Source directory not found.')
-# except Exception as e:
-#     print(f'Path check failed: {e}')
+try:
+    from pathlib import Path
+    src_dir = Path('/app')
+    if src_dir.exists():
+        print('Source directory found.')
+    else:
+        print('Warning: Source directory not found.')
+except Exception as e:
+    print(f'Path check failed: {e}')
 
-# print('All import tests passed!')
-# \""
+print('All import tests passed!')
+\""
 
-# if [[ $TEST_GPU == true ]]; then
-#     # Test with GPU
-#     if docker run --rm --gpus all "$FULL_IMAGE_NAME" bash -c "$PYTHON_TEST_CMD"; then
-#         print_status "Python imports test with GPU passed."
-#     else
-#         print_error "Python imports test with GPU failed!"
-#         exit 1
-#     fi
-# else
-#     # Test without GPU
-#     if docker run --rm "$FULL_IMAGE_NAME" bash -c "$PYTHON_TEST_CMD"; then
-#         print_status "Python imports test passed."
-#     else
-#         print_error "Python imports test failed!"
-#         exit 1
-#     fi
-# fi
+if [[ $TEST_GPU == true ]]; then
+    # Test with GPU
+    if docker run --rm --gpus all "$FULL_IMAGE_NAME" bash -c "$PYTHON_TEST_CMD"; then
+        print_status "Python imports test with GPU passed."
+    else
+        print_error "Python imports test with GPU failed!"
+        exit 1
+    fi
+else
+    # Test without GPU
+    if docker run --rm "$FULL_IMAGE_NAME" bash -c "$PYTHON_TEST_CMD"; then
+        print_status "Python imports test passed."
+    else
+        print_error "Python imports test failed!"
+        exit 1
+    fi
+fi
 
-# # Test benchmark entry points
-# print_status "Testing benchmark entry points..."
-# ENTRY_POINTS=("castle" "jitvul" "cvefixes" "unified" "benchmark")
+# Test benchmark entry points
+print_status "Testing benchmark entry points..."
+ENTRY_POINTS=("castle" "jitvul" "cvefixes" "unified" "benchmark")
 
-# for entry_point in "${ENTRY_POINTS[@]}"; do
-#     print_status "Testing $entry_point entry point..."
-#     print_status `docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help`
-#     if docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help > /dev/null 2>&1; then
-#         print_status "$entry_point entry point test passed."
-#     else
-#         print_warning "$entry_point entry point test failed. This might be expected if the module is not implemented."
-#     fi
-# done
+for entry_point in "${ENTRY_POINTS[@]}"; do
+    print_status "Testing $entry_point entry point..."
+    print_status `docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help`
+    if docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help > /dev/null 2>&1; then
+        print_status "$entry_point entry point test passed."
+    else
+        print_warning "$entry_point entry point test failed. This might be expected if the module is not implemented."
+    fi
+done
 
-# # Show image information
-# print_status "Docker image information:"
-# docker images "$FULL_IMAGE_NAME" --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}"
+# Show image information
+print_status "Docker image information:"
+docker images "$FULL_IMAGE_NAME" --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}"
 
-# # Show usage examples
-# print_status "Build completed successfully!"
-# echo
-# print_status "Usage examples:"
-# echo "  # Run interactively with GPU:"
-# echo "  docker run -it --gpus all -v \$(pwd)/results:/app/results $FULL_IMAGE_NAME"
-# echo
-# echo "  # Run CASTLE benchmark:"
-# echo "  docker run --gpus all -v \$(pwd)/results:/app/results $FULL_IMAGE_NAME castle --model qwen3-4b --dataset binary_all --prompt basic_security"
-# echo
-# echo "  # Use with docker-compose:"
-# echo "  docker-compose run --rm llm4codesec-benchmark castle --help"
-# echo
-# print_status "For more examples, see DOCKER_README.md"
+# Show usage examples
+print_status "Build completed successfully!"
+echo
+print_status "Usage examples:"
+echo "  # Run interactively with GPU:"
+echo "  docker run -it --gpus all -v \$(pwd)/results:/app/results $FULL_IMAGE_NAME"
+echo
+echo "  # Run CASTLE benchmark:"
+echo "  docker run --gpus all -v \$(pwd)/results:/app/results $FULL_IMAGE_NAME castle --model qwen3-4b --dataset binary_all --prompt basic_security"
+echo
+echo "  # Use with docker-compose:"
+echo "  docker-compose run --rm llm4codesec-benchmark castle --help"
+echo
+print_status "For more examples, see DOCKER_README.md"

@@ -13,7 +13,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from benchmark.benchmark_framework import DatasetLoader
+from benchmark.IDatasetLoader import IDatasetLoader
 from benchmark.models import BenchmarkSample
 
 
@@ -449,7 +449,7 @@ class JitVulDatasetLoader:
         return stats
 
 
-class JitVulDatasetLoaderFramework(DatasetLoader):
+class JitVulDatasetLoaderFramework(IDatasetLoader):
     """Framework-compatible dataset loader for JitVul."""
 
     def __init__(self, source_dir: str = "benchmarks/JitVul/data"):

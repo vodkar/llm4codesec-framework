@@ -7,16 +7,19 @@ unified configuration approach matching CASTLE, JitVul, and CVEFixes patterns.
 """
 
 import argparse
+import dataclasses
 import json
 import logging
-import random
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
+from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
-from benchmark.prompt_generator import PromptGenerator
+from benchmark.metrics_calculator import MetricsCalculatorFactory
+from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoaderFramework
 from llm.hugging_face import HuggingFaceLLM
@@ -32,61 +35,51 @@ class VulBenchBenchmarkRunner:
         # Initialize dataset loader
         self.dataset_loader = VulBenchDatasetLoaderFramework()
 
-    def run_benchmark(self, sample_limit: Optional[int] = None) -> Dict[str, Any]:
+    def run_benchmark(self, sample_limit: Optional[int] = None) -> dict[str, Any]:
         """Run benchmark with VulBench-specific dataset loading."""
-        import dataclasses
-        import time
-        from pathlib import Path
-
-        from benchmark.flash_attention import MetricsCalculator
 
         logging.info("Starting VulBench benchmark execution")
         start_time = time.time()
 
         try:
-            # Load dataset using VulBench loader
             logging.info(f"Loading VulBench dataset from: {self.config.dataset_path}")
-            samples = self.dataset_loader.load_dataset(self.config.dataset_path)
 
-            # Apply sample limit if specified
-            if sample_limit and sample_limit < len(samples):
-                random.shuffle(samples)
-                samples = samples[:sample_limit]
-                logging.info(f"Limited to {sample_limit} samples")
+            samples = self.dataset_loader.load_dataset(
+                dataset_path=str(self.config.dataset_path),
+                max_samples=sample_limit,
+            )
 
             logging.info(f"Loaded {len(samples)} samples")
 
             # Initialize components
             llm = HuggingFaceLLM(self.config)
-            prompt_generator = PromptGenerator()
+            prompt_generator = DefaultPromptGenerator(
+                system_prompt_template=self.config.system_prompt_template,
+                user_prompt_template=self.config.user_prompt_template,
+                template_values={"cwe_type": self.config.cwe_type}
+                if self.config.cwe_type
+                else {},
+            )
             # Use VulBench-specific response parser for better VulBench pattern matching
             response_parser = ResponseParserFactory.create_parser(
                 self.config.task_type, is_vulbench=True
             )
-            metrics_calculator = MetricsCalculator()
-
-            # Create output directory
-            Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)
-
-            # Run predictions
-            predictions = []
-            system_prompt = (
-                self.config.system_prompt_template
-                or prompt_generator.get_system_prompt(
-                    self.config.task_type, self.config.cwe_type
-                )
+            metrics_calculator = MetricsCalculatorFactory.create_calculator(
+                self.config.task_type
             )
 
-            # Run predictions using batch optimization
-            from benchmark.benchmark_runner import BenchmarkRunner
+            self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
-            predictions = BenchmarkRunner.process_samples_with_batch_optimization(
-                samples=samples,
+            predictions = []
+            runner = BenchmarkRunner(
                 llm=llm,
-                system_prompt=system_prompt,
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
                 config=self.config,
+            )
+
+            predictions = runner.process_samples_with_batch_optimization(
+                samples=samples
             )
 
             # Calculate metrics
@@ -129,16 +122,16 @@ def setup_logging(verbose: bool = False) -> None:
     )
 
 
-def load_vulbench_config(config_path: str) -> Dict[str, Any]:
+def load_vulbench_config(config_path: str) -> dict[str, Any]:
     """Load VulBench experiment configuration."""
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def create_benchmark_config(
-    model_config: Dict[str, Any],
-    dataset_config: Dict[str, Any],
-    prompt_config: Dict[str, Any],
+    model_config: dict[str, Any],
+    dataset_config: dict[str, Any],
+    prompt_config: dict[str, Any],
     output_dir: str,
 ) -> BenchmarkConfig:
     """
@@ -194,10 +187,10 @@ def run_single_experiment(
     model_key: str,
     dataset_key: str,
     prompt_key: str,
-    vulbench_config: Dict[str, Any],
+    vulbench_config: dict[str, Any],
     sample_limit: Optional[int] = None,
     output_base_dir: str = "results/vulbench_experiments",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run a single benchmark experiment.
 
@@ -210,7 +203,7 @@ def run_single_experiment(
         output_base_dir: Base output directory
 
     Returns:
-        Dict containing experiment results
+        dict containing experiment results
     """
     logger = logging.getLogger(__name__)
 
@@ -272,10 +265,10 @@ def run_single_experiment(
 
 def run_experiment_plan(
     plan_name: str,
-    vulbench_config: Dict[str, Any],
+    vulbench_config: dict[str, Any],
     output_base_dir: str,
     sample_limit: Optional[int] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run a complete experiment plan with multiple configurations.
 
@@ -286,7 +279,7 @@ def run_experiment_plan(
         sample_limit: Limit samples for testing
 
     Returns:
-        Dict containing all experiment results
+        dict containing all experiment results
     """
     logger = logging.getLogger(__name__)
 
@@ -389,7 +382,7 @@ def run_experiment_plan(
     return results
 
 
-def list_available_configs(vulbench_config: Dict[str, Any]) -> None:
+def list_available_configs(vulbench_config: dict[str, Any]) -> None:
     """List all available configurations."""
     print("=== VulBench Benchmark Configurations ===\n")
 

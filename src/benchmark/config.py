@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseModel
 
 from benchmark.enums import ModelType, TaskType
@@ -19,4 +21,6 @@ class BenchmarkConfig(BaseModel):
     is_thinking_enabled: bool = False
     cwe_type: str | None = None
     system_prompt_template: str
+    user_prompt_template: str
+    user_prompt_template: str
     user_prompt_template: str

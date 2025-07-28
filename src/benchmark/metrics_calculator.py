@@ -197,7 +197,7 @@ class CodeAnalysisMetricsCalculator(IMetricsCalculator):
         return tokens
 
 
-class MetricsCalculator:
+class MetricsCalculatorFactory:
     """
     Legacy wrapper for backward compatibility and factory methods.
 

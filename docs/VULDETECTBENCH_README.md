@@ -194,7 +194,7 @@ Each task-specific prompt is designed to match the original VulDetectBench evalu
 
 The system supports the same model configurations as other benchmarks:
 
-- **Small Models**: `qwen3-4b`, `llama3.2-3B`, `gemma3-1b`, `deepseek-r1-distill-qwen2.5-1.5b`
+- **Small Models**: `qwen3-4b`, `llama3.2-3B`, `gemma3-1b`, `deepseek-r1-distill-qwen2.5-7b`
 - **Medium Models**: `deepseek-coder-v2-lite-16b`, `wizard-coder-34b`
 - **Large Models**: `qwen3-30b`, `deepseek-r1-distill-qwen2.5-32b`, `gemma3-27b`
 

@@ -227,12 +227,10 @@
                 "qwen3-4b",
                 "llama3.2-3B",
                 "gemma3-4b",
-                "deepseek-r1-distill-qwen2.5-1.5b"
+                "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "basic_security",
-                "detailed_analysis",
-                "context_aware"
+                "basic_security"
             ],
             "sample_limit": 10
         },

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 CASTLE Experiments Runner
 
@@ -60,7 +59,7 @@ def run_experiment_plan(
     )
     plan_output_dir.mkdir(parents=True, exist_ok=True)
 
-    results = {
+    results: dict[str, Any] = {
         "plan_name": plan_name,
         "description": plan["description"],
         "start_time": datetime.now().isoformat(),
@@ -200,9 +199,9 @@ def validate_datasets_exist(castle_config: dict[str, Any]) -> bool:
         bool: True if all datasets exist
     """
     logger = logging.getLogger(__name__)
-    missing_datasets = []
+    missing_datasets: list[Path] = []
 
-    for dataset_key, dataset_config in castle_config["dataset_configurations"].items():
+    for _, dataset_config in castle_config["dataset_configurations"].items():
         dataset_path = Path(dataset_config["dataset_path"])
         if not dataset_path.exists():
             missing_datasets.append(dataset_path)

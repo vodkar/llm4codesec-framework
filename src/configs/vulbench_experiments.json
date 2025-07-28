@@ -271,7 +271,7 @@
                 "binary_d2a"
             ],
             "models": [
-                "deepseek-r1-distill-qwen2.5-1.5b"
+                "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
                 "context_aware"

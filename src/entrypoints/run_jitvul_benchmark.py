@@ -18,7 +18,6 @@ from typing import Any
 
 from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
-from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoaderFramework
 from llm.hugging_face import HuggingFaceLLM

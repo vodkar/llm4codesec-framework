@@ -167,7 +167,7 @@ python src/entrypoints/run_cvefixes_benchmark.py \
 
 ### Current Model Support (11 models)
 - **QWEN Series**: qwen3-4b, qwen3-30b, qwen3-30b-thinking
-- **DeepSeek Series**: deepseek-coder-v2-lite-16b, deepseek-r1-distill-qwen2.5-1.5b, deepseek-r1-distill-qwen2.5-32b
+- **DeepSeek Series**: deepseek-coder-v2-lite-16b, deepseek-r1-distill-qwen2.5-7b, deepseek-r1-distill-qwen2.5-32b
 - **Llama Series**: llama3.2-3B, llama4-scout-17b-16e
 - **Gemma Series**: gemma3-1b, gemma3-27b
 - **Wizard Series**: wizard-coder-34b

@@ -10,7 +10,7 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from benchmark.models import BenchmarkSample
 
@@ -28,7 +28,7 @@ class VulBenchDatasetLoader:
         dataset_name: str = "d2a",
         max_samples: Optional[int] = None,
         vulnerability_type: Optional[str] = None,
-    ) -> List[BenchmarkSample]:
+    ) -> list[BenchmarkSample]:
         """
         Load VulBench dataset from JSON file.
 
@@ -40,7 +40,7 @@ class VulBenchDatasetLoader:
             vulnerability_type: Specific vulnerability type to filter for (e.g., "Buffer-Overflow")
 
         Returns:
-            List of BenchmarkSample objects
+            list of BenchmarkSample objects
         """
         self.logger.info(f"Loading VulBench dataset: {data_path}")
         if vulnerability_type:
@@ -64,9 +64,9 @@ class VulBenchDatasetLoader:
         dataset_name: str,
         max_samples: Optional[int],
         vulnerability_type: Optional[str] = None,
-    ) -> List[BenchmarkSample]:
+    ) -> list[BenchmarkSample]:
         """Load raw dataset from JSON file and convert to BenchmarkSample objects."""
-        samples = []
+        samples: list[BenchmarkSample] = []
 
         try:
             with open(data_path, "r", encoding="utf-8") as f:
@@ -96,14 +96,14 @@ class VulBenchDatasetLoader:
 
     def _convert_vulbench_item_to_samples(
         self,
-        item: Dict[str, Any],
+        item: dict[str, Any],
         line_num: int,
         task_type: str,
         dataset_name: str,
         vulnerability_type: Optional[str] = None,
-    ) -> List[BenchmarkSample]:
+    ) -> list[BenchmarkSample]:
         """Convert a VulBench item to BenchmarkSample objects."""
-        samples = []
+        samples: list[BenchmarkSample] = []
 
         # Extract basic information
         code = item.get("code", "").strip()
@@ -202,7 +202,7 @@ class VulBenchDatasetLoader:
         return samples
 
     def _get_vulnerability_severity(
-        self, vulnerability_types: List[str]
+        self, vulnerability_types: list[str]
     ) -> Optional[str]:
         """Determine severity based on vulnerability types."""
         if not vulnerability_types:
@@ -310,7 +310,7 @@ class VulBenchDatasetLoader:
             f"Created {task_type} dataset with {len(processed_data)} samples: {output_path}"
         )
 
-    def get_dataset_stats(self, data_file: str) -> Dict[str, Any]:
+    def get_dataset_stats(self, data_file: str) -> dict[str, Any]:
         """
         Generate statistics for a VulBench dataset.
 
@@ -318,7 +318,7 @@ class VulBenchDatasetLoader:
             data_file: Path to the dataset JSON file
 
         Returns:
-            Dictionary containing dataset statistics
+            dictionary containing dataset statistics
         """
         stats = {
             "total_samples": 0,
@@ -371,14 +371,14 @@ class VulBenchDatasetLoader:
 
     def generate_vulnerability_specific_datasets(
         self,
-        source_datasets: List[str],
+        source_datasets: list[str],
         output_dir: str = "datasets_processed/vulbench",
     ) -> None:
         """
         Generate vulnerability-specific binary classification datasets.
 
         Args:
-            source_datasets: List of paths to multiclass VulBench datasets
+            source_datasets: list of paths to multiclass VulBench datasets
             output_dir: Directory to save the generated datasets
         """
         from pathlib import Path
@@ -473,8 +473,8 @@ class VulBenchDatasetLoader:
                     json.dump(stats, f, indent=2, ensure_ascii=False)
 
     def _calculate_dataset_statistics(
-        self, data: List[Dict[str, Any]], task_type: str
-    ) -> Dict[str, Any]:
+        self, data: list[dict[str, Any]], task_type: str
+    ) -> dict[str, Any]:
         """
         Calculate statistics for a dataset.
 
@@ -517,8 +517,7 @@ class VulBenchDatasetLoaderFramework:
         self,
         dataset_path: str,
         max_samples: Optional[int] = None,
-        **kwargs,
-    ) -> List[BenchmarkSample]:
+    ) -> list[BenchmarkSample]:
         """
         Load dataset compatible with benchmark framework.
 
@@ -529,7 +528,7 @@ class VulBenchDatasetLoaderFramework:
             **kwargs: Additional parameters
 
         Returns:
-            List of BenchmarkSample objects
+            list of BenchmarkSample objects
         """
         # Extract dataset name from path
         dataset_name = (

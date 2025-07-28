@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 CASTLE Benchmark Runner
 
@@ -12,37 +11,35 @@ import json
 import logging
 import random
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel
+
+from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
-from benchmark.prompt_generator import PromptGenerator
+from benchmark.metrics_calculator import MetricsCalculatorFactory
+from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
-from datasets.loaders.castle_dataset_loader import CastleDatasetLoaderFramework
+from datasets.loaders.base import JsonDatasetLoader
 from llm.hugging_face import HuggingFaceLLM
 
 
-class CastleBenchmarkRunner:
+class CastleBenchmarkRunner(BaseModel):
     """Custom benchmark runner for CASTLE datasets."""
 
-    def __init__(self, config: BenchmarkConfig):
-        self.config = config
-        self.dataset_loader = CastleDatasetLoaderFramework()
+    config: BenchmarkConfig
+    dataset_loader: JsonDatasetLoader
 
-    def run_benchmark(self, sample_limit: int | None = None):
+    def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
         """Run benchmark with CASTLE-specific dataset loading."""
-        import logging
-        import time
-        from pathlib import Path
-
-        from benchmark.flash_attention import MetricsCalculator
 
         logging.info("Starting CASTLE benchmark execution")
         start_time = time.time()
 
         try:
-            # Load dataset using CASTLE loader
             logging.info(f"Loading CASTLE dataset from: {self.config.dataset_path}")
             samples = self.dataset_loader.load_dataset(self.config.dataset_path)
 
@@ -56,46 +53,34 @@ class CastleBenchmarkRunner:
 
             # Initialize components
             llm = HuggingFaceLLM(self.config)
-            prompt_generator = PromptGenerator()
-            response_parser = ResponseParserFactory.create_parser(self.config.task_type)
-            metrics_calculator = MetricsCalculator()
-
-            # Create output directory
-            Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)
-
-            # Run predictions
-            predictions = []
-            system_prompt = (
-                self.config.system_prompt_template
-                or prompt_generator.get_system_prompt(
-                    self.config.task_type, self.config.cwe_type
-                )
+            prompt_generator = DefaultPromptGenerator(
+                system_prompt_template=self.config.system_prompt_template,
+                user_prompt_template=self.config.user_prompt_template,
+                template_values={"cwe": self.config.cwe_type}
+                if self.config.cwe_type
+                else {},
             )
-
-            # Run predictions using batch optimization
-            from benchmark.benchmark_runner import BenchmarkRunner
-
-            predictions = BenchmarkRunner.process_samples_with_batch_optimization(
-                samples=samples,
-                llm=llm,
-                system_prompt=system_prompt,
+            response_parser = ResponseParserFactory.create_parser(self.config.task_type)
+            metrics_calculator = MetricsCalculatorFactory.create_calculator(
+                self.config.task_type
+            )
+            runner = BenchmarkRunner(
+                dataset_loader=self.dataset_loader,
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
+                llm=llm,
                 config=self.config,
             )
 
-            # Calculate metrics
-            if self.config.task_type in [
-                TaskType.BINARY_VULNERABILITY,
-                TaskType.BINARY_CWE_SPECIFIC,
-            ]:
-                metrics = metrics_calculator.calculate_binary_metrics(predictions)
-            else:
-                metrics = metrics_calculator.calculate_multiclass_metrics(predictions)
+            predictions = runner.process_samples_with_batch_optimization(
+                samples=samples
+            )
+
+            metrics = metrics_calculator.calculate(predictions)
 
             # Generate results
             total_time = time.time() - start_time
-            results = {
+            results: dict[str, Any] = {
                 "accuracy": metrics.get("accuracy", 0.0),
                 "metrics": metrics,
                 "total_samples": len(samples),
@@ -134,7 +119,7 @@ def create_benchmark_config(
     model_config: dict[str, Any],
     dataset_config: dict[str, Any],
     prompt_config: dict[str, Any],
-    output_dir: str,
+    output_dir: Path,
 ) -> BenchmarkConfig:
     """
     Create a BenchmarkConfig from experiment configuration.
@@ -224,11 +209,14 @@ def run_single_experiment(
 
     # Create benchmark configuration
     config = create_benchmark_config(
-        model_config, dataset_config, prompt_config, str(output_dir)
+        model_config, dataset_config, prompt_config, output_dir
     )
 
     # Initialize and run benchmark
-    runner = CastleBenchmarkRunner(config)
+    runner = CastleBenchmarkRunner(
+        config=config,
+        dataset_loader=JsonDatasetLoader(),
+    )
 
     try:
         results = runner.run_benchmark(sample_limit=sample_limit)

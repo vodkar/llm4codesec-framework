@@ -10,9 +10,8 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
-from benchmark.IDatasetLoader import IDatasetLoader
 from benchmark.models import BenchmarkSample
 
 
@@ -44,7 +43,7 @@ class CVEFixesDatasetLoader:
             self.logger.exception(f"Error connecting to database: {e}")
             raise
 
-    def _get_cwe_distribution(self) -> Dict[str, int]:
+    def _get_cwe_distribution(self) -> dict[str, int]:
         """Get distribution of CWE types in the database."""
         if not self.conn:
             self.conn = self._create_connection()
@@ -64,8 +63,8 @@ class CVEFixesDatasetLoader:
 
     def _extract_file_level_data(
         self, programming_language: str = "C", limit: Optional[int] = None
-    ) -> List[
-        Tuple[
+    ) -> list[
+        tuple[
             str,
             str,
             str,
@@ -89,7 +88,7 @@ class CVEFixesDatasetLoader:
             limit: Maximum number of samples to extract
 
         Returns:
-            List of tuples containing file-level data
+            list of tuples containing file-level data
         """
         if not self.conn:
             self.conn = self._create_connection()
@@ -121,7 +120,7 @@ class CVEFixesDatasetLoader:
         AND LENGTH(f.code_after) > 50
         """
 
-        params: List[Union[str, int]] = [programming_language]
+        params: list[Union[str, int]] = [programming_language]
 
         if limit:
             query += " LIMIT ?"
@@ -133,8 +132,8 @@ class CVEFixesDatasetLoader:
 
     def _extract_method_level_data(
         self, programming_language: str = "C", limit: Optional[int] = None
-    ) -> List[
-        Tuple[
+    ) -> list[
+        tuple[
             str,
             str,
             str,
@@ -160,7 +159,7 @@ class CVEFixesDatasetLoader:
             limit: Maximum number of samples to extract
 
         Returns:
-            List of tuples containing method-level data
+            list of tuples containing method-level data
         """
         if not self.conn:
             self.conn = self._create_connection()
@@ -195,7 +194,7 @@ class CVEFixesDatasetLoader:
         AND LENGTH(m.before_change) > 20
         """
 
-        params: List[Union[str, int]] = [programming_language]
+        params: list[Union[str, int]] = [programming_language]
 
         if limit:
             query += " LIMIT ?"
@@ -207,7 +206,7 @@ class CVEFixesDatasetLoader:
 
     def _create_sample_from_file_data(
         self,
-        data: Tuple[
+        data: tuple[
             str,
             str,
             str,
@@ -248,7 +247,7 @@ class CVEFixesDatasetLoader:
         code = code_before
 
         # Create metadata
-        metadata: Dict[str, Any] = {
+        metadata: dict[str, Any] = {
             "cve_id": cve_id,
             "cwe_id": cwe_id,
             "severity": severity,
@@ -281,7 +280,7 @@ class CVEFixesDatasetLoader:
 
     def _create_sample_from_method_data(
         self,
-        data: Tuple[
+        data: tuple[
             str,
             str,
             str,
@@ -326,7 +325,7 @@ class CVEFixesDatasetLoader:
         code_to_analyze = before_change
 
         # Create metadata
-        metadata: Dict[str, Any] = {
+        metadata: dict[str, Any] = {
             "cve_id": cve_id,
             "cwe_id": cwe_id,
             "severity": severity,
@@ -381,7 +380,7 @@ class CVEFixesDatasetLoader:
         programming_language: str = "C",
         change_level: str = "file",
         limit: Optional[int] = None,
-    ) -> List[BenchmarkSample]:
+    ) -> list[BenchmarkSample]:
         """
         Load CVEFixes dataset and convert to BenchmarkSample format.
 
@@ -392,9 +391,9 @@ class CVEFixesDatasetLoader:
             limit: Maximum number of samples to load
 
         Returns:
-            List of BenchmarkSample objects
+            list of BenchmarkSample objects
         """
-        samples: List[BenchmarkSample] = []
+        samples: list[BenchmarkSample] = []
 
         try:
             self.conn = self._create_connection()
@@ -481,8 +480,8 @@ class CVEFixesDatasetLoader:
         )
 
         # Calculate statistics
-        cwe_distribution: Dict[str, int] = {}
-        severity_distribution: Dict[str, int] = {}
+        cwe_distribution: dict[str, int] = {}
+        severity_distribution: dict[str, int] = {}
 
         for sample in samples:
             # CWE distribution
@@ -494,7 +493,7 @@ class CVEFixesDatasetLoader:
             severity_distribution[severity] = severity_distribution.get(severity, 0) + 1
 
         # Create dataset dictionary
-        dataset_dict: Dict[str, Any] = {
+        dataset_dict: dict[str, Any] = {
             "metadata": {
                 "name": "CVEFixes-Benchmark",
                 "version": "1.0",
@@ -513,7 +512,7 @@ class CVEFixesDatasetLoader:
 
         # Convert samples to dict format
         for sample in samples:
-            sample_dict: Dict[str, Any] = {
+            sample_dict: dict[str, Any] = {
                 "id": sample.id,
                 "code": sample.code,
                 "label": sample.label,
@@ -534,12 +533,12 @@ class CVEFixesDatasetLoader:
             f"Created dataset JSON with {len(samples)} samples at {output_path}"
         )
 
-    def get_database_statistics(self) -> Dict[str, Any]:
+    def get_database_statistics(self) -> dict[str, Any]:
         """Get comprehensive statistics about the CVEFixes database."""
         if not self.conn:
             self.conn = self._create_connection()
 
-        stats: Dict[str, Any] = {}
+        stats: dict[str, Any] = {}
 
         try:
             # Basic table counts
@@ -594,30 +593,3 @@ class CVEFixesDatasetLoader:
                 self.conn.close()
 
         return stats
-
-
-class CVEFixesJSONDatasetLoader(IDatasetLoader):
-    """Loads CVEFixes datasets from JSON files created by CVEFixesDatasetLoader."""
-
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-
-    def load_dataset(self, path: str) -> List[BenchmarkSample]:
-        """Load dataset from JSON file."""
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        samples: List[BenchmarkSample] = []
-        for sample_data in data.get("samples", []):
-            sample = BenchmarkSample(
-                id=sample_data["id"],
-                code=sample_data["code"],
-                label=sample_data["label"],
-                metadata=sample_data["metadata"],
-                cwe_types=[sample_data.get("cwe_type")],
-                severity=sample_data.get("severity"),
-            )
-            samples.append(sample)
-
-        self.logger.info(f"Loaded {len(samples)} samples from {path}")
-        return samples

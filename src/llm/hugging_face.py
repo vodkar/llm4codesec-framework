@@ -11,7 +11,7 @@ from transformers import (
 )
 
 from benchmark.config import BenchmarkConfig
-from flash_attention import _is_flash_attention_available, _is_flash_attention_supported
+from flash_attention import is_flash_attention_available, is_flash_attention_supported
 from llm.llm import ILLMInference
 
 
@@ -36,7 +36,7 @@ class HuggingFaceLLM(ILLMInference):
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         attn_implementation = (
             "flash_attention_2"
-            if _is_flash_attention_supported() and _is_flash_attention_available()
+            if is_flash_attention_supported() and is_flash_attention_available()
             else None
         )
 
@@ -253,8 +253,7 @@ class HuggingFaceLLM(ILLMInference):
         ]
 
         try:
-            # Use tokenizer's apply_chat_template method
-            formatted_prompt = self.tokenizer.apply_chat_template(  # type: ignore
+            formatted_prompt = self.tokenizer.apply_chat_template(
                 messages,
                 tokenize=False,
                 add_generation_prompt=True,

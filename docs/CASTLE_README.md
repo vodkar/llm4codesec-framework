@@ -207,7 +207,7 @@ python run_castle_benchmark.py \
 
 # Run CWE-125 detection with focused prompt
 python run_castle_benchmark.py \
-    --model deepseek-r1-distill-qwen2.5-1.5b \
+    --model deepseek-r1-distill-qwen2.5-7b \
     --dataset cwe_125 \
     --prompt cwe_focused
 ```

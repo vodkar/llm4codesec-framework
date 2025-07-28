@@ -23,7 +23,7 @@ class ILLMInference(ABC):
     @abstractmethod
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, Optional[int]]]:
+    ) -> list[tuple[str, int | None]]:
         """
         Generate responses for a batch of prompts.
 

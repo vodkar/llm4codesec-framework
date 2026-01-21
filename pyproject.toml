@@ -1,52 +1,81 @@
-[tool.poetry]
-name = "llm4codesec-framework"
+[project]
+name = "llm4codesec-llm-benchmark"
 version = "0.1.0"
 description = ""
-authors = ["vodkar <boombarah@gmail.com>"]
+authors = [{ name = "vodkar", email = "boombarah@gmail.com" }]
+requires-python = ">=3.10,<4"
 readme = "README.md"
-package-mode = false
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+    "transformers>=4.51.0",
+    "tokenizers>=0.14.0",
+    "accelerate>=0.24.0",
+    "bitsandbytes>=0.49.1",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "datasets>=2.14.0",
+    "tqdm>=4.65.0",
+    "psutil>=5.9.0",
+    "huggingface-hub[hf_xet]>=0.32.4,<0.33",
+    "packaging>=25.0,<26",
+    "ninja>=1.11.1.4,<2",
+    "fbgemm-gpu>=1.4.1; platform_system != 'Darwin' or platform_machine != 'arm64'",
+    "tiktoken>=0.9.0,<0.10",
+    "protobuf>=6.31.1,<7",
+    "ipykernel>=6.29.5,<7",
+    "pydantic>=2.12.5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-torch = {version = ">=2.0.0", source = "pytorch"}
-torchvision = {version = ">=0.15.0", source = "pytorch"}
-torchaudio = {version = ">=2.0.0", source = "pytorch"}
-transformers = ">=4.51.0"
-tokenizers = ">=0.14.0"
-accelerate = ">=0.24.0"
-bitsandbytes = ">=0.41.0"
-pandas = ">=2.0.0"
-numpy = ">=1.24.0"
-scikit-learn = ">=1.3.0"
-datasets = ">=2.14.0"
-tqdm = ">=4.65.0"
-psutil = ">=5.9.0"
-huggingface-hub = {version = "^0.32.4", extras = ["hf_xet"]}
-packaging = "^25.0"
-ninja = "^1.11.1.4"
-tiktoken = "^0.9.0"
-protobuf = "^6.31.1"
-pydantic = "^2.11.7"
+[dependency-groups]
+dev = ["ruff>=0.11.13,<0.12"]
+analytics = [
+    "matplotlib>=3.10.3,<4",
+    "seaborn>=0.13.2,<0.14",
+    "plotly>=6.2.0,<7",
+]
 
-[[tool.poetry.source]]
+[tool.uv]
+package = false
+default-groups = [
+    "dev",
+    "analytics",
+]
+
+[[tool.uv.index]]
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cu128"
-priority = "explicit"
+explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-nightly"
+url = "https://download.pytorch.org/whl/nightly/cu128"
+explicit = true
 
-[tool.poetry.group.linux.dependencies]
-fbgemm-gpu = {version = "^1.2.0", source = "pytorch"}
-
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.11.13"
-
-
-[tool.poetry.group.analytics.dependencies]
-matplotlib = "^3.10.3"
-seaborn = "^0.13.2"
-plotly = "^6.2.0"
+[tool.uv.sources]
+torch = [
+  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
+]
+torchvision = [
+  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
+]
+torchaudio = [
+  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
+]
+fbgemm-gpu = [
+  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"

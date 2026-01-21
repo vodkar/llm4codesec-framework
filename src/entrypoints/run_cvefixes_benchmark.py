@@ -7,7 +7,6 @@ flexible configuration options for different vulnerability detection tasks.
 """
 
 import argparse
-import dataclasses
 import json
 import logging
 import random
@@ -18,7 +17,13 @@ from typing import Any
 
 from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
+from benchmark.metrics_calculator import (
+    BinaryMetricsCalculator,
+    MulticlassMetricsCalculator,
+)
 from benchmark.response_parser import ResponseParserFactory
+from benchmark.result_processor import BenchmarkResultProcessor
+from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesJSONDatasetLoader
 from llm.hugging_face import HuggingFaceLLM
 
@@ -30,12 +35,8 @@ class CVEFixesBenchmarkRunner:
         self.config = config
         self.dataset_loader = CVEFixesJSONDatasetLoader()
 
-    def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
+    def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with CVEFixes-specific dataset loading."""
-        from benchmark.flash_attention import (
-            BinaryMetricsCalculator,
-            MulticlassMetricsCalculator,
-        )
 
         logging.info("Starting CVEFixes benchmark execution")
         start_time = time.time()
@@ -93,16 +94,13 @@ class CVEFixesBenchmarkRunner:
                 metrics = metrics_calculator.calculate(predictions)
 
             # Generate results
-            total_time = time.time() - start_time
-            results = {
-                "accuracy": metrics.get("accuracy", 0.0),
-                "metrics": metrics,
-                "total_samples": len(samples),
-                "total_time": total_time,
-                "predictions": [
-                    dataclasses.asdict(prediction) for prediction in predictions
-                ],
-            }
+            total_time: float = time.time() - start_time
+            results: BenchmarkRunResult = BenchmarkRunResult(
+                metrics=metrics,
+                total_samples=len(samples),
+                total_time=total_time,
+                predictions=predictions,
+            )
 
             # Clean up
             llm.cleanup()
@@ -230,24 +228,33 @@ def run_single_experiment(
     runner = CVEFixesBenchmarkRunner(config)
 
     try:
-        results = runner.run_benchmark(sample_limit=sample_limit)
+        run_data: BenchmarkRunResult = runner.run_benchmark(sample_limit=sample_limit)
 
-        # Save results
-        results_file = output_dir / "results.json"
-        with open(results_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2, default=str)
+        result_processor = BenchmarkResultProcessor(
+            config=config, experiment_name=experiment_name
+        )
+        report: BenchmarkReport
+        artifacts: ResultArtifacts
+        report, artifacts = result_processor.build_and_save(
+            metrics=run_data.metrics,
+            predictions=run_data.predictions,
+            total_time=run_data.total_time,
+            total_samples=run_data.total_samples,
+        )
 
         logger.info(f"Experiment completed: {experiment_name}")
-        logger.info(f"Accuracy: {results['accuracy']:.3f}")
-        logger.info(f"Results saved to: {results_file}")
+        logger.info(f"Accuracy: {report.metrics.accuracy:.3f}")
+        logger.info(f"Results saved to: {artifacts.report_json}")
 
         return {
             "experiment_name": experiment_name,
             "status": "success",
-            "accuracy": results["accuracy"],
-            "total_samples": results["total_samples"],
-            "total_time": results["total_time"],
+            "accuracy": report.metrics.accuracy,
+            "total_samples": run_data.total_samples,
+            "total_time": run_data.total_time,
             "output_dir": str(output_dir),
+            "report": report,
+            "artifacts": artifacts,
         }
 
     except Exception as e:

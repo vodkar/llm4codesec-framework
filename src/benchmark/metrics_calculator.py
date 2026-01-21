@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 from benchmark.enums import TaskType
 from benchmark.models import PredictionResult
+from benchmark.result_types import MetricsResult
 
 
 class IMetricsCalculator(ABC):
@@ -31,7 +32,7 @@ class IMetricsCalculator(ABC):
     """
 
     @abstractmethod
-    def calculate(self, predictions: list[PredictionResult]) -> dict[str, Any]:
+    def calculate(self, predictions: list[PredictionResult]) -> MetricsResult:
         """
         Calculate metrics for the given predictions.
 
@@ -47,58 +48,83 @@ class IMetricsCalculator(ABC):
 class BinaryMetricsCalculator(IMetricsCalculator):
     """Metrics calculator for binary classification tasks."""
 
-    def calculate(self, predictions: list[PredictionResult]) -> dict[str, float]:
+    def calculate(self, predictions: list[PredictionResult]) -> MetricsResult:
         """Calculate metrics for binary classification."""
-        y_true = [pred.true_label for pred in predictions]
-        y_pred = [pred.predicted_label for pred in predictions]
+        y_true: list[int | str] = [pred.true_label for pred in predictions]
+        y_pred: list[int | str] = [pred.predicted_label for pred in predictions]
 
         # Calculate confusion matrix
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
 
         # Calculate metrics
-        accuracy = float(accuracy_score(y_true, y_pred))
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = (
+        accuracy: float = float(accuracy_score(y_true, y_pred))
+        precision: float = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall: float = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1_score: float = (
             2 * (precision * recall) / (precision + recall)
             if (precision + recall) > 0
             else 0.0
         )
-        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        specificity: float = tn / (tn + fp) if (tn + fp) > 0 else 0.0
 
-        return {
+        summary: dict[str, float | int | str | None] = {
             "accuracy": accuracy,
             "precision": precision,
             "recall": recall,
-            "f1_score": f1,
+            "f1_score": f1_score,
             "specificity": specificity,
-            "true_positives": int(tp),
-            "true_negatives": int(tn),
-            "false_positives": int(fp),
-            "false_negatives": int(fn),
         }
+        details: dict[str, Any] = {
+            "confusion_matrix": {
+                "true_positives": int(tp),
+                "true_negatives": int(tn),
+                "false_positives": int(fp),
+                "false_negatives": int(fn),
+            },
+            "labels": [0, 1],
+        }
+
+        return MetricsResult(
+            task_type="binary",
+            accuracy=accuracy,
+            summary=summary,
+            details=details,
+        )
 
 
 class MulticlassMetricsCalculator(IMetricsCalculator):
     """Metrics calculator for multiclass classification tasks."""
 
-    def calculate(self, predictions: list[PredictionResult]) -> dict[str, Any]:
+    def calculate(self, predictions: list[PredictionResult]) -> MetricsResult:
         """Calculate metrics for multiclass classification."""
-        y_true = [pred.true_label for pred in predictions]
-        y_pred = [pred.predicted_label for pred in predictions]
+        y_true: list[int | str] = [pred.true_label for pred in predictions]
+        y_pred: list[int | str] = [pred.predicted_label for pred in predictions]
 
-        accuracy = float(accuracy_score(y_true, y_pred))
-        report = classification_report(
+        accuracy: float = float(accuracy_score(y_true, y_pred))
+        report: dict[str, Any] | str = classification_report(
             y_true, y_pred, output_dict=True, zero_division=0
         )
         if not isinstance(report, dict):
             raise ValueError("Classification report is not a dictionary")
 
-        return {
+        macro_avg: dict[str, Any] = report.get("macro avg", {})
+        summary: dict[str, float | int | str | None] = {
             "accuracy": accuracy,
+            "macro_precision": float(macro_avg.get("precision", 0.0)),
+            "macro_recall": float(macro_avg.get("recall", 0.0)),
+            "macro_f1_score": float(macro_avg.get("f1-score", 0.0)),
+        }
+        details: dict[str, Any] = {
             "classification_report": report,
             "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
         }
+
+        return MetricsResult(
+            task_type="multiclass",
+            accuracy=accuracy,
+            summary=summary,
+            details=details,
+        )
 
 
 class CodeAnalysisMetricsCalculator(IMetricsCalculator):
@@ -113,9 +139,17 @@ class CodeAnalysisMetricsCalculator(IMetricsCalculator):
         """
         self.task_type = task_type
 
-    def calculate(self, predictions: list[PredictionResult]) -> dict[str, Any]:
+    def calculate(self, predictions: list[PredictionResult]) -> MetricsResult:
         """Calculate metrics for code analysis tasks."""
-        metrics = {"total_predictions": len(predictions), "task_type": self.task_type}
+        total_predictions: int = len(predictions)
+        details: dict[str, Any] = {
+            "task_type": self.task_type,
+            "total_predictions": total_predictions,
+        }
+        summary: dict[str, float | int | str | None] = {
+            "total_predictions": total_predictions
+        }
+        accuracy: float = 0.0
 
         if self.task_type == "task3":
             # Token recall for key objects identification
@@ -126,11 +160,19 @@ class CodeAnalysisMetricsCalculator(IMetricsCalculator):
                 )
                 token_recalls.append(recall)
 
-            metrics["macro_token_recall"] = (
+            macro_token_recall: float = (
                 sum(token_recalls) / len(token_recalls) if token_recalls else 0.0
             )
-            metrics["micro_token_recall"] = metrics["macro_token_recall"]  # Simplified
-            metrics["accuracy"] = metrics["macro_token_recall"]  # For consistency
+            micro_token_recall: float = macro_token_recall
+            accuracy = macro_token_recall
+            summary.update(
+                {
+                    "macro_token_recall": macro_token_recall,
+                    "micro_token_recall": micro_token_recall,
+                    "accuracy": accuracy,
+                }
+            )
+            details["token_recalls"] = token_recalls
 
         elif self.task_type in ["task4", "task5"]:
             # Line recall for root cause/trigger point location
@@ -148,17 +190,31 @@ class CodeAnalysisMetricsCalculator(IMetricsCalculator):
                 line_recalls.append(line_recall)
                 union_line_recalls.append(union_line_recall)
 
-            metrics["avg_line_recall"] = (
+            avg_line_recall: float = (
                 sum(line_recalls) / len(line_recalls) if line_recalls else 0.0
             )
-            metrics["avg_union_line_recall"] = (
+            avg_union_line_recall: float = (
                 sum(union_line_recalls) / len(union_line_recalls)
                 if union_line_recalls
                 else 0.0
             )
-            metrics["accuracy"] = metrics["avg_line_recall"]  # For consistency
+            accuracy = avg_line_recall
+            summary.update(
+                {
+                    "avg_line_recall": avg_line_recall,
+                    "avg_union_line_recall": avg_union_line_recall,
+                    "accuracy": accuracy,
+                }
+            )
+            details["line_recalls"] = line_recalls
+            details["union_line_recalls"] = union_line_recalls
 
-        return metrics
+        return MetricsResult(
+            task_type="code_analysis",
+            accuracy=accuracy,
+            summary=summary,
+            details=details,
+        )
 
     def _calculate_token_recall(self, predicted: str, true: str) -> float:
         """Calculate token recall for Task 3."""
@@ -243,7 +299,7 @@ class MetricsCalculatorFactory:
     @staticmethod
     def calculate_binary_metrics(
         predictions: list[PredictionResult],
-    ) -> dict[str, float]:
+    ) -> MetricsResult:
         """Calculate metrics for binary classification."""
         calculator = BinaryMetricsCalculator()
         return calculator.calculate(predictions)
@@ -251,7 +307,7 @@ class MetricsCalculatorFactory:
     @staticmethod
     def calculate_multiclass_metrics(
         predictions: list[PredictionResult],
-    ) -> dict[str, Any]:
+    ) -> MetricsResult:
         """Calculate metrics for multiclass classification."""
         calculator = MulticlassMetricsCalculator()
         return calculator.calculate(predictions)

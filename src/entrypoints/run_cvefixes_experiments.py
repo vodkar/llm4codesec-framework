@@ -177,7 +177,7 @@ def create_experiment_summary(results: dict[str, Any]) -> str:
         status_icon = "✓" if exp["status"] == "success" else "✗"
         line = f"  {status_icon} {exp['experiment_name']}: {exp['status']}"
 
-        if exp["status"] == "success" and "accuracy" in exp:
+        if exp["status"] == "success":
             accuracy = exp.get("accuracy", "N/A")
             if accuracy != "N/A":
                 line += f" (Accuracy: {accuracy:.3f})"

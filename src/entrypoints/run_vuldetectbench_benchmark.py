@@ -7,7 +7,6 @@ flexible configuration options for 5 different vulnerability detection tasks.
 """
 
 import argparse
-import dataclasses
 import json
 import logging
 import time
@@ -25,6 +24,13 @@ from benchmark.metrics_calculator import (
 from benchmark.models import BenchmarkSample, PredictionResult
 from benchmark.prompt_generator import PromptGenerator
 from benchmark.response_parser import ResponseParser
+from benchmark.result_processor import BenchmarkResultProcessor
+from benchmark.result_types import (
+    BenchmarkReport,
+    BenchmarkRunResult,
+    MetricsResult,
+    ResultArtifacts,
+)
 from datasets.loaders.vuldetectbench_dataset_loader import (
     VulDetectBenchDatasetLoaderFramework,
 )
@@ -72,7 +78,7 @@ class VulDetectBenchBenchmarkRunner:
         # Initialize dataset loader
         self.dataset_loader = VulDetectBenchDatasetLoaderFramework()
 
-    def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
+    def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with VulDetectBench-specific dataset loading."""
         from pathlib import Path
 
@@ -165,19 +171,12 @@ class VulDetectBenchBenchmarkRunner:
 
             # Generate results
             total_time = time.time() - start_time
-            results = {
-                "task_type": task_type,
-                "dataset_path": self.config.dataset_path,
-                "model_name": self.config.model_name,
-                "accuracy": metrics.get("accuracy", 0.0),
-                "metrics": metrics,
-                "total_samples": len(samples),
-                "total_time": total_time,
-                "predictions": [
-                    dataclasses.asdict(prediction) for prediction in predictions
-                ],
-                "status": "success",
-            }
+            results: BenchmarkRunResult = BenchmarkRunResult(
+                metrics=metrics,
+                total_samples=len(samples),
+                total_time=total_time,
+                predictions=predictions,
+            )
 
             # Clean up
             llm.cleanup()
@@ -191,7 +190,7 @@ class VulDetectBenchBenchmarkRunner:
 
     def _calculate_task_specific_metrics(
         self, predictions: list[PredictionResult], task_type: str
-    ) -> dict[str, Any]:
+    ) -> MetricsResult:
         """Calculate metrics specific to VulDetectBench tasks."""
 
         if task_type == "task1":
@@ -323,21 +322,43 @@ def run_single_experiment(
     runner = VulDetectBenchBenchmarkRunner(config)
 
     try:
-        results = runner.run_benchmark(sample_limit=sample_limit)
+        run_data: BenchmarkRunResult = runner.run_benchmark(sample_limit=sample_limit)
 
-        # Save results
-        results_file = output_dir / "results.json"
-        with open(results_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
+        result_processor = BenchmarkResultProcessor(
+            config=config, experiment_name=experiment_name
+        )
+        report: BenchmarkReport
+        artifacts: ResultArtifacts
+        report, artifacts = result_processor.build_and_save(
+            metrics=run_data.metrics,
+            predictions=run_data.predictions,
+            total_time=run_data.total_time,
+            total_samples=run_data.total_samples,
+        )
 
         logger.info(
-            f"Experiment completed successfully. Results saved to: {results_file}"
+            "Experiment completed successfully. Results saved to: %s",
+            artifacts.report_json,
         )
-        return results
+        return {
+            "experiment_name": experiment_name,
+            "status": "success",
+            "report": report,
+            "artifacts": artifacts,
+            "accuracy": report.metrics.accuracy,
+            "total_samples": run_data.total_samples,
+            "total_time": run_data.total_time,
+            "output_dir": str(output_dir),
+        }
 
     except Exception as e:
         logger.exception(f"Experiment failed: {e}")
-        return {"error": str(e), "experiment_name": experiment_name, "status": "failed"}
+        return {
+            "error": str(e),
+            "experiment_name": experiment_name,
+            "status": "failed",
+            "output_dir": str(output_dir),
+        }
 
 
 def main():

@@ -7,6 +7,7 @@ The VulDetectBench benchmark provides comprehensive vulnerability detection eval
 ## New Configuration-Based System
 
 ### Key Features ✅
+
 - **Unified Configuration**: JSON-based experiment configuration following the established pattern
 - **Consistent CLI**: Same command-line interface across all benchmarks (CASTLE, JitVul, CVEFixes, VulBench, VulDetectBench)
 - **Five Task Types**: Support for all 5 VulDetectBench tasks with varying difficulty levels
@@ -15,6 +16,7 @@ The VulDetectBench benchmark provides comprehensive vulnerability detection eval
 - **Model Synchronization**: Consistent model definitions across all datasets
 
 ### Core Components
+
 - **Configuration File**: `src/configs/vuldetectbench_experiments.json`
 - **Benchmark Runner**: `src/entrypoints/run_vuldetectbench_benchmark.py`
 - **Unified Runner**: `src/entrypoints/run_unified_benchmark.py` (handles all datasets)
@@ -36,30 +38,35 @@ VulDetectBench contains 5 tasks of increasing difficulty, each designed to evalu
 ### Task Details
 
 #### Task 1: Vulnerability Existence Detection
+
 - **Format**: Binary classification (YES/NO)
 - **Samples**: 1000 (from original dataset)
 - **Evaluation**: Standard binary classification metrics
 - **Example**: "Is the code vulnerable? (YES/NO)"
 
 #### Task 2: Vulnerability Type Inference  
+
 - **Format**: Multi-choice question (A/B/C/D/E)
 - **Samples**: 500 (from original dataset)
 - **Evaluation**: Moderate (correct or sub-optimal) and Strict (only correct) evaluation
 - **Example**: Multiple choice with vulnerability type options
 
 #### Task 3: Key Objects & Functions Identification
+
 - **Format**: Code snippet extraction
 - **Samples**: 100 (from original dataset)
 - **Evaluation**: Token recall between predicted and ground truth
 - **Example**: Extract vulnerable functions and objects
 
 #### Task 4: Root Cause Location
+
 - **Format**: Code line identification  
 - **Samples**: 100 (from original dataset)
 - **Evaluation**: Line recall and union line recall
 - **Example**: Identify the line causing the vulnerability
 
 #### Task 5: Trigger Point Location
+
 - **Format**: Code line identification
 - **Samples**: 100 (from original dataset)  
 - **Evaluation**: Line recall and union line recall
@@ -151,11 +158,13 @@ python run_unified_benchmark.py vuldetectbench --model deepseek-coder-v2-lite-16
 ## Available Experiment Plans
 
 ### Basic Plans
+
 - **`quick_test`**: Fast validation with limited samples across basic tasks
 - **`task1_evaluation`**: Comprehensive Task 1 (binary detection) evaluation
 - **`task2_evaluation`**: Comprehensive Task 2 (multi-class) evaluation
 
 ### Advanced Plans
+
 - **`advanced_tasks_evaluation`**: Tasks 3-5 (code analysis) evaluation
 - **`model_comparison`**: Compare different model sizes on basic tasks
 - **`prompt_comparison`**: Compare different prompt strategies
@@ -177,11 +186,13 @@ python run_unified_benchmark.py vuldetectbench --plan comprehensive_evaluation
 ## Prompt Strategies
 
 ### Standard Prompts
+
 - **`basic_security`**: General security analysis approach
 - **`detailed_analysis`**: Thorough CWE-focused analysis
 - **`step_by_step`**: Systematic analysis methodology
 
 ### Task-Specific Prompts
+
 - **`task1_specific`**: Optimized for binary vulnerability detection
 - **`task2_specific`**: Optimized for multi-choice vulnerability classification
 - **`task3_specific`**: Optimized for object/function identification
@@ -201,6 +212,7 @@ The system supports the same model configurations as other benchmarks:
 ## Data Processing Details
 
 ### Raw VulDetectBench Structure
+
 ```
 benchmarks/VulDetectBench/dataset/test/
 ├── task1_code.jsonl    # 1000 samples - binary detection
@@ -211,6 +223,7 @@ benchmarks/VulDetectBench/dataset/test/
 ```
 
 ### Processed Structure
+
 ```
 datasets_processed/vuldetectbench/
 ├── vuldetectbench_task1.json
@@ -276,6 +289,7 @@ Options:
 ### Result Structure
 
 Each experiment generates:
+
 - **Predictions**: Individual model responses and predictions
 - **Metrics**: Task-specific evaluation metrics
 - **Summary**: Overall performance statistics
@@ -284,6 +298,7 @@ Each experiment generates:
 ### Metrics Calculated
 
 For each task type:
+
 - **Task 1**: Accuracy, Precision, Recall, F1-Score
 - **Task 2**: Moderate Evaluation Score, Strict Evaluation Score
 - **Task 3**: Token Recall (Macro/Micro)
@@ -294,10 +309,10 @@ For each task type:
 ```
 results/vuldetectbench_experiments/
 └── qwen3-4b_task1_vulnerability_task1_specific_20250617_143022/
-    ├── results.json
-    ├── predictions.json
-    ├── metrics.json
-    └── config.json
+    ├── benchmark_report_*.json
+    ├── metrics_summary_*.json
+    ├── predictions_*.csv
+    └── predictions_*.json
 ```
 
 ## Integration with Framework
@@ -314,18 +329,21 @@ The VulDetectBench implementation maintains full compatibility with the benchmar
 ### Common Issues
 
 1. **Dataset Not Found**
+
    ```bash
    # Ensure data is processed first
    python src/scripts/process_vuldetectbench_data.py
    ```
 
 2. **Model Loading Errors**
+
    ```bash
    # Check model configurations match framework expectations
    python run_unified_benchmark.py vuldetectbench --list-configs
    ```
 
 3. **Memory Issues with Large Models**
+
    ```bash
    # Use smaller models or reduce batch size
    python run_unified_benchmark.py vuldetectbench --plan quick_test --model qwen3-4b
@@ -360,6 +378,7 @@ python run_unified_benchmark.py vuldetectbench --plan quick_test
 ## Support
 
 For issues specific to VulDetectBench implementation:
+
 1. Check the logs in the output directory
 2. Verify data processing completed successfully  
 3. Ensure all required dependencies are installed

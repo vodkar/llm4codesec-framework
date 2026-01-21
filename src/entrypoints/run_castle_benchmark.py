@@ -6,7 +6,6 @@ flexible configuration options for different vulnerability detection tasks.
 """
 
 import argparse
-import dataclasses
 import json
 import logging
 import random
@@ -23,6 +22,8 @@ from benchmark.enums import ModelType, TaskType
 from benchmark.metrics_calculator import MetricsCalculatorFactory
 from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
+from benchmark.result_processor import BenchmarkResultProcessor
+from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
 from datasets.loaders.base import JsonDatasetLoader
 from llm.hugging_face import HuggingFaceLLM
 
@@ -33,7 +34,7 @@ class CastleBenchmarkRunner(BaseModel):
     config: BenchmarkConfig
     dataset_loader: JsonDatasetLoader
 
-    def run_benchmark(self, sample_limit: int | None = None) -> dict[str, Any]:
+    def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with CASTLE-specific dataset loading."""
 
         logging.info("Starting CASTLE benchmark execution")
@@ -79,16 +80,13 @@ class CastleBenchmarkRunner(BaseModel):
             metrics = metrics_calculator.calculate(predictions)
 
             # Generate results
-            total_time = time.time() - start_time
-            results: dict[str, Any] = {
-                "accuracy": metrics.get("accuracy", 0.0),
-                "metrics": metrics,
-                "total_samples": len(samples),
-                "total_time": total_time,
-                "predictions": [
-                    dataclasses.asdict(prediction) for prediction in predictions
-                ],
-            }
+            total_time: float = time.time() - start_time
+            results: BenchmarkRunResult = BenchmarkRunResult(
+                metrics=metrics,
+                total_samples=len(samples),
+                total_time=total_time,
+                predictions=predictions,
+            )
 
             # Clean up
             llm.cleanup()
@@ -219,16 +217,30 @@ def run_single_experiment(
     )
 
     try:
-        results = runner.run_benchmark(sample_limit=sample_limit)
+        run_data: BenchmarkRunResult = runner.run_benchmark(sample_limit=sample_limit)
+
+        result_processor = BenchmarkResultProcessor(
+            config=config, experiment_name=experiment_name
+        )
+        report: BenchmarkReport
+        artifacts: ResultArtifacts
+        report, artifacts = result_processor.build_and_save(
+            metrics=run_data.metrics,
+            predictions=run_data.predictions,
+            total_time=run_data.total_time,
+            total_samples=run_data.total_samples,
+        )
 
         logger.info("Experiment completed successfully")
-        logger.info(f"Accuracy: {results.get('accuracy', 'N/A'):.3f}")
-        logger.info(f"Results saved to: {output_dir}")
+        logger.info(f"Accuracy: {report.metrics.accuracy:.3f}")
+        logger.info(f"Results saved to: {artifacts.report_json}")
 
         return {
             "experiment_name": experiment_name,
             "status": "success",
-            "results": results,
+            "report": report,
+            "artifacts": artifacts,
+            "accuracy": report.metrics.accuracy,
             "output_dir": str(output_dir),
         }
 

@@ -12,7 +12,7 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import BenchmarkConfig
@@ -36,7 +36,7 @@ class VulBenchBenchmarkRunner:
         # Initialize dataset loader
         self.dataset_loader = VulBenchDatasetLoaderFramework()
 
-    def run_benchmark(self, sample_limit: Optional[int] = None) -> BenchmarkRunResult:
+    def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with VulBench-specific dataset loading."""
 
         logging.info("Starting VulBench benchmark execution")
@@ -161,15 +161,15 @@ def create_benchmark_config(
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
         description=f"{prompt_config['name']} - {dataset_config['description']}",
-        dataset_path=dataset_config["dataset_path"],
-        output_dir=output_dir,
+        dataset_path=Path(dataset_config["dataset_path"]),
+        output_dir=Path(output_dir),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type")
         or dataset_config.get("vulnerability_type"),
-        system_prompt_template=prompt_config.get("system_prompt"),
+        system_prompt_template=prompt_config.get("system_prompt") or "",
         user_prompt_template=prompt_config["user_prompt"],
         is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
@@ -180,7 +180,7 @@ def run_single_experiment(
     dataset_key: str,
     prompt_key: str,
     vulbench_config: dict[str, Any],
-    sample_limit: Optional[int] = None,
+    sample_limit: int | None = None,
     output_base_dir: str = "results/vulbench_experiments",
 ) -> dict[str, Any]:
     """
@@ -267,7 +267,7 @@ def run_experiment_plan(
     plan_name: str,
     vulbench_config: dict[str, Any],
     output_base_dir: str,
-    sample_limit: Optional[int] = None,
+    sample_limit: int | None = None,
 ) -> dict[str, Any]:
     """
     Run a complete experiment plan with multiple configurations.
@@ -409,7 +409,8 @@ def list_available_configs(vulbench_config: dict[str, Any]) -> None:
         print(f"  {key}: {config['description']}")
 
 
-def main():
+def main() -> None:
+    """Main entry point for VulBench benchmark runner."""
     parser = argparse.ArgumentParser(
         description="VulBench Benchmark Runner (Configuration-Based)",
         formatter_class=argparse.RawDescriptionHelpFormatter,

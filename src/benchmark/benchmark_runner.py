@@ -77,6 +77,7 @@ class BenchmarkRunner(BaseModel):
             predicted_label = self.response_parser.parse_response(response_text)
 
             # Handle true label - might be int or string depending on dataset
+            true_label: int | str
             if isinstance(sample.label, int):
                 true_label = sample.label
             else:

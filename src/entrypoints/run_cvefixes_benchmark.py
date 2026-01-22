@@ -21,10 +21,11 @@ from benchmark.metrics_calculator import (
     BinaryMetricsCalculator,
     MulticlassMetricsCalculator,
 )
+from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
-from datasets.loaders.cvefixes_dataset_loader import CVEFixesJSONDatasetLoader
+from datasets.loaders.base import JsonDatasetLoader
 from llm.hugging_face import HuggingFaceLLM
 
 
@@ -32,8 +33,8 @@ class CVEFixesBenchmarkRunner:
     """Custom benchmark runner for CVEFixes datasets."""
 
     def __init__(self, config: BenchmarkConfig):
-        self.config = config
-        self.dataset_loader = CVEFixesJSONDatasetLoader()
+        self.config: BenchmarkConfig = config
+        self.dataset_loader: JsonDatasetLoader = JsonDatasetLoader()
 
     def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with CVEFixes-specific dataset loading."""
@@ -56,38 +57,36 @@ class CVEFixesBenchmarkRunner:
 
             # Initialize components
             llm = HuggingFaceLLM(self.config)
-            prompt_generator = PromptGenerator()
+            prompt_generator = DefaultPromptGenerator(
+                system_prompt_template=self.config.system_prompt_template,
+                user_prompt_template=self.config.user_prompt_template,
+                template_values={},
+            )
             response_parser = ResponseParserFactory.create_parser(self.config.task_type)
 
             # Create output directory
             Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)
 
             # Run predictions
-            system_prompt = (
-                self.config.system_prompt_template
-                or prompt_generator.get_system_prompt(
-                    self.config.task_type, self.config.cwe_type
-                )
-            )
-
             # Run predictions using batch optimization
             from benchmark.benchmark_runner import BenchmarkRunner
 
-            predictions = BenchmarkRunner.process_samples_with_batch_optimization(
-                samples=samples,
-                llm=llm,
-                system_prompt=system_prompt,
+            runner = BenchmarkRunner(
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
+                llm=llm,
                 config=self.config,
             )
+            predictions = runner.process_samples_with_batch_optimization(samples)
 
             # Calculate metrics using the new abstraction
             if self.config.task_type in [
                 TaskType.BINARY_VULNERABILITY,
                 TaskType.BINARY_CWE_SPECIFIC,
             ]:
-                metrics_calculator = BinaryMetricsCalculator()
+                metrics_calculator: (
+                    BinaryMetricsCalculator | MulticlassMetricsCalculator
+                ) = BinaryMetricsCalculator()
                 metrics = metrics_calculator.calculate(predictions)
             else:
                 metrics_calculator = MulticlassMetricsCalculator()
@@ -108,8 +107,8 @@ class CVEFixesBenchmarkRunner:
             logging.info("CVEFixes benchmark completed successfully")
             return results
 
-        except Exception as e:
-            logging.exception(f"CVEFixes benchmark failed: {e}")
+        except Exception:
+            logging.exception("CVEFixes benchmark failed")
             raise
 
 
@@ -167,14 +166,14 @@ def create_benchmark_config(
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
         description=f"{prompt_config['name']} - {dataset_config['description']}",
-        dataset_path=dataset_config["dataset_path"],
-        output_dir=output_dir,
+        dataset_path=Path(dataset_config["dataset_path"]),
+        output_dir=Path(output_dir),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type"),
-        system_prompt_template=prompt_config.get("system_prompt"),
+        system_prompt_template=prompt_config.get("system_prompt") or "",
         is_thinking_enabled=prompt_config.get("enable_thinking", False),
         user_prompt_template=prompt_config["user_prompt"],
     )
@@ -267,8 +266,8 @@ def run_single_experiment(
         }
 
 
-def main():
-    """Main function."""
+def main() -> None:
+    """Main entry point for CVEFixes benchmark runner."""
     parser = argparse.ArgumentParser(
         description="Run CVEFixes benchmark experiments",
         formatter_class=argparse.RawDescriptionHelpFormatter,

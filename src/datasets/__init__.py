@@ -6,9 +6,6 @@ CASTLE and CVEFixes benchmarks.
 """
 
 from .loaders.castle_dataset_loader import CastleDatasetLoader
-from .loaders.cvefixes_dataset_loader import (
-    CVEFixesDatasetLoader,
-    CVEFixesJSONDatasetLoader,
-)
+from .loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
 
-__all__ = ["CastleDatasetLoader", "CVEFixesDatasetLoader", "CVEFixesJSONDatasetLoader"]
+__all__ = ["CastleDatasetLoader", "CVEFixesDatasetLoader"]

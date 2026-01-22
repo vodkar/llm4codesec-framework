@@ -11,7 +11,7 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from benchmark.models import BenchmarkSample
 from datasets.loaders.base import IDatasetLoader
@@ -20,23 +20,23 @@ from datasets.loaders.base import IDatasetLoader
 class JitVulDatasetLoader:
     """Dataset loader for JitVul benchmark format."""
 
-    def __init__(self, source_dir: str = "benchmarks/JitVul/data"):
+    def __init__(self, source_dir: str = "benchmarks/JitVul/data") -> None:
         """
         Initialize the JitVul dataset loader.
 
         Args:
             source_dir: Path to the JitVul dataset directory
         """
-        self.source_dir = Path(source_dir)
-        self.logger = logging.getLogger(__name__)
+        self.source_dir: Path = Path(source_dir)
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def load_dataset(
         self,
         data_file: Path,
         task_type: str = "binary",
-        target_cwe: Optional[str] = None,
+        target_cwe: str | None = None,
         use_call_graph: bool = True,
-        max_samples: Optional[int] = None,
+        max_samples: int | None = None,
     ) -> list[BenchmarkSample]:
         """
         Load JitVul dataset from either JSONL (raw) or JSON (processed) file.
@@ -66,10 +66,10 @@ class JitVulDatasetLoader:
                 )
 
         except Exception as e:
-            raise RuntimeError(f"Error loading JitVul dataset: {e}")
+            raise RuntimeError(f"Error loading JitVul dataset: {e}") from e
 
     def _load_processed_dataset(
-        self, data_path: Path, max_samples: Optional[int] = None
+        self, data_path: Path, max_samples: int | None = None
     ) -> list[BenchmarkSample]:
         """
         Load processed JSON dataset format.
@@ -116,9 +116,9 @@ class JitVulDatasetLoader:
         self,
         data_path: Path,
         task_type: str,
-        target_cwe: Optional[str],
+        target_cwe: str | None,
         use_call_graph: bool,
-        max_samples: Optional[int],
+        max_samples: int | None,
     ) -> list[BenchmarkSample]:
         """
         Load raw JSONL dataset format.
@@ -168,7 +168,7 @@ class JitVulDatasetLoader:
         item: dict[str, Any],
         line_num: int,
         task_type: str,
-        target_cwe: Optional[str],
+        target_cwe: str | None,
         use_call_graph: bool,
     ) -> list[BenchmarkSample]:
         """
@@ -426,8 +426,8 @@ class JitVulDatasetLoader:
                     except json.JSONDecodeError:
                         continue
 
-        except Exception as e:
-            self.logger.exception(f"Error generating statistics: {e}")
+        except Exception:
+            self.logger.exception("Error generating statistics")
             return {}
 
         # Calculate averages
@@ -451,7 +451,7 @@ class JitVulDatasetLoader:
 class JitVulDatasetLoaderFramework(IDatasetLoader):
     """Framework-compatible dataset loader for JitVul."""
 
-    jitvul_loader: JitVulDatasetLoader
+    jitvul_loader: JitVulDatasetLoader = JitVulDatasetLoader()
 
     def load_dataset(self, path: Path) -> list[BenchmarkSample]:
         """
@@ -468,7 +468,7 @@ class JitVulDatasetLoaderFramework(IDatasetLoader):
         )
 
 
-def main():
+def main() -> None:
     """Example usage and testing of the JitVul dataset loader."""
     loader = JitVulDatasetLoader()
 

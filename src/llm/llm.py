@@ -16,14 +16,14 @@ class ILLMInference(ABC):
             user_prompt (str): User prompt
 
         Returns:
-            tuple[str, Optional[int]]: Response text and token count
+            tuple[str, int, float]: Response text, token count, and duration
         """
         pass
 
     @abstractmethod
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, int | None]]:
+    ) -> list[tuple[str, int, float]]:
         """
         Generate responses for a batch of prompts.
 
@@ -31,7 +31,7 @@ class ILLMInference(ABC):
             prompts (list[str]): List of formatted prompts
 
         Returns:
-            list[tuple[str, Optional[int]]]: List of (response_text, token_count) tuples
+            list[tuple[str, int, float]]: List of (response_text, token_count, duration) tuples
         """
         pass
 

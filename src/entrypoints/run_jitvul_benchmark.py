@@ -21,6 +21,8 @@ from benchmark.metrics_calculator import (
     BinaryMetricsCalculator,
     MulticlassMetricsCalculator,
 )
+from benchmark.models import BenchmarkSample
+from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
@@ -32,8 +34,10 @@ class JitVulBenchmarkRunner:
     """Custom benchmark runner for JitVul datasets."""
 
     def __init__(self, config: BenchmarkConfig):
-        self.config = config
-        self.dataset_loader = JitVulDatasetLoaderFramework()
+        self.config: BenchmarkConfig = config
+        self.dataset_loader: JitVulDatasetLoaderFramework = (
+            JitVulDatasetLoaderFramework()
+        )
 
     def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with JitVul-specific dataset loading."""
@@ -56,20 +60,16 @@ class JitVulBenchmarkRunner:
 
             # Initialize components
             llm = HuggingFaceLLM(self.config)
-            prompt_generator = PromptGenerator()
+            prompt_generator = DefaultPromptGenerator(
+                system_prompt_template=self.config.system_prompt_template,
+                user_prompt_template=self.config.user_prompt_template,
+                template_values={},
+            )
             response_parser = ResponseParserFactory.create_parser(self.config.task_type)
             # Create output directory
-            Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)
+            self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
             # Run predictions
-            predictions = []
-            system_prompt = (
-                self.config.system_prompt_template
-                or prompt_generator.get_system_prompt(
-                    self.config.task_type, self.config.cwe_type
-                )
-            )
-
             # JitVul has special handling for call graph context, so we need a custom approach
             # Prepare samples with augmented code for batch processing
             augmented_samples = []
@@ -91,13 +91,14 @@ class JitVulBenchmarkRunner:
             # Run predictions using batch optimization with augmented samples
             from benchmark.benchmark_runner import BenchmarkRunner
 
-            predictions = BenchmarkRunner.process_samples_with_batch_optimization(
-                samples=augmented_samples,
-                llm=llm,
-                system_prompt=system_prompt,
+            runner = BenchmarkRunner(
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
+                llm=llm,
                 config=self.config,
+            )
+            predictions = runner.process_samples_with_batch_optimization(
+                augmented_samples
             )
 
             # Calculate metrics
@@ -124,11 +125,11 @@ class JitVulBenchmarkRunner:
             logging.info("JitVul benchmark completed successfully")
             return results
 
-        except Exception as e:
-            logging.exception(f"JitVul benchmark failed: {e}")
+        except Exception:
+            logging.exception("JitVul benchmark failed")
             raise
 
-    def _augment_code_with_context(self, sample: Any) -> str:
+    def _augment_code_with_context(self, sample: BenchmarkSample) -> str:
         """
         Augment code with call graph context if available.
 
@@ -203,14 +204,14 @@ def create_benchmark_config(
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
         description=f"{prompt_config['name']} - {dataset_config['description']}",
-        dataset_path=dataset_config["dataset_path"],
-        output_dir=output_dir,
+        dataset_path=Path(dataset_config["dataset_path"]),
+        output_dir=Path(output_dir),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type"),
-        system_prompt_template=prompt_config.get("system_prompt"),
+        system_prompt_template=prompt_config.get("system_prompt") or "",
         user_prompt_template=prompt_config["user_prompt"],
         is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
@@ -303,8 +304,8 @@ def run_single_experiment(
         }
 
 
-def main():
-    """Main function."""
+def main() -> None:
+    """Main entry point for JitVul benchmark runner."""
     parser = argparse.ArgumentParser(
         description="Run JitVul benchmark experiments",
         formatter_class=argparse.RawDescriptionHelpFormatter,

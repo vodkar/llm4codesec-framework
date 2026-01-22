@@ -11,12 +11,11 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
 
 
-def setup_logging(log_level: str = "INFO"):
+def setup_logging(log_level: str = "INFO") -> None:
     """Set up logging configuration."""
     numeric_level = getattr(logging, log_level.upper(), None)
     if not isinstance(numeric_level, int):
@@ -36,8 +35,8 @@ def prepare_binary_datasets(
     loader: CVEFixesDatasetLoader,
     output_dir: Path,
     programming_language: str = "C",
-    sample_limit: Optional[int] = None,
-):
+    sample_limit: int | None = None,
+) -> None:
     """Prepare binary classification datasets."""
 
     # File-level binary dataset
@@ -71,8 +70,8 @@ def prepare_multiclass_datasets(
     loader: CVEFixesDatasetLoader,
     output_dir: Path,
     programming_language: str = "C",
-    sample_limit: Optional[int] = None,
-):
+    sample_limit: int | None = None,
+) -> None:
     """Prepare multiclass classification datasets."""
 
     # File-level multiclass dataset
@@ -106,9 +105,9 @@ def prepare_cwe_specific_datasets(
     loader: CVEFixesDatasetLoader,
     output_dir: Path,
     programming_language: str = "C",
-    cwe_types: Optional[List[str]] = None,
-    sample_limit: Optional[int] = None,
-):
+    cwe_types: list[str] | None = None,
+    sample_limit: int | None = None,
+) -> None:
     """Prepare CWE-specific binary classification datasets."""
 
     if not cwe_types:
@@ -142,11 +141,11 @@ def prepare_cwe_specific_datasets(
                 change_level="file",
                 limit=sample_limit,
             )
-        except Exception as e:
-            logging.exception(f"Error creating dataset for {cwe_type}: {e}")
+        except Exception:
+            logging.exception("Error creating dataset for %s", cwe_type)
 
 
-def analyze_database(loader: CVEFixesDatasetLoader, output_dir: Path):
+def analyze_database(loader: CVEFixesDatasetLoader, output_dir: Path) -> None:
     """Analyze the CVEFixes database and create statistics report."""
 
     logging.info("Analyzing CVEFixes database...")
@@ -183,7 +182,7 @@ def analyze_database(loader: CVEFixesDatasetLoader, output_dir: Path):
     print(f"{'=' * 60}\n")
 
 
-def main():
+def main() -> int:
     """Main entry point for CVEFixes dataset preparation."""
     parser = argparse.ArgumentParser(
         description="Prepare CVEFixes datasets for benchmark framework",
@@ -332,10 +331,10 @@ Examples:
     except KeyboardInterrupt:
         logging.info("Dataset preparation interrupted by user")
         return 1
-    except Exception as e:
-        logging.exception(f"Error during dataset preparation: {e}")
+    except Exception:
+        logging.exception("Error during dataset preparation")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

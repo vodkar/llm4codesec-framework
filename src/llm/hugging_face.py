@@ -1,14 +1,17 @@
 import logging
 import os
 import time
+from typing import Any
 
 import torch
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
+    PreTrainedTokenizerBase,
     pipeline,
 )
+from transformers.pipelines import Pipeline
 
 from benchmark.config import BenchmarkConfig
 from flash_attention import is_flash_attention_available, is_flash_attention_supported
@@ -19,11 +22,12 @@ class HuggingFaceLLM(ILLMInference):
     """Hugging Face transformers-based LLM interface."""
 
     def __init__(self, config: BenchmarkConfig):
-        self.config = config
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.tokenizer: AutoTokenizer | None = None
+        self.config: BenchmarkConfig = config
+        self.device: str = "cuda" if torch.cuda.is_available() else "cpu"
+        self.tokenizer: PreTrainedTokenizerBase | None = None
         self.model: AutoModelForCausalLM | None = None
-        self.pipeline = None
+        self.pipeline: Pipeline | None = None
+        self.pad_token_id: int = 0
 
         self._load_model()
 
@@ -32,7 +36,7 @@ class HuggingFaceLLM(ILLMInference):
         logging.info(f"Loading model: {self.config.model_name}")
 
         # Configure quantization if requested
-        quantization_config = None
+        quantization_config: BitsAndBytesConfig | None = None
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         attn_implementation = (
             "flash_attention_2"
@@ -70,7 +74,7 @@ class HuggingFaceLLM(ILLMInference):
 
             if "gemma-3" in self.config.model_name:
                 torch_dtype = torch.bfloat16
-                quant_config = BitsAndBytesConfig(
+                quantization_config = BitsAndBytesConfig(
                     load_in_4bit=True,
                     bnb_4bit_quant_type="q4_0",  # match the model’s QAT quant type
                     bnb_4bit_compute_dtype=torch.bfloat16,  # fp16 compute
@@ -85,7 +89,10 @@ class HuggingFaceLLM(ILLMInference):
                 token=os.getenv("HF_TOKEN", None),
             )
 
-            if self.tokenizer.pad_token is None:
+            if self.tokenizer is None:
+                raise RuntimeError("Tokenizer failed to load")
+
+            if not self.tokenizer.pad_token:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
 
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -98,25 +105,31 @@ class HuggingFaceLLM(ILLMInference):
                 attn_implementation=attn_implementation,
             )
 
+            if self.model is None:
+                raise RuntimeError("Model failed to load")
+
+            pad_token_id: int = (
+                int(self.tokenizer.eos_token_id)
+                if self.tokenizer.eos_token_id is not None
+                else int(self.tokenizer.pad_token_id)
+                if self.tokenizer.pad_token_id is not None
+                else 0
+            )
+            self.pad_token_id = pad_token_id
+
             # Create text generation pipeline with batch optimization
-            self.pipeline = pipeline(
+            pipeline_fn: Any = pipeline
+            self.pipeline = pipeline_fn(
                 "text-generation",
                 model=self.model,
                 tokenizer=self.tokenizer,
-                max_new_tokens=self.config.max_tokens,
-                temperature=self.config.temperature,
-                do_sample=self.config.temperature > 0,
-                return_full_text=False,
-                batch_size=self.config.batch_size,  # Enable batch processing
                 device_map="auto",
-                pad_token_id=self.tokenizer.eos_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
             )
 
             logging.info(f"Model loaded successfully on {self.device}")
 
-        except Exception as e:
-            logging.exception(f"Failed to load model {self.config.model_name}: {e}")
+        except Exception:
+            logging.exception("Failed to load model %s", self.config.model_name)
             raise
 
     def generate_response(
@@ -140,8 +153,8 @@ class HuggingFaceLLM(ILLMInference):
             return batch_results[0]
 
         except Exception as e:
-            logging.exception(f"Error generating response: {e}")
-            return f"ERROR: {str(e)}", None
+            logging.exception("Error generating response")
+            return f"ERROR: {str(e)}", 0, 0.0
 
     def generate_responses_batch_optimized(
         self, system_prompts: list[str], user_prompts: list[str]
@@ -173,6 +186,8 @@ class HuggingFaceLLM(ILLMInference):
         """Generate responses for a batch of prompts."""
         if not self.pipeline:
             raise RuntimeError("Model not loaded")
+        if not self.tokenizer:
+            raise RuntimeError("Tokenizer not loaded")
 
         try:
             # Process in batches to manage memory
@@ -186,11 +201,14 @@ class HuggingFaceLLM(ILLMInference):
 
                 start = time.time()
                 # Generate responses for the batch
-                batch_responses = self.pipeline(
+                batch_responses: Any = self.pipeline(
                     batch_prompts,
                     max_new_tokens=self.config.max_tokens,
                     temperature=self.config.temperature,
-                    pad_token_id=self.tokenizer.eos_token_id,
+                    do_sample=self.config.temperature > 0,
+                    return_full_text=False,
+                    pad_token_id=self.pad_token_id,
+                    eos_token_id=self.pad_token_id,
                     batch_size=batch_size,
                 )
                 duration = time.time() - start
@@ -238,7 +256,7 @@ class HuggingFaceLLM(ILLMInference):
             return results
 
         except Exception as e:
-            logging.exception(f"Error generating batch responses: {e}")
+            logging.exception("Error generating batch responses")
             return [(f"ERROR: {str(e)}", 0, 0) for _ in prompts]
 
     def _format_prompt(self, system_prompt: str, user_prompt: str) -> str:
@@ -253,18 +271,22 @@ class HuggingFaceLLM(ILLMInference):
         ]
 
         try:
-            formatted_prompt = self.tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=True,
-                enable_thinking=self.config.is_thinking_enabled,
-            )
-            return formatted_prompt
+            apply_chat_template = getattr(self.tokenizer, "apply_chat_template", None)
+            if callable(apply_chat_template):
+                formatted_prompt = apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True,
+                    enable_thinking=self.config.is_thinking_enabled,
+                )
+                return str(formatted_prompt)
+            raise AttributeError("apply_chat_template is not available")
 
-        except Exception as e:
+        except Exception:
             # Fallback to generic format if chat template is not available
             logging.warning(
-                f"Chat template not available for {self.config.model_name}, using fallback format: {e}"
+                "Chat template not available for %s, using fallback format",
+                self.config.model_name,
             )
             return self._format_prompt_fallback(system_prompt, user_prompt)
 

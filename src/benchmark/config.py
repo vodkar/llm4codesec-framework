@@ -22,5 +22,3 @@ class BenchmarkConfig(BaseModel):
     cwe_type: str | None = None
     system_prompt_template: str
     user_prompt_template: str
-    user_prompt_template: str
-    user_prompt_template: str

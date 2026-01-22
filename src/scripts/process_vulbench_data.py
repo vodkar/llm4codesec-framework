@@ -9,11 +9,12 @@ for use with the VulBench benchmark runner.
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoader
 
 
-def process_vulbench_datasets():
+def process_vulbench_datasets() -> None:
     """Process all VulBench datasets and create JSON files."""
 
     # Setup logging
@@ -21,13 +22,13 @@ def process_vulbench_datasets():
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     # Initialize loader
-    loader = VulBenchDatasetLoader()
+    loader: VulBenchDatasetLoader = VulBenchDatasetLoader()
 
     # Define datasets to process
-    datasets = {
+    datasets: dict[str, str] = {
         "d2a": "benchmarks/VulBench/data/d2a",
         "ctf": "benchmarks/VulBench/data/ctf",
         "magma": "benchmarks/VulBench/data/magma",
@@ -36,7 +37,7 @@ def process_vulbench_datasets():
     }
 
     # Output directory
-    output_dir = Path("datasets_processed/vulbench")
+    output_dir: Path = Path("datasets_processed/vulbench")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Process each dataset
@@ -68,7 +69,7 @@ def process_vulbench_datasets():
             )
 
             # Generate and save statistics
-            stats = loader.get_dataset_stats(str(binary_output))
+            stats: dict[str, Any] = loader.get_dataset_stats(str(binary_output))
             stats_file = output_dir / f"vulbench_{dataset_name}_stats.json"
             with open(stats_file, "w", encoding="utf-8") as f:
                 json.dump(stats, f, indent=2, ensure_ascii=False)
@@ -78,8 +79,8 @@ def process_vulbench_datasets():
             logger.info(f"  Multiclass dataset: {multiclass_output}")
             logger.info(f"  Statistics: {stats_file}")
 
-        except Exception as e:
-            logger.error(f"Error processing {dataset_name}: {e}")
+        except Exception:
+            logger.exception("Error processing %s", dataset_name)
             continue
 
     logger.info("VulBench data processing completed!")

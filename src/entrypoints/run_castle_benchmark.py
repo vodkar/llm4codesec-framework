@@ -66,7 +66,6 @@ class CastleBenchmarkRunner(BaseModel):
                 self.config.task_type
             )
             runner = BenchmarkRunner(
-                dataset_loader=self.dataset_loader,
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
                 llm=llm,
@@ -94,8 +93,8 @@ class CastleBenchmarkRunner(BaseModel):
             logging.info("CASTLE benchmark completed successfully")
             return results
 
-        except Exception as e:
-            logging.exception(f"CASTLE benchmark failed: {e}")
+        except Exception:
+            logging.exception("CASTLE benchmark failed")
             raise
 
 
@@ -153,14 +152,14 @@ def create_benchmark_config(
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
         description=f"{prompt_config['name']} - {dataset_config['description']}",
-        dataset_path=dataset_config["dataset_path"],
-        output_dir=output_dir,
+        dataset_path=Path(dataset_config["dataset_path"]),
+        output_dir=Path(output_dir),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type"),
-        system_prompt_template=prompt_config["system_prompt"],
+        system_prompt_template=prompt_config.get("system_prompt") or "",
         user_prompt_template=prompt_config["user_prompt"],
         is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
@@ -254,8 +253,8 @@ def run_single_experiment(
         }
 
 
-def main():
-    """Main function."""
+def main() -> None:
+    """Main entry point for CASTLE benchmark runner."""
     parser = argparse.ArgumentParser(
         description="Run CASTLE benchmark experiments",
         formatter_class=argparse.RawDescriptionHelpFormatter,

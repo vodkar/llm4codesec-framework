@@ -12,7 +12,7 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from benchmark.models import BenchmarkSample
 
@@ -20,14 +20,14 @@ from benchmark.models import BenchmarkSample
 class VulDetectBenchDatasetLoader:
     """Dataset loader for VulDetectBench benchmark format."""
 
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
+    def __init__(self) -> None:
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def load_dataset(
         self,
         data_path: str,
         task_type: str = "task1",
-        max_samples: Optional[int] = None,
+        max_samples: int | None = None,
     ) -> list[BenchmarkSample]:
         """
         Load VulDetectBench dataset from JSONL file.
@@ -57,19 +57,29 @@ class VulDetectBenchDatasetLoader:
         if not data_file.exists():
             raise FileNotFoundError(f"Processed dataset file not found: {data_file}")
 
-        with open(data_file, "r") as f:
+        with open(data_file, "r", encoding="utf-8") as f:
             try:
-                data = json.load(f)
-                if isinstance(data, dict) and "samples" in data:
-                    return [BenchmarkSample(**sample) for sample in data["samples"]]
+                data: dict[str, Any] | list[dict[str, Any]] = json.load(f)
+                if isinstance(data, dict) and isinstance(data.get("samples"), list):
+                    samples_payload: list[Any] = data["samples"]
+                    return [
+                        BenchmarkSample(**sample)
+                        for sample in samples_payload
+                        if isinstance(sample, dict)
+                    ]
                 else:
-                    return [BenchmarkSample(**item) for item in data]
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Error decoding JSON from {data_file}: {e}")
+                    items: list[Any] = data if isinstance(data, list) else []
+                    return [
+                        BenchmarkSample(**item)
+                        for item in items
+                        if isinstance(item, dict)
+                    ]
+            except json.JSONDecodeError:
+                self.logger.exception("Error decoding JSON from %s", data_file)
                 raise
 
     def _load_raw_dataset(
-        self, data_path: Path, task_type: str, max_samples: Optional[int]
+        self, data_path: Path, task_type: str, max_samples: int | None
     ) -> list[BenchmarkSample]:
         """Load raw dataset from JSONL file and convert to BenchmarkSample objects."""
         samples: list[BenchmarkSample] = []
@@ -92,15 +102,15 @@ class VulDetectBenchDatasetLoader:
                             )
                         )
                         samples.extend(vuldetectbench_samples)
-                    except json.JSONDecodeError as e:
-                        self.logger.warning(f"Error parsing line {i + 1}: {e}")
+                    except json.JSONDecodeError:
+                        self.logger.exception("Error parsing line %s", i + 1)
                         continue
-                    except Exception as e:
-                        self.logger.warning(f"Error processing item {i}: {e}")
+                    except Exception:
+                        self.logger.exception("Error processing item %s", i)
                         continue
 
-        except Exception as e:
-            self.logger.error(f"Error loading dataset: {e}")
+        except Exception:
+            self.logger.exception("Error loading dataset")
             raise
 
         return samples
@@ -109,13 +119,13 @@ class VulDetectBenchDatasetLoader:
         self, item: dict[str, Any], line_num: int, task_type: str
     ) -> list[BenchmarkSample]:
         """Convert a VulDetectBench item to BenchmarkSample objects."""
-        samples = []
+        samples: list[BenchmarkSample] = []
 
         # Extract basic information
-        code = item.get("code", "").strip()
-        answer = item.get("answer", "")
-        cwe = item.get("cwe", "")
-        idx = item.get("idx", str(line_num))
+        code: str = str(item.get("code", "")).strip()
+        answer: str = str(item.get("answer", ""))
+        cwe: str = str(item.get("cwe", ""))
+        idx: str = str(item.get("idx", str(line_num)))
 
         if not code:
             return samples
@@ -123,13 +133,12 @@ class VulDetectBenchDatasetLoader:
         # Handle task-specific data extraction
         if task_type == "task1":
             # Task 1: Binary vulnerability detection (YES/NO)
-            label = 1 if answer.upper() == "YES" else 0
-            task_description = "binary_vulnerability"
+            label: int | str = 1 if answer.upper() == "YES" else 0
+            task_description: str = "binary_vulnerability"
         elif task_type == "task2":
             # Task 2: Multi-choice vulnerability type inference
             label = answer  # Keep as string for multi-class
             task_description = "multiclass_vulnerability"
-            item.get("selection", "")
         elif task_type in ["task3", "task4", "task5"]:
             # Task 3-5: Code analysis tasks (keep answer as string)
             label = answer
@@ -144,7 +153,7 @@ class VulDetectBenchDatasetLoader:
             return samples
 
         # Common metadata
-        base_metadata = {
+        base_metadata: dict[str, Any] = {
             "task_type": task_type,
             "task_description": task_description,
             "original_idx": idx,
@@ -169,7 +178,7 @@ class VulDetectBenchDatasetLoader:
 
         return samples
 
-    def _get_vulnerability_severity(self, cwe: str) -> Optional[str]:
+    def _get_vulnerability_severity(self, cwe: str) -> str | None:
         """Determine severity based on CWE type."""
         if not cwe:
             return None
@@ -249,11 +258,11 @@ class VulDetectBenchDatasetLoader:
                     continue
 
                 try:
-                    item = json.loads(line)
+                    item: dict[str, Any] = json.loads(line)
                     processed_item = BenchmarkSample(
                         id=f"vuldetectbench_{task_type}_{item.get('idx', line_num)}",
-                        code=item.get("code", "").strip(),
-                        label=item.get("answer", ""),
+                        code=str(item.get("code", "")).strip(),
+                        label=str(item.get("answer", "")),
                         metadata={
                             "task_type": task_type,
                             "task_description": self._get_task_description(task_type),
@@ -272,8 +281,8 @@ class VulDetectBenchDatasetLoader:
 
                     processed_data.append(processed_item)
 
-                except Exception as e:
-                    self.logger.warning(f"Error processing line {line_num}: {e}")
+                except Exception:
+                    self.logger.exception("Error processing line %s", line_num)
                     continue
 
         # Save processed data
@@ -281,7 +290,7 @@ class VulDetectBenchDatasetLoader:
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         # Create metadata
-        dataset_info = {
+        dataset_info: dict[str, Any] = {
             "metadata": {
                 "task_type": task_type,
                 "total_samples": len(processed_data),
@@ -319,29 +328,34 @@ class VulDetectBenchDatasetLoader:
         Returns:
             dictionary containing dataset statistics
         """
-        stats = {
+        vulnerability_distribution: dict[str, int] = defaultdict(int)
+        cwe_distribution: dict[str, int] = defaultdict(int)
+        stats: dict[str, Any] = {
             "total_samples": 0,
             "task_type": "",
-            "vulnerability_distribution": defaultdict(int),
-            "cwe_distribution": defaultdict(int),
-            "average_code_length": 0,
+            "average_code_length": 0.0,
             "dataset_name": Path(data_file).stem,
         }
 
         try:
             data_path = Path(data_file)
+            items: list[dict[str, Any]]
 
             # Handle both JSON and JSONL formats
             if data_path.suffix == ".json":
                 with open(data_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+                    data: dict[str, Any] | list[dict[str, Any]] = json.load(f)
                     if isinstance(data, dict) and "samples" in data:
-                        items = data["samples"]
+                        items = [
+                            sample
+                            for sample in data["samples"]
+                            if isinstance(sample, dict)
+                        ]
                         stats["task_type"] = data.get("metadata", {}).get(
                             "task_type", "unknown"
                         )
                     else:
-                        items = data
+                        items = data if isinstance(data, list) else []
             else:  # JSONL format
                 items = []
                 with open(data_file, "r", encoding="utf-8") as f:
@@ -350,38 +364,38 @@ class VulDetectBenchDatasetLoader:
                         if line:
                             items.append(json.loads(line))
 
-            code_lengths = []
+            code_lengths: list[int] = []
 
             for item in items:
                 stats["total_samples"] += 1
 
                 # CWE distribution
-                cwe = item.get("cwe", "Unknown")
+                cwe: str = str(item.get("cwe", "Unknown"))
                 if cwe:
-                    stats["cwe_distribution"][cwe] += 1
+                    cwe_distribution[cwe] += 1
                 else:
-                    stats["cwe_distribution"]["No-CWE"] += 1
+                    cwe_distribution["No-CWE"] += 1
 
                 # Answer distribution (for Task 1)
-                answer = item.get("answer", "")
+                answer: str = str(item.get("answer", ""))
                 if answer:
-                    stats["vulnerability_distribution"][answer] += 1
+                    vulnerability_distribution[answer] += 1
 
                 # Code length
-                code = item.get("code", "")
+                code: str = str(item.get("code", ""))
                 code_lengths.append(len(code))
 
             # Calculate average code length
             if code_lengths:
                 stats["average_code_length"] = sum(code_lengths) / len(code_lengths)
 
-        except Exception as e:
-            self.logger.error(f"Error generating statistics: {e}")
+        except Exception:
+            self.logger.exception("Error generating statistics")
             return {}
 
         # Convert defaultdicts to regular dicts
-        stats["vulnerability_distribution"] = dict(stats["vulnerability_distribution"])
-        stats["cwe_distribution"] = dict(stats["cwe_distribution"])
+        stats["vulnerability_distribution"] = dict(vulnerability_distribution)
+        stats["cwe_distribution"] = dict(cwe_distribution)
 
         return stats
 
@@ -389,16 +403,16 @@ class VulDetectBenchDatasetLoader:
 class VulDetectBenchDatasetLoaderFramework:
     """Framework-compatible wrapper for VulDetectBench dataset loader."""
 
-    def __init__(self):
-        self.loader = VulDetectBenchDatasetLoader()
-        self.logger = logging.getLogger(__name__)
+    def __init__(self) -> None:
+        self.loader: VulDetectBenchDatasetLoader = VulDetectBenchDatasetLoader()
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def load_dataset(
         self,
         dataset_path: str,
         task_type: str = "task1_vulnerability",
-        max_samples: Optional[int] = None,
-        **kwargs,
+        max_samples: int | None = None,
+        **kwargs: Any,
     ) -> list[BenchmarkSample]:
         """
         Load dataset compatible with benchmark framework.
@@ -414,7 +428,7 @@ class VulDetectBenchDatasetLoaderFramework:
         """
         # Convert framework task type to VulDetectBench task type
         if "task1" in task_type:
-            vuldetectbench_task_type = "task1"
+            vuldetectbench_task_type: str = "task1"
         elif "task2" in task_type:
             vuldetectbench_task_type = "task2"
         elif "task3" in task_type:

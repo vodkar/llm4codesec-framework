@@ -9,7 +9,7 @@ import argparse
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -23,8 +23,8 @@ class DatasetConverter:
         output_path: str,
         code_column: str = "code",
         label_column: str = "label",
-        id_column: Optional[str] = None,
-        cwe_column: Optional[str] = None,
+        id_column: str | None = None,
+        cwe_column: str | None = None,
     ) -> None:
         """
         Convert CSV dataset to JSON format.
@@ -37,11 +37,11 @@ class DatasetConverter:
             id_column (Optional[str]): Name of ID column
             cwe_column (Optional[str]): Name of CWE type column
         """
-        df = pd.read_csv(csv_path)
+        df: pd.DataFrame = pd.read_csv(csv_path)
 
-        samples = []
+        samples: list[dict[str, Any]] = []
         for idx, row in df.iterrows():
-            sample = {
+            sample: dict[str, Any] = {
                 "id": row[id_column]
                 if id_column and id_column in df.columns
                 else f"sample_{idx:06d}",
@@ -73,12 +73,12 @@ class DatasetConverter:
     def json_to_csv(json_path: str, output_path: str) -> None:
         """Convert JSON dataset to CSV format."""
         with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            data: list[dict[str, Any]] = json.load(f)
 
         # Flatten the data
-        rows = []
+        rows: list[dict[str, Any]] = []
         for item in data:
-            row = {
+            row: dict[str, Any] = {
                 "id": item["id"],
                 "code": item["code"],
                 "label": item["label"],
@@ -93,7 +93,7 @@ class DatasetConverter:
 
             rows.append(row)
 
-        df = pd.DataFrame(rows)
+        df: pd.DataFrame = pd.DataFrame(rows)
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_path, index=False)
 
@@ -104,19 +104,19 @@ class DatasetAnalyzer:
     """Analyze dataset characteristics and statistics."""
 
     def __init__(self, dataset_path: str):
-        self.dataset_path = dataset_path
-        self.data = self._load_data()
+        self.dataset_path: str = dataset_path
+        self.data: list[dict[str, Any]] = self._load_data()
 
-    def _load_data(self) -> List[Dict[str, Any]]:
+    def _load_data(self) -> list[dict[str, Any]]:
         """Load dataset from file."""
         with open(self.dataset_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    def get_basic_stats(self) -> Dict[str, Any]:
+    def get_basic_stats(self) -> dict[str, Any]:
         """Get basic dataset statistics."""
-        df = pd.DataFrame(self.data)
+        df: pd.DataFrame = pd.DataFrame(self.data)
 
-        stats = {
+        stats: dict[str, Any] = {
             "total_samples": len(self.data),
             "unique_labels": list(df["label"].unique()),
             "label_distribution": df["label"].value_counts().to_dict(),
@@ -131,53 +131,53 @@ class DatasetAnalyzer:
 
         # CWE analysis if available
         if "cwe_type" in df.columns:
-            cwe_counts = df["cwe_type"].value_counts(dropna=False)
+            cwe_counts: pd.Series = df["cwe_type"].value_counts(dropna=False)
             stats["cwe_distribution"] = cwe_counts.to_dict()
 
         # Language analysis if available in metadata
-        languages = []
+        languages: list[str] = []
         for item in self.data:
             if "metadata" in item and "language" in item["metadata"]:
                 languages.append(item["metadata"]["language"])
 
         if languages:
-            lang_counts = pd.Series(languages).value_counts()
+            lang_counts: pd.Series = pd.Series(languages).value_counts()
             stats["language_distribution"] = lang_counts.to_dict()
 
         return stats
 
-    def analyze_class_balance(self) -> Dict[str, float]:
+    def analyze_class_balance(self) -> dict[str, dict[str, float] | float]:
         """Analyze class balance in the dataset."""
-        df = pd.DataFrame(self.data)
-        label_counts = df["label"].value_counts()
-        total = len(df)
+        df: pd.DataFrame = pd.DataFrame(self.data)
+        label_counts: pd.Series = df["label"].value_counts()
+        total: int = len(df)
 
-        balance_info = {}
+        balance_info: dict[str, dict[str, float] | float] = {}
         for label, count in label_counts.items():
             balance_info[str(label)] = {
-                "count": count,
-                "percentage": (count / total) * 100,
+                "count": float(count),
+                "percentage": (float(count) / float(total)) * 100.0,
             }
 
         # Calculate imbalance ratio
-        max_class = label_counts.max()
-        min_class = label_counts.min()
+        max_class: float = float(label_counts.max())
+        min_class: float = float(label_counts.min())
         balance_info["imbalance_ratio"] = (
             max_class / min_class if min_class > 0 else float("inf")
         )
 
         return balance_info
 
-    def find_duplicates(self) -> List[Dict[str, Any]]:
+    def find_duplicates(self) -> list[dict[str, Any]]:
         """Find duplicate code samples."""
-        df = pd.DataFrame(self.data)
+        df: pd.DataFrame = pd.DataFrame(self.data)
 
         # Find duplicates based on code
-        duplicates = df[df.duplicated(subset=["code"], keep=False)]
+        duplicates: pd.DataFrame = df[df.duplicated(subset=["code"], keep=False)]
 
-        duplicate_groups = []
+        duplicate_groups: list[dict[str, Any]] = []
         for code in duplicates["code"].unique():
-            group = df[df["code"] == code]
+            group: pd.DataFrame = df[df["code"] == code]
             duplicate_groups.append(
                 {
                     "code_snippet": code[:100] + "..." if len(code) > 100 else code,
@@ -188,9 +188,9 @@ class DatasetAnalyzer:
 
         return duplicate_groups
 
-    def generate_report(self, output_path: Optional[str] = None) -> Dict[str, Any]:
+    def generate_report(self, output_path: str | None = None) -> dict[str, Any]:
         """Generate comprehensive dataset analysis report."""
-        report = {
+        report: dict[str, Any] = {
             "dataset_path": self.dataset_path,
             "analysis_timestamp": datetime.now().isoformat(),
             "basic_stats": self.get_basic_stats(),
@@ -211,12 +211,12 @@ class ResultsAnalyzer:
     """Analyze benchmark results and generate insights."""
 
     def __init__(self, results_dir: str):
-        self.results_dir = Path(results_dir)
-        self.reports = self._load_all_reports()
+        self.results_dir: Path = Path(results_dir)
+        self.reports: list[dict[str, Any]] = self._load_all_reports()
 
-    def _load_all_reports(self) -> List[Dict[str, Any]]:
+    def _load_all_reports(self) -> list[dict[str, Any]]:
         """Load all benchmark report files."""
-        reports = []
+        reports: list[dict[str, Any]] = []
         for report_file in self.results_dir.glob("benchmark_report_*.json"):
             with open(report_file, "r", encoding="utf-8") as f:
                 reports.append(json.load(f))
@@ -224,13 +224,13 @@ class ResultsAnalyzer:
 
     def compare_models(self) -> pd.DataFrame:
         """Compare performance across different models."""
-        comparison_data = []
+        comparison_data: list[dict[str, Any]] = []
 
         for report in self.reports:
             info = report["benchmark_info"]
             metrics = report["metrics"]
 
-            row = {
+            row: dict[str, Any] = {
                 "model_name": info["model_name"],
                 "task_type": info["task_type"],
                 "total_samples": info["total_samples"],
@@ -255,15 +255,15 @@ class ResultsAnalyzer:
 
         return pd.DataFrame(comparison_data)
 
-    def analyze_error_patterns(self) -> Dict[str, Any]:
+    def analyze_error_patterns(self) -> dict[str, Any]:
         """Analyze error patterns across models."""
-        error_analysis = {}
+        error_analysis: dict[str, Any] = {}
 
         for report in self.reports:
             model_name = report["benchmark_info"]["model_name"]
             predictions = report["predictions"]
 
-            errors = []
+            errors: list[dict[str, Any]] = []
             for pred in predictions:
                 if pred["predicted_label"] != pred["true_label"]:
                     errors.append(
@@ -287,10 +287,10 @@ class ResultsAnalyzer:
 
     def generate_comparison_report(self, output_path: str) -> None:
         """Generate a comprehensive comparison report."""
-        comparison_df = self.compare_models()
-        error_analysis = self.analyze_error_patterns()
+        comparison_df: pd.DataFrame = self.compare_models()
+        error_analysis: dict[str, Any] = self.analyze_error_patterns()
 
-        report = {
+        report: dict[str, Any] = {
             "comparison_timestamp": datetime.now().isoformat(),
             "total_experiments": len(self.reports),
             "model_comparison": comparison_df.to_dict("records"),
@@ -326,7 +326,7 @@ class ResultsAnalyzer:
         print(f"Comparison report saved to: {output_path}")
 
 
-def main():
+def main() -> None:
     """Command line interface for data processing utilities."""
     parser = argparse.ArgumentParser(
         description="Data processing utilities for LLM benchmark"
@@ -384,8 +384,8 @@ def main():
             DatasetConverter.json_to_csv(args.input_file, args.output_file)
 
     elif args.command == "analyze":
-        analyzer = DatasetAnalyzer(args.dataset_path)
-        report = analyzer.generate_report(args.output)
+        dataset_analyzer: DatasetAnalyzer = DatasetAnalyzer(args.dataset_path)
+        report: dict[str, Any] = dataset_analyzer.generate_report(args.output)
 
         # Print summary to console
         print("\nDataset Analysis Summary:")
@@ -400,11 +400,11 @@ def main():
             print(f"Found {len(report['duplicates'])} duplicate groups")
 
     elif args.command == "compare":
-        analyzer = ResultsAnalyzer(args.results_dir)
-        analyzer.generate_comparison_report(args.output)
+        results_analyzer: ResultsAnalyzer = ResultsAnalyzer(args.results_dir)
+        results_analyzer.generate_comparison_report(args.output)
 
         # Print summary
-        comparison_df = analyzer.compare_models()
+        comparison_df: pd.DataFrame = results_analyzer.compare_models()
         print("\nModel Comparison Summary:")
         print(
             comparison_df[["model_name", "task_type", "accuracy"]].to_string(

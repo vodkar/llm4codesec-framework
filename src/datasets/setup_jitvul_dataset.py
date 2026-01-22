@@ -11,13 +11,15 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoader
 
-def tuple_encoder(obj):
+
+def tuple_encoder(obj: Any) -> Any:
+    """Encode tuples for JSON serialization."""
     if isinstance(obj, tuple):
-        return {'__tuple__': True, 'items': list(obj)}
+        return {"__tuple__": True, "items": list(obj)}
     return obj
 
 
@@ -31,16 +33,16 @@ def setup_logging(verbose: bool = False) -> None:
 
 def create_output_directory(output_dir: str) -> Path:
     """Create output directory if it doesn't exist."""
-    output_path = Path(output_dir)
+    output_path: Path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     return output_path
 
 
 def create_binary_dataset(
     loader: JitVulDatasetLoader,
-    data_file: str,
+    data_file: Path,
     output_dir: Path,
-    max_samples: Optional[int] = None,
+    max_samples: int | None = None,
 ) -> None:
     """Create binary classification dataset."""
     logger = logging.getLogger(__name__)
@@ -53,7 +55,7 @@ def create_binary_dataset(
     )
 
     # Create dataset dictionary
-    dataset_dict: Dict[str, Any] = {
+    dataset_dict: dict[str, Any] = {
         "metadata": {
             "name": "JitVul-Binary-Benchmark",
             "version": "1.0",
@@ -67,7 +69,7 @@ def create_binary_dataset(
 
     # Convert samples to dict format
     for sample in samples:
-        sample_dict: Dict[str, Any] = {
+        sample_dict: dict[str, Any] = {
             "id": sample.id,
             "code": sample.code,
             "label": sample.label,
@@ -88,9 +90,9 @@ def create_binary_dataset(
 
 def create_multiclass_dataset(
     loader: JitVulDatasetLoader,
-    data_file: str,
+    data_file: Path,
     output_dir: Path,
-    max_samples: Optional[int] = None,
+    max_samples: int | None = None,
 ) -> None:
     """Create multiclass classification dataset."""
     logger = logging.getLogger(__name__)
@@ -103,7 +105,7 @@ def create_multiclass_dataset(
     )
 
     # Calculate CWE distribution
-    cwe_counts: Dict[str, int] = {}
+    cwe_counts: dict[str, int] = {}
     for sample in samples:
         cwes = sample.cwe_types or ["UNKNOWN"]
         for cwe in cwes:
@@ -111,7 +113,7 @@ def create_multiclass_dataset(
             cwe_counts[cwe] = cwe_counts.get(cwe, 0) + 1
 
     # Create dataset dictionary
-    dataset_dict: Dict[str, Any] = {
+    dataset_dict: dict[str, Any] = {
         "metadata": {
             "name": "JitVul-Multiclass-Benchmark",
             "version": "1.0",
@@ -126,7 +128,7 @@ def create_multiclass_dataset(
 
     # Convert samples to dict format
     for sample in samples:
-        sample_dict: Dict[str, Any] = {
+        sample_dict: dict[str, Any] = {
             "id": sample.id,
             "code": sample.code,
             "label": sample.label,
@@ -148,10 +150,10 @@ def create_multiclass_dataset(
 
 def create_cwe_specific_datasets(
     loader: JitVulDatasetLoader,
-    data_file: str,
+    data_file: Path,
     output_dir: Path,
-    target_cwes: Optional[List[str]] = None,
-    max_samples: Optional[int] = None,
+    target_cwes: list[str] | None = None,
+    max_samples: int | None = None,
 ) -> None:
     """Create CWE-specific datasets."""
     logger = logging.getLogger(__name__)
@@ -187,7 +189,7 @@ def create_cwe_specific_datasets(
             continue
 
         # Create dataset dictionary
-        dataset_dict: Dict[str, Any] = {
+        dataset_dict: dict[str, Any] = {
             "metadata": {
                 "name": f"JitVul-{cwe}-Benchmark",
                 "version": "1.0",
@@ -202,7 +204,7 @@ def create_cwe_specific_datasets(
 
         # Convert samples to dict format
         for sample in samples:
-            sample_dict: Dict[str, Any] = {
+            sample_dict: dict[str, Any] = {
                 "id": sample.id,
                 "code": sample.code,
                 "label": sample.label,
@@ -224,11 +226,11 @@ def create_cwe_specific_datasets(
 
 def generate_dataset_summary(output_dir: Path) -> None:
     """Generate a summary of all created datasets."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     logger.info("Generating dataset summary...")
 
-    summary: Dict[str, Any] = {
+    summary: dict[str, Any] = {
         "created_datasets": [],
         "total_files": 0,
         "generation_timestamp": json.dumps(Path().resolve(), default=str),
@@ -242,7 +244,7 @@ def generate_dataset_summary(output_dir: Path) -> None:
             with open(json_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            file_info: Dict[str, Any] = {
+            file_info: dict[str, Any] = {
                 "filename": json_file.name,
                 "task_type": data.get("metadata", {}).get("task_type", "unknown"),
                 "total_samples": data.get("metadata", {}).get("total_samples", 0),
@@ -251,8 +253,8 @@ def generate_dataset_summary(output_dir: Path) -> None:
             }
             summary["created_datasets"].append(file_info)
 
-        except Exception as e:
-            logger.warning(f"Could not process {json_file}: {e}")
+        except Exception:
+            logger.exception("Could not process %s", json_file)
 
     summary["total_files"] = len(summary["created_datasets"])
 
@@ -265,7 +267,7 @@ def generate_dataset_summary(output_dir: Path) -> None:
     logger.info(f"Total datasets created: {summary['total_files']}")
 
 
-def main():
+def main() -> None:
     """Main entry point for JitVul dataset setup."""
     parser = argparse.ArgumentParser(
         description="Setup JitVul datasets for benchmarking"
@@ -319,21 +321,21 @@ def main():
 
     # Setup logging
     setup_logging(args.verbose)
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     try:
         # Validate data file exists
-        data_file_path = Path(args.data_file)
+        data_file_path: Path = Path(args.data_file)
         if not data_file_path.exists():
             logger.error(f"Data file not found: {args.data_file}")
             sys.exit(1)
 
         # Create output directory
-        output_dir = create_output_directory(args.output_dir)
+        output_dir: Path = create_output_directory(args.output_dir)
         logger.info(f"Output directory: {output_dir}")
 
         # Initialize dataset loader
-        loader = JitVulDatasetLoader(source_dir=args.source_dir)
+        loader: JitVulDatasetLoader = JitVulDatasetLoader(source_dir=args.source_dir)
 
         # Determine which datasets to create
         create_binary = args.binary or args.all
@@ -346,16 +348,16 @@ def main():
 
         # Create datasets
         if create_binary:
-            create_binary_dataset(loader, args.data_file, output_dir, args.max_samples)
+            create_binary_dataset(loader, data_file_path, output_dir, args.max_samples)
 
         if create_multiclass:
             create_multiclass_dataset(
-                loader, args.data_file, output_dir, args.max_samples
+                loader, data_file_path, output_dir, args.max_samples
             )
 
         if create_cwe:
             create_cwe_specific_datasets(
-                loader, args.data_file, output_dir, args.target_cwes, args.max_samples
+                loader, data_file_path, output_dir, args.target_cwes, args.max_samples
             )
 
         # Generate summary
@@ -363,8 +365,8 @@ def main():
 
         logger.info("JitVul dataset setup completed successfully!")
 
-    except Exception as e:
-        logger.exception(f"JitVul dataset setup failed: {e}")
+    except Exception:
+        logger.exception("JitVul dataset setup failed")
         sys.exit(1)
 
 

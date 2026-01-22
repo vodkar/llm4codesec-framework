@@ -11,8 +11,9 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Any
 
+from benchmark.models import BenchmarkSample
 from datasets.loaders.castle_dataset_loader import (
     CastleDatasetLoader,
     filter_by_cwe,
@@ -30,14 +31,14 @@ def setup_logging(verbose: bool = False) -> None:
 
 def create_output_directory(output_dir: str) -> Path:
     """Create output directory if it doesn't exist."""
-    output_path = Path(output_dir)
+    output_path: Path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     return output_path
 
 
 def create_binary_dataset(loader: CastleDatasetLoader, output_dir: Path) -> None:
     """Create binary classification dataset."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     logger.info("Creating binary classification dataset...")
 
@@ -49,7 +50,7 @@ def create_binary_dataset(loader: CastleDatasetLoader, output_dir: Path) -> None
 
 def create_multiclass_dataset(loader: CastleDatasetLoader, output_dir: Path) -> None:
     """Create multi-class classification dataset."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     logger.info("Creating multi-class classification dataset...")
 
@@ -62,15 +63,15 @@ def create_multiclass_dataset(loader: CastleDatasetLoader, output_dir: Path) -> 
 def create_cwe_specific_datasets(
     loader: CastleDatasetLoader,
     output_dir: Path,
-    target_cwes: Optional[List[str]] = None,
+    target_cwes: list[str] | None = None,
 ) -> None:
     """Create CWE-specific datasets."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     logger.info("Creating CWE-specific datasets...")
 
     # Load all samples first
-    all_samples = loader.load_dataset("binary")
+    all_samples: list[BenchmarkSample] = loader.transform_dataset()
     available_cwes = get_available_cwes(all_samples)
 
     logger.info(f"Available CWEs in dataset: {available_cwes}")
@@ -100,7 +101,7 @@ def create_cwe_specific_datasets(
 
         # Create dataset structure
         cwe_number = cwe.split("-")[1]
-        dataset_dict = {
+        dataset_dict: dict[str, Any] = {
             "metadata": {
                 "name": f"CASTLE-Benchmark-{cwe}",
                 "version": "1.2",
@@ -135,7 +136,7 @@ def create_cwe_specific_datasets(
 
 def update_gitignore() -> None:
     """Update .gitignore to include processed datasets."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     gitignore_path = Path(".gitignore")
 
@@ -155,7 +156,7 @@ def update_gitignore() -> None:
     ]
 
     # Check which entries are missing
-    missing_entries = []
+    missing_entries: list[str] = []
     for entry in entries_to_add:
         if entry not in gitignore_content:
             missing_entries.append(entry)
@@ -177,7 +178,7 @@ def update_gitignore() -> None:
 
 def create_sample_prompts(output_dir: Path) -> None:
     """Create sample prompt files for experimentation."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     prompts_dir = output_dir / "sample_prompts"
     prompts_dir.mkdir(exist_ok=True)
@@ -210,7 +211,7 @@ def create_sample_prompts(output_dir: Path) -> None:
     }
 
     # Save prompt files
-    prompts = {
+    prompts: dict[str, dict[str, str]] = {
         "basic_security": basic_prompt,
         "cwe_focused": cwe_prompt,
         "detailed_analysis": detailed_prompt,
@@ -256,7 +257,7 @@ Feel free to modify these prompts or create new ones based on your experimental 
 
 def validate_castle_source(source_dir: str) -> bool:
     """Validate that CASTLE source directory exists and has expected structure."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     source_path = Path(source_dir)
 
@@ -270,7 +271,7 @@ def validate_castle_source(source_dir: str) -> bool:
 
     # Check for some expected CWE directories
     expected_cwes = ["125", "190", "476", "787"]
-    found_cwes = []
+    found_cwes: list[str] = []
 
     for cwe in expected_cwes:
         cwe_dir = source_path / cwe
@@ -286,7 +287,7 @@ def validate_castle_source(source_dir: str) -> bool:
     return True
 
 
-def main():
+def main() -> None:
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Setup CASTLE benchmark datasets",
@@ -344,7 +345,7 @@ def main():
     args = parser.parse_args()
 
     setup_logging(args.verbose)
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     try:
         logger.info("CASTLE Dataset Setup")
@@ -359,7 +360,8 @@ def main():
         logger.info(f"Output directory: {output_dir}")
 
         # Initialize dataset loader
-        loader = CastleDatasetLoader(args.source_dir)
+        loader: CastleDatasetLoader = CastleDatasetLoader()
+        loader.source_dir = Path(args.source_dir)
 
         # Create datasets
         if not args.skip_binary:
@@ -388,8 +390,8 @@ def main():
         for file in sorted(dataset_files):
             logger.info(f"  - {file.name}")
 
-    except Exception as e:
-        logger.exception(f"Dataset setup failed: {e}")
+    except Exception:
+        logger.exception("Dataset setup failed")
         sys.exit(1)
 
 

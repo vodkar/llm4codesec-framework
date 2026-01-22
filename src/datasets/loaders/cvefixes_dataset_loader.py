@@ -10,7 +10,7 @@ import json
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from benchmark.models import BenchmarkSample
 
@@ -18,16 +18,18 @@ from benchmark.models import BenchmarkSample
 class CVEFixesDatasetLoader:
     """Loads and processes CVEFixes benchmark dataset from SQLite database."""
 
-    def __init__(self, database_path: str = "benchmarks/CVEfixes/Data/CVEfixes.db"):
+    def __init__(
+        self, database_path: str = "benchmarks/CVEfixes/Data/CVEfixes.db"
+    ) -> None:
         """
         Initialize the CVEFixes dataset loader.
 
         Args:
             database_path: Path to the CVEFixes SQLite database
         """
-        self.database_path = Path(database_path)
-        self.logger = logging.getLogger(__name__)
-        self.conn: Optional[sqlite3.Connection] = None
+        self.database_path: Path = Path(database_path)
+        self.logger: logging.Logger = logging.getLogger(__name__)
+        self.conn: sqlite3.Connection | None = None
 
         if not self.database_path.exists():
             raise FileNotFoundError(
@@ -39,8 +41,8 @@ class CVEFixesDatasetLoader:
         """Create a connection to the SQLite database."""
         try:
             return sqlite3.connect(str(self.database_path), timeout=10)
-        except sqlite3.Error as e:
-            self.logger.exception(f"Error connecting to database: {e}")
+        except sqlite3.Error:
+            self.logger.exception("Error connecting to database")
             raise
 
     def _get_cwe_distribution(self) -> dict[str, int]:
@@ -62,13 +64,13 @@ class CVEFixesDatasetLoader:
         return {f"CWE-{cwe_id}": count for cwe_id, count in results if cwe_id}
 
     def _extract_file_level_data(
-        self, programming_language: str = "C", limit: Optional[int] = None
+        self, programming_language: str = "C", limit: int | None = None
     ) -> list[
         tuple[
             str,
             str,
             str,
-            Optional[float],
+            float | None,
             str,
             str,
             str,
@@ -77,7 +79,7 @@ class CVEFixesDatasetLoader:
             int,
             str,
             str,
-            Optional[str],
+            str | None,
         ]
     ]:
         """
@@ -120,7 +122,7 @@ class CVEFixesDatasetLoader:
         AND LENGTH(f.code_after) > 50
         """
 
-        params: list[Union[str, int]] = [programming_language]
+        params: list[str | int] = [programming_language]
 
         if limit:
             query += " LIMIT ?"
@@ -131,13 +133,13 @@ class CVEFixesDatasetLoader:
         return cursor.fetchall()
 
     def _extract_method_level_data(
-        self, programming_language: str = "C", limit: Optional[int] = None
+        self, programming_language: str = "C", limit: int | None = None
     ) -> list[
         tuple[
             str,
             str,
             str,
-            Optional[float],
+            float | None,
             str,
             str,
             str,
@@ -148,7 +150,7 @@ class CVEFixesDatasetLoader:
             int,
             str,
             str,
-            Optional[str],
+            str | None,
         ]
     ]:
         """
@@ -194,7 +196,7 @@ class CVEFixesDatasetLoader:
         AND LENGTH(m.before_change) > 20
         """
 
-        params: list[Union[str, int]] = [programming_language]
+        params: list[str | int] = [programming_language]
 
         if limit:
             query += " LIMIT ?"
@@ -210,7 +212,7 @@ class CVEFixesDatasetLoader:
             str,
             str,
             str,
-            Optional[float],
+            float | None,
             str,
             str,
             str,
@@ -219,7 +221,7 @@ class CVEFixesDatasetLoader:
             int,
             str,
             str,
-            Optional[str],
+            str | None,
         ],
         index: int,
     ) -> BenchmarkSample:
@@ -264,7 +266,7 @@ class CVEFixesDatasetLoader:
         }
 
         # Determine labels
-        cwe_type = cwe_id if cwe_id else "UNKNOWN"
+        cwe_type: str = cwe_id if cwe_id else "UNKNOWN"
         binary_label = 1  # All samples from CVEFixes are vulnerable by definition
 
         return BenchmarkSample(
@@ -284,7 +286,7 @@ class CVEFixesDatasetLoader:
             str,
             str,
             str,
-            Optional[float],
+            float | None,
             str,
             str,
             str,
@@ -295,7 +297,7 @@ class CVEFixesDatasetLoader:
             int,
             str,
             str,
-            Optional[str],
+            str | None,
         ],
         index: int,
     ) -> BenchmarkSample:
@@ -352,13 +354,13 @@ class CVEFixesDatasetLoader:
             code=code_to_analyze,
             label=binary_label,
             metadata=metadata,
-            cwe=cwe_type,
+            cwe_types=[cwe_type],
             severity=self._map_severity(severity)
             if isinstance(severity, (int, float))
             else severity,
         )
 
-    def _map_severity(self, severity: Optional[float]) -> Optional[str]:
+    def _map_severity(self, severity: float | None) -> str | None:
         """Map numeric CVSS severity to categorical severity."""
         if severity is None:
             return None
@@ -379,7 +381,7 @@ class CVEFixesDatasetLoader:
         task_type: str = "binary",
         programming_language: str = "C",
         change_level: str = "file",
-        limit: Optional[int] = None,
+        limit: int | None = None,
     ) -> list[BenchmarkSample]:
         """
         Load CVEFixes dataset and convert to BenchmarkSample format.
@@ -399,10 +401,12 @@ class CVEFixesDatasetLoader:
             self.conn = self._create_connection()
 
             if change_level == "file":
-                data_rows = self._extract_file_level_data(programming_language, limit)
-                for i, data in enumerate(data_rows):
+                file_data_rows = self._extract_file_level_data(
+                    programming_language, limit
+                )
+                for i, file_row in enumerate(file_data_rows):
                     try:
-                        sample = self._create_sample_from_file_data(data, i)
+                        sample = self._create_sample_from_file_data(file_row, i)
 
                         # Apply task-specific label adjustments
                         if task_type == "binary":
@@ -414,7 +418,12 @@ class CVEFixesDatasetLoader:
                                 sample.label = "UNKNOWN"
                         elif task_type.startswith("CWE-"):
                             target_cwe = task_type.upper()
-                            sample.label = 1 if target_cwe in sample.cwe_types else 0
+                            if sample.cwe_types:
+                                sample.label = (
+                                    1 if target_cwe in sample.cwe_types else 0
+                                )
+                            else:
+                                sample.label = 0
 
                         samples.append(sample)
 
@@ -423,22 +432,29 @@ class CVEFixesDatasetLoader:
                         continue
 
             elif change_level == "method":
-                data_rows = self._extract_method_level_data(programming_language, limit)
-                for i, data in enumerate(data_rows):
+                method_data_rows = self._extract_method_level_data(
+                    programming_language, limit
+                )
+                for i, method_row in enumerate(method_data_rows):
                     try:
-                        sample = self._create_sample_from_method_data(data, i)
+                        sample = self._create_sample_from_method_data(method_row, i)
 
                         # Apply task-specific label adjustments
                         if task_type == "binary":
                             sample.label = 1  # All CVEFixes samples are vulnerable
                         elif task_type == "multiclass":
                             if sample.cwe_types:
-                                sample.label = sample.cwe_types
+                                sample.label = sample.cwe_types[0]
                             else:
                                 sample.label = "UNKNOWN"
                         elif task_type.startswith("cwe_"):
                             target_cwe = task_type.upper()
-                            sample.label = 1 if sample.cwe_types == target_cwe else 0
+                            if sample.cwe_types:
+                                sample.label = (
+                                    1 if target_cwe in sample.cwe_types else 0
+                                )
+                            else:
+                                sample.label = 0
 
                         samples.append(sample)
 
@@ -463,7 +479,7 @@ class CVEFixesDatasetLoader:
         task_type: str = "binary",
         programming_language: str = "C",
         change_level: str = "file",
-        limit: Optional[int] = None,
+        limit: int | None = None,
     ) -> None:
         """
         Create a JSON dataset file compatible with the benchmark framework.

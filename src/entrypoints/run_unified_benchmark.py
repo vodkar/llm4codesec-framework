@@ -279,7 +279,7 @@ def run_single_experiment_unified(
         raise ValueError(f"Unknown dataset type: {dataset_type}")
 
 
-def main():
+def main() -> None:
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Unified benchmark runner for CASTLE, JitVul, CVEFixes, VulBench, VulDetectBench, and VulnerabilityDetection datasets",

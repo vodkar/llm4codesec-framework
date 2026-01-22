@@ -13,7 +13,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-from llm.hugging_face import HuggingFaceLLM
 from benchmark.config import BenchmarkConfig
 from benchmark.enums import ModelType, TaskType
 from benchmark.metrics_calculator import (
@@ -22,8 +21,8 @@ from benchmark.metrics_calculator import (
     MulticlassMetricsCalculator,
 )
 from benchmark.models import BenchmarkSample, PredictionResult
-from benchmark.prompt_generator import PromptGenerator
-from benchmark.response_parser import ResponseParser
+from benchmark.prompt_generator import DefaultPromptGenerator
+from benchmark.response_parser import IResponseParser
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.result_types import (
     BenchmarkReport,
@@ -34,14 +33,14 @@ from benchmark.result_types import (
 from datasets.loaders.vuldetectbench_dataset_loader import (
     VulDetectBenchDatasetLoaderFramework,
 )
+from llm.hugging_face import HuggingFaceLLM
 
 
-class VulDetectBenchResponseParser(ResponseParser):
+class VulDetectBenchResponseParser(IResponseParser):
     """Custom response parser for VulDetectBench tasks."""
 
     def __init__(self, task_type: str):
-        super().__init__(TaskType.BINARY_VULNERABILITY)  # Default, will be overridden
-        self.task_type = task_type
+        self.task_type: str = task_type
 
     def parse_response(self, response: str) -> Any:
         """Parse response based on VulDetectBench task type."""
@@ -72,15 +71,16 @@ class VulDetectBenchBenchmarkRunner:
     """Custom benchmark runner for VulDetectBench datasets."""
 
     def __init__(self, config: BenchmarkConfig):
-        self.config = config
-        self.logger = logging.getLogger(__name__)
+        self.config: BenchmarkConfig = config
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
         # Initialize dataset loader
-        self.dataset_loader = VulDetectBenchDatasetLoaderFramework()
+        self.dataset_loader: VulDetectBenchDatasetLoaderFramework = (
+            VulDetectBenchDatasetLoaderFramework()
+        )
 
     def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
         """Run benchmark with VulDetectBench-specific dataset loading."""
-        from pathlib import Path
 
         logging.info("Starting VulDetectBench benchmark execution")
         start_time = time.time()
@@ -91,7 +91,7 @@ class VulDetectBenchBenchmarkRunner:
                 f"Loading VulDetectBench dataset from: {self.config.dataset_path}"
             )
             samples = self.dataset_loader.load_processed_dataset(
-                Path(self.config.dataset_path)
+                self.config.dataset_path
             )
 
             # Apply sample limit if specified
@@ -103,7 +103,11 @@ class VulDetectBenchBenchmarkRunner:
 
             # Initialize components
             llm = HuggingFaceLLM(self.config)
-            prompt_generator = PromptGenerator()
+            prompt_generator = DefaultPromptGenerator(
+                system_prompt_template=self.config.system_prompt_template,
+                user_prompt_template=self.config.user_prompt_template,
+                template_values={},
+            )
 
             # Determine task type from first sample
             task_type = (
@@ -114,15 +118,7 @@ class VulDetectBenchBenchmarkRunner:
             response_parser = VulDetectBenchResponseParser(task_type)
 
             # Create output directory
-            Path(self.config.output_dir).mkdir(parents=True, exist_ok=True)
-
-            # Run predictions
-            system_prompt = (
-                self.config.system_prompt_template
-                or prompt_generator.get_system_prompt(
-                    self.config.task_type, self.config.cwe_type
-                )
-            )
+            self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
             # VulDetectBench has task-specific prompt formatting that requires special handling
             # We need to handle task2 selection choices before batch processing
@@ -154,13 +150,14 @@ class VulDetectBenchBenchmarkRunner:
             # Run predictions using batch optimization with processed samples
             from benchmark.benchmark_runner import BenchmarkRunner
 
-            predictions = BenchmarkRunner.process_samples_with_batch_optimization(
-                samples=processed_samples,
-                llm=llm,
-                system_prompt=system_prompt,
+            runner = BenchmarkRunner(
                 prompt_generator=prompt_generator,
                 response_parser=response_parser,
+                llm=llm,
                 config=self.config,
+            )
+            predictions = runner.process_samples_with_batch_optimization(
+                processed_samples
             )
 
             # Calculate metrics based on task type
@@ -184,14 +181,20 @@ class VulDetectBenchBenchmarkRunner:
             logging.info("VulDetectBench benchmark completed successfully")
             return results
 
-        except Exception as e:
-            logging.exception(f"VulDetectBench benchmark failed: {e}")
+        except Exception:
+            logging.exception("VulDetectBench benchmark failed")
             raise
 
     def _calculate_task_specific_metrics(
         self, predictions: list[PredictionResult], task_type: str
     ) -> MetricsResult:
         """Calculate metrics specific to VulDetectBench tasks."""
+
+        calculator: (
+            BinaryMetricsCalculator
+            | MulticlassMetricsCalculator
+            | CodeAnalysisMetricsCalculator
+        )
 
         if task_type == "task1":
             # Binary classification metrics
@@ -261,14 +264,14 @@ def create_benchmark_config(
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
         description=f"{prompt_config['name']} - {dataset_config['description']}",
-        dataset_path=dataset_config["dataset_path"],
-        output_dir=output_dir,
+        dataset_path=Path(dataset_config["dataset_path"]),
+        output_dir=Path(output_dir),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
         use_quantization=model_config.get("use_quantization", True),
         cwe_type=dataset_config.get("cwe_type"),
-        system_prompt_template=prompt_config.get("system_prompt"),
+        system_prompt_template=prompt_config.get("system_prompt") or "",
         user_prompt_template=prompt_config["user_prompt"],
         is_thinking_enabled=prompt_config.get("enable_thinking", False),
     )
@@ -361,7 +364,7 @@ def run_single_experiment(
         }
 
 
-def main():
+def main() -> int:
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Run VulDetectBench benchmark experiments",
@@ -454,7 +457,7 @@ Examples:
                 plan_info = config["experiment_plans"][plan_key]
                 print(f"  {plan_key}: {plan_info['description']}")
 
-            return
+            return 0
 
         if args.plan:
             # Run experiment plan
@@ -484,12 +487,12 @@ Examples:
         else:
             parser.print_help()
 
-    except Exception as e:
-        logger.error(f"Application failed: {e}")
+    except Exception:
+        logger.exception("Application failed")
         return 1
 
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

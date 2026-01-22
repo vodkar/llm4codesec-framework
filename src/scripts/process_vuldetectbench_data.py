@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 from datasets.loaders.vuldetectbench_dataset_loader import VulDetectBenchDatasetLoader
 
@@ -25,7 +26,7 @@ def setup_logging(verbose: bool = False) -> None:
 def process_vuldetectbench_data(
     input_dir: str = "benchmarks/VulDetectBench/dataset/test",
     output_dir: str = "datasets_processed/vuldetectbench",
-    tasks: list = None,
+    tasks: list[str] | None = None,
 ) -> None:
     """
     Process VulDetectBench data for all tasks.
@@ -35,22 +36,22 @@ def process_vuldetectbench_data(
         output_dir: Directory to save processed datasets
         tasks: List of tasks to process (default: all 5 tasks)
     """
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     if tasks is None:
         tasks = ["task1", "task2", "task3", "task4", "task5"]
 
     # Initialize the dataset loader
-    loader = VulDetectBenchDatasetLoader()
+    loader: VulDetectBenchDatasetLoader = VulDetectBenchDatasetLoader()
 
     # Create output directory
-    output_path = Path(output_dir)
+    output_path: Path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"Processing VulDetectBench data from: {input_dir}")
     logger.info(f"Output directory: {output_dir}")
 
-    input_path = Path(input_dir)
+    input_path: Path = Path(input_dir)
     if not input_path.exists():
         raise FileNotFoundError(f"Input directory not found: {input_dir}")
 
@@ -60,8 +61,8 @@ def process_vuldetectbench_data(
 
         try:
             # Define input and output paths
-            input_file = input_path / f"{task}_code.jsonl"
-            output_file = output_path / f"vuldetectbench_{task}.json"
+            input_file: Path = input_path / f"{task}_code.jsonl"
+            output_file: Path = output_path / f"vuldetectbench_{task}.json"
 
             if not input_file.exists():
                 logger.warning(f"Input file not found: {input_file}")
@@ -73,8 +74,8 @@ def process_vuldetectbench_data(
             )
 
             # Generate and save statistics
-            stats = loader.get_dataset_stats(str(output_file))
-            stats_file = output_path / f"vuldetectbench_{task}_stats.json"
+            stats: dict[str, Any] = loader.get_dataset_stats(str(output_file))
+            stats_file: Path = output_path / f"vuldetectbench_{task}_stats.json"
 
             with open(stats_file, "w", encoding="utf-8") as f:
                 json.dump(stats, f, indent=2, ensure_ascii=False)
@@ -83,19 +84,19 @@ def process_vuldetectbench_data(
             logger.info(f"   Dataset: {output_file}")
             logger.info(f"   Stats: {stats_file}")
 
-        except Exception as e:
-            logger.error(f"❌ Failed to process {task}: {e}")
+        except Exception:
+            logger.exception("❌ Failed to process %s", task)
             continue
 
     # Create summary statistics
     create_summary_stats(output_dir, tasks)
 
 
-def create_summary_stats(output_dir: str, tasks: list) -> None:
+def create_summary_stats(output_dir: str, tasks: list[str]) -> None:
     """Create summary statistics across all tasks."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
-    summary = {
+    summary: dict[str, Any] = {
         "dataset": "VulDetectBench",
         "processing_date": str(Path().resolve()),
         "tasks": {},
@@ -109,7 +110,7 @@ def create_summary_stats(output_dir: str, tasks: list) -> None:
         },
     }
 
-    output_path = Path(output_dir)
+    output_path: Path = Path(output_dir)
 
     for task in tasks:
         stats_file = output_path / f"vuldetectbench_{task}_stats.json"
@@ -117,7 +118,7 @@ def create_summary_stats(output_dir: str, tasks: list) -> None:
         if stats_file.exists():
             try:
                 with open(stats_file, "r", encoding="utf-8") as f:
-                    task_stats = json.load(f)
+                    task_stats: dict[str, Any] = json.load(f)
 
                 summary["tasks"][task] = {
                     "total_samples": task_stats.get("total_samples", 0),
@@ -128,8 +129,8 @@ def create_summary_stats(output_dir: str, tasks: list) -> None:
 
                 summary["total_samples"] += task_stats.get("total_samples", 0)
 
-            except Exception as e:
-                logger.warning(f"Could not read stats for {task}: {e}")
+            except Exception:
+                logger.exception("Could not read stats for %s", task)
 
     # Save summary
     summary_file = output_path / "vuldetectbench_summary.json"
@@ -142,11 +143,11 @@ def create_summary_stats(output_dir: str, tasks: list) -> None:
 
 def validate_processed_data(output_dir: str, tasks: list[str]) -> bool:
     """Validate that processed data is correct."""
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Validating processed data...")
 
-    output_path = Path(output_dir)
-    all_valid = True
+    output_path: Path = Path(output_dir)
+    all_valid: bool = True
 
     for task in tasks:
         dataset_file = output_path / f"vuldetectbench_{task}.json"
@@ -158,7 +159,7 @@ def validate_processed_data(output_dir: str, tasks: list[str]) -> bool:
 
         try:
             with open(dataset_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+                data: dict[str, Any] = json.load(f)
 
             # Check structure
             if "metadata" not in data or "samples" not in data:
@@ -166,15 +167,17 @@ def validate_processed_data(output_dir: str, tasks: list[str]) -> bool:
                 all_valid = False
                 continue
 
-            samples = data["samples"]
+            samples: list[dict[str, Any]] = data["samples"]
             if not samples:
                 logger.warning(f"⚠️  No samples in {dataset_file}")
                 continue
 
             # Check sample structure
-            sample = samples[0]
-            required_fields = ["id", "code", "label"]
-            missing_fields = [field for field in required_fields if field not in sample]
+            sample: dict[str, Any] = samples[0]
+            required_fields: list[str] = ["id", "code", "label"]
+            missing_fields: list[str] = [
+                field for field in required_fields if field not in sample
+            ]
 
             if missing_fields:
                 logger.error(f"❌ Missing fields in {dataset_file}: {missing_fields}")
@@ -183,8 +186,8 @@ def validate_processed_data(output_dir: str, tasks: list[str]) -> bool:
 
             logger.info(f"✅ {task}: {len(samples)} samples validated")
 
-        except Exception as e:
-            logger.error(f"❌ Error validating {dataset_file}: {e}")
+        except Exception:
+            logger.exception("❌ Error validating %s", dataset_file)
             all_valid = False
 
     if all_valid:
@@ -195,7 +198,7 @@ def validate_processed_data(output_dir: str, tasks: list[str]) -> bool:
     return all_valid
 
 
-def main():
+def main() -> int:
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Process VulDetectBench raw data into structured datasets",
@@ -250,12 +253,12 @@ Examples:
 
     # Setup logging
     setup_logging(args.verbose)
-    logger = logging.getLogger(__name__)
+    logger: logging.Logger = logging.getLogger(__name__)
 
     try:
         if args.validate_only:
             # Only validate existing data
-            success = validate_processed_data(args.output, args.tasks)
+            success: bool = validate_processed_data(args.output, args.tasks)
             return 0 if success else 1
         else:
             # Process data
@@ -267,10 +270,10 @@ Examples:
             logger.info("🎉 VulDetectBench data processing completed successfully!")
             return 0
 
-    except Exception as e:
-        logger.error(f"❌ Processing failed: {e}")
+    except Exception:
+        logger.exception("❌ Processing failed")
         return 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

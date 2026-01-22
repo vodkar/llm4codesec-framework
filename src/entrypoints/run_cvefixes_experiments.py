@@ -221,7 +221,7 @@ def validate_datasets_exist(cvefixes_config: dict[str, Any]) -> bool:
     return True
 
 
-def main():
+def main() -> None:
     """Main function."""
     parser = argparse.ArgumentParser(
         description="Run CVEFixes experiment plans",

@@ -3,11 +3,31 @@ import logging
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 from scipy import stats
+
+
+class _DescribeResult(Protocol):
+    """Protocol describing the result from scipy.stats.describe."""
+
+    @property
+    def nobs(self) -> float: ...
+
+    @property
+    def minmax(
+        self,
+    ) -> tuple[float | NDArray[np.float64], float | NDArray[np.float64]]: ...
+
+    @property
+    def mean(self) -> float | NDArray[np.float64]: ...
+
+    @property
+    def variance(self) -> float | NDArray[np.float64]: ...
+
 
 from benchmark.config import BenchmarkConfig
 from benchmark.models import PredictionResult
@@ -24,9 +44,9 @@ class BenchmarkResultProcessor:
     """Build and persist standardized benchmark results."""
 
     def __init__(self, config: BenchmarkConfig, experiment_name: str | None = None):
-        self.config = config
-        self.experiment_name = experiment_name
-        self.logger = logging.getLogger(__name__)
+        self.config: BenchmarkConfig = config
+        self.experiment_name: str | None = experiment_name
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def build_report(
         self,
@@ -169,10 +189,26 @@ class BenchmarkResultProcessor:
     def _to_prediction_record(self, prediction: PredictionResult) -> PredictionRecord:
         """Convert PredictionResult to a serializable prediction record."""
         prediction_dict: dict[str, Any] = asdict(prediction)
+        predicted_label_raw: Any = prediction_dict.get("predicted_label")
+        true_label_raw: Any = prediction_dict.get("true_label")
+        predicted_label: int | str = (
+            predicted_label_raw
+            if isinstance(predicted_label_raw, (int, str))
+            else str(predicted_label_raw)
+            if predicted_label_raw is not None
+            else "UNKNOWN"
+        )
+        true_label: int | str = (
+            true_label_raw
+            if isinstance(true_label_raw, (int, str))
+            else str(true_label_raw)
+            if true_label_raw is not None
+            else "UNKNOWN"
+        )
         record: PredictionRecord = PredictionRecord(
             sample_id=str(prediction_dict.get("sample_id", "")),
-            predicted_label=prediction_dict.get("predicted_label"),
-            true_label=prediction_dict.get("true_label"),
+            predicted_label=predicted_label,
+            true_label=true_label,
             confidence=prediction_dict.get("confidence"),
             response_text=str(prediction_dict.get("response_text", "")),
             processing_time=float(prediction_dict.get("processing_time", 0.0)),
@@ -184,9 +220,7 @@ class BenchmarkResultProcessor:
         self, predictions: list[PredictionRecord]
     ) -> dict[str, float | int]:
         """Compute descriptive statistics for processing times."""
-        times: list[float] = [
-            prediction.processing_time for prediction in predictions
-        ]
+        times: list[float] = [prediction.processing_time for prediction in predictions]
         if not times:
             return {
                 "count": 0,
@@ -197,8 +231,8 @@ class BenchmarkResultProcessor:
                 "std": 0.0,
             }
 
-        time_array: np.ndarray = np.array(times, dtype=float)
-        summary: stats.DescribeResult = stats.describe(time_array)
+        time_array: NDArray[np.float64] = np.array(times, dtype=float)
+        summary: _DescribeResult = stats.describe(time_array)
 
         return {
             "count": int(summary.nobs),
@@ -221,8 +255,8 @@ class BenchmarkResultProcessor:
         if not tokens:
             return None
 
-        token_array: np.ndarray = np.array(tokens, dtype=float)
-        summary: stats.DescribeResult = stats.describe(token_array)
+        token_array: NDArray[np.float64] = np.array(tokens, dtype=float)
+        summary: _DescribeResult = stats.describe(token_array)
 
         return {
             "count": int(summary.nobs),

@@ -3,12 +3,10 @@ name = "llm4codesec-llm-benchmark"
 version = "0.1.0"
 description = ""
 authors = [{ name = "vodkar", email = "boombarah@gmail.com" }]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.12,<4"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -38,7 +36,12 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.11.13,<0.12"]
+dev = [
+  "ruff>=0.11.13,<0.12",
+  "mypy>=1.19.1",
+  "pandas-stubs>=2.2.3.250308",
+  "scipy-stubs>=1.16.1.0",
+]
 analytics = [
     "matplotlib>=3.10.3,<4",
     "seaborn>=0.13.2,<0.14",
@@ -79,3 +82,19 @@ fbgemm-gpu = [
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]
 build-backend = "uv_build"
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = ["src"]
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+strict_equality = true

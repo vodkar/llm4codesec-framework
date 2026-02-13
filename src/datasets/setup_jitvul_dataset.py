@@ -335,7 +335,7 @@ def main() -> None:
         logger.info(f"Output directory: {output_dir}")
 
         # Initialize dataset loader
-        loader: JitVulDatasetLoader = JitVulDatasetLoader(source_dir=args.source_dir)
+        loader: JitVulDatasetLoader = JitVulDatasetLoader(source_path=args.source_dir)
 
         # Determine which datasets to create
         create_binary = args.binary or args.all

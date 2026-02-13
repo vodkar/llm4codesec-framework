@@ -11,131 +11,46 @@ import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Unpack
 
-from benchmark.models import BenchmarkSample
-from datasets.loaders.base import IDatasetLoader
+from pydantic import PrivateAttr
+
+from benchmark.models import BenchmarkSample, CWEType, SampleCollection
+from datasets.loaders.base import DatasetLoadParams, IDatasetLoader
+from src.benchmark.enums import TaskType
 
 
-class JitVulDatasetLoader:
-    """Dataset loader for JitVul benchmark format."""
+class JitVulDatasetLoader(IDatasetLoader):
+    """Framework-compatible dataset loader for JitVul."""
 
-    def __init__(self, source_dir: str = "benchmarks/JitVul/data") -> None:
-        """
-        Initialize the JitVul dataset loader.
-
-        Args:
-            source_dir: Path to the JitVul dataset directory
-        """
-        self.source_dir: Path = Path(source_dir)
-        self.logger: logging.Logger = logging.getLogger(__name__)
+    source_path: Path
+    __logger: logging.Logger = PrivateAttr(
+        default_factory=lambda: logging.getLogger(__name__)
+    )
 
     def load_dataset(
         self,
-        data_file: Path,
-        task_type: str = "binary",
-        target_cwe: str | None = None,
-        use_call_graph: bool = True,
-        max_samples: int | None = None,
-    ) -> list[BenchmarkSample]:
-        """
-        Load JitVul dataset from either JSONL (raw) or JSON (processed) file.
-
-        Args:
-            data_file: Path to the JitVul dataset file
-            task_type: Type of task ("binary", "multiclass", "cwe_specific")
-            target_cwe: Target CWE for cwe_specific task (e.g., "CWE-125")
-            use_call_graph: Whether to include call graph context
-            max_samples: Maximum number of samples to load
-
-        Returns:
-            list of BenchmarkSample objects
-        """
-        if not data_file.exists():
-            raise FileNotFoundError(f"Dataset file not found: {data_file}")
-
-        # Determine if this is processed JSON or raw JSONL based on file content
-        try:
-            # Check if it's processed JSON format (starts with { and contains "metadata")
-            if data_file.suffix == ".json":
-                return self._load_processed_dataset(data_file, max_samples)
-            else:
-                # Raw JSONL format
-                return self._load_raw_dataset(
-                    data_file, task_type, target_cwe, use_call_graph, max_samples
-                )
-
-        except Exception as e:
-            raise RuntimeError(f"Error loading JitVul dataset: {e}") from e
-
-    def _load_processed_dataset(
-        self, data_path: Path, max_samples: int | None = None
-    ) -> list[BenchmarkSample]:
-        """
-        Load processed JSON dataset format.
-
-        Args:
-            data_path: Path to the processed JSON file
-            max_samples: Maximum number of samples to load
-
-        Returns:
-            list of BenchmarkSample objects
-        """
-        with open(data_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        samples: list[BenchmarkSample] = []
-        raw_samples = data.get("samples", [])
-
-        for sample_data in raw_samples:
-            if max_samples and len(samples) >= max_samples:
-                break
-
-            try:
-                # Convert dict to BenchmarkSample
-                sample = BenchmarkSample(
-                    id=sample_data.get("id", ""),
-                    code=sample_data.get("code", ""),
-                    label=sample_data.get("label", ""),
-                    metadata=sample_data.get("metadata", {}),
-                    cwe_types=sample_data.get("cwe_type"),
-                    severity=sample_data.get("severity"),
-                )
-                samples.append(sample)
-
-            except Exception as e:
-                self.logger.warning(
-                    f"Error processing sample {sample_data.get('id', 'unknown')}: {e}"
-                )
-                continue
-
-        self.logger.info(f"Loaded {len(samples)} samples from processed JitVul dataset")
-        return samples
-
-    def _load_raw_dataset(
-        self,
-        data_path: Path,
-        task_type: str,
-        target_cwe: str | None,
-        use_call_graph: bool,
-        max_samples: int | None,
-    ) -> list[BenchmarkSample]:
+        is_use_call_graph: bool = True,
+        **kwargs: Unpack[DatasetLoadParams],
+    ) -> SampleCollection:
         """
         Load raw JSONL dataset format.
 
         Args:
-            data_path: Path to the raw JSONL file
             task_type: Type of task being performed
             target_cwe: Target CWE for cwe_specific task
-            use_call_graph: Whether to include call graph context
+            is_use_call_graph: Whether to include call graph context
             max_samples: Maximum number of samples to load
 
         Returns:
-            list of BenchmarkSample objects
+            SampleCollection containing loaded samples
         """
         samples: list[BenchmarkSample] = []
+        max_samples = kwargs.get("limit", None)
+        task_type = kwargs.get("task_type", TaskType.BINARY_VULNERABILITY)
+        target_cwe = kwargs.get("target_cwe", None)
 
-        with open(data_path, "r", encoding="utf-8") as f:
+        with open(self.source_path, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 if max_samples and len(samples) >= max_samples:
                     break
@@ -148,28 +63,28 @@ class JitVulDatasetLoader:
                     item = json.loads(line)
                     # Convert each item to samples based on task type
                     jitvul_samples = self._convert_jitvul_item_to_samples(
-                        item, line_num, task_type, target_cwe, use_call_graph
+                        item, line_num, task_type, target_cwe, is_use_call_graph
                     )
                     samples.extend(jitvul_samples)
                 except json.JSONDecodeError as e:
-                    self.logger.warning(
+                    self.__logger.warning(
                         f"Skipping invalid JSON at line {line_num}: {e}"
                     )
                     continue
                 except Exception as e:
-                    self.logger.warning(f"Error processing line {line_num}: {e}")
+                    self.__logger.warning(f"Error processing line {line_num}: {e}")
                     continue
 
-        self.logger.info(f"Loaded {len(samples)} samples from raw JitVul dataset")
-        return samples
+        self.__logger.info(f"Loaded {len(samples)} samples from raw JitVul dataset")
+        return SampleCollection(samples)
 
     def _convert_jitvul_item_to_samples(
         self,
         item: dict[str, Any],
         line_num: int,
-        task_type: str,
+        task_type: TaskType,
         target_cwe: str | None,
-        use_call_graph: bool,
+        is_use_call_graph: bool,
     ) -> list[BenchmarkSample]:
         """
         Convert a single JitVul item into BenchmarkSample objects.
@@ -179,7 +94,7 @@ class JitVulDatasetLoader:
             line_num: Line number for ID generation
             task_type: Type of task being performed
             target_cwe: Target CWE for cwe_specific task
-            use_call_graph: Whether to include call graph context
+            is_use_call_graph: Whether to include call graph context
 
         Returns:
             list containing appropriate samples based on task type
@@ -189,7 +104,7 @@ class JitVulDatasetLoader:
         # Extract basic information
         vuln_func = item.get("vulnerable_function_body", "")
         non_vuln_func = item.get("non_vulnerable_function_body", "")
-        cwe = item.get("cwe", "")
+        cwe = CWEType(item.get("cwe", ""))
         project = item.get("project", "unknown")
         func_hash = item.get("func_hash", "")
 
@@ -204,27 +119,30 @@ class JitVulDatasetLoader:
             "source": "jitvul",
             "line_number": line_num,
         }
+        cwe_severity = CWEType(cwe).get_cwe_severity()
 
         # Create samples based on task type
-        if task_type == "binary":
+        if task_type == TaskType.BINARY_VULNERABILITY:
             # Create both vulnerable and non-vulnerable samples
             vuln_sample = BenchmarkSample(
                 id=f"jitvul_{line_num}_vulnerable",
-                code=self._augment_code_with_context(vuln_func, item, use_call_graph),
+                code=self._augment_code_with_context(
+                    vuln_func, item, is_use_call_graph
+                ),
                 label=1,
                 metadata={
                     **base_metadata,
                     "function_type": "vulnerable",
                     "original_cwe": cwe,
                 },
-                cwe_types=cwe if cwe else [],
-                severity=self._get_cwe_severity(cwe),
+                cwe_types=[cwe] if cwe else [],
+                severity=cwe_severity,
             )
 
             non_vuln_sample = BenchmarkSample(
                 id=f"jitvul_{line_num}_non_vulnerable",
                 code=self._augment_code_with_context(
-                    non_vuln_func, item, use_call_graph
+                    non_vuln_func, item, is_use_call_graph
                 ),
                 label=0,
                 metadata={**base_metadata, "function_type": "non_vulnerable"},
@@ -234,29 +152,29 @@ class JitVulDatasetLoader:
 
             samples.extend([vuln_sample, non_vuln_sample])
 
-        elif task_type == "multiclass":
+        elif task_type == TaskType.MULTICLASS_VULNERABILITY:
             # Only include vulnerable samples with CWE labels
             if cwe:
                 vuln_sample = BenchmarkSample(
                     id=f"jitvul_{line_num}_vulnerable",
                     code=self._augment_code_with_context(
-                        vuln_func, item, use_call_graph
+                        vuln_func, item, is_use_call_graph
                     ),
                     label=cwe,
                     metadata={**base_metadata, "function_type": "vulnerable"},
                     cwe_types=[cwe],
-                    severity=self._get_cwe_severity(cwe),
+                    severity=cwe_severity,
                 )
                 samples.append(vuln_sample)
 
-        elif task_type == "cwe_specific":
+        elif task_type == TaskType.BINARY_CWE_SPECIFIC:
             # Filter for specific CWE type
             if target_cwe and target_cwe in cwe:
                 # Include both vulnerable (positive) and non-vulnerable (negative) for this CWE
                 vuln_sample = BenchmarkSample(
                     id=f"jitvul_{line_num}_vulnerable",
                     code=self._augment_code_with_context(
-                        vuln_func, item, use_call_graph
+                        vuln_func, item, is_use_call_graph
                     ),
                     label=1,
                     metadata={
@@ -264,14 +182,14 @@ class JitVulDatasetLoader:
                         "function_type": "vulnerable",
                         "target_cwe": target_cwe,
                     },
-                    cwe_types=cwe,
-                    severity=self._get_cwe_severity(cwe),
+                    cwe_types=[cwe] if cwe else [],
+                    severity=cwe_severity,
                 )
 
                 non_vuln_sample = BenchmarkSample(
                     id=f"jitvul_{line_num}_non_vulnerable",
                     code=self._augment_code_with_context(
-                        non_vuln_func, item, use_call_graph
+                        non_vuln_func, item, is_use_call_graph
                     ),
                     label=0,
                     metadata={
@@ -316,58 +234,6 @@ class JitVulDatasetLoader:
         context = "\n".join(context_lines) + "\n\n"
         return context + code
 
-    def _get_cwe_severity(self, cwe: str | list[str]) -> str:
-        """
-        Determine severity level for a CWE.
-
-        Args:
-            cwe: CWE identifier (string or list of strings, e.g., "CWE-125" or ["CWE-125"])
-
-        Returns:
-            Severity level (HIGH, MEDIUM, LOW)
-        """
-        if not cwe:
-            return "LOW"
-
-        # Handle both string and list formats
-        if isinstance(cwe, list):
-            if not cwe or not cwe[0]:
-                return "LOW"
-            single_cwe = cwe[0]
-        else:
-            single_cwe = cwe
-
-        # Extract numeric part
-        cwe_num = single_cwe.replace("CWE-", "")
-
-        # High severity CWEs
-        high_severity_cwes = {
-            "78",  # OS Command Injection
-            "79",  # Cross-site Scripting
-            "89",  # SQL Injection
-            "94",  # Code Injection
-            "352",  # CSRF
-            "434",  # Unrestricted Upload
-            "611",  # XML External Entities
-        }
-
-        # Medium severity CWEs
-        medium_severity_cwes = {
-            "125",  # Out-of-bounds Read
-            "190",  # Integer Overflow
-            "787",  # Out-of-bounds Write
-            "476",  # NULL Pointer Dereference
-            "416",  # Use After Free
-            "502",  # Deserialization
-        }
-
-        if cwe_num in high_severity_cwes:
-            return "HIGH"
-        elif cwe_num in medium_severity_cwes:
-            return "MEDIUM"
-        else:
-            return "LOW"
-
     def get_dataset_stats(self, data_file: Path) -> dict[str, Any]:
         """
         Get comprehensive statistics about the dataset.
@@ -410,7 +276,7 @@ class JitVulDatasetLoader:
                         stats["project_distribution"][project] += 1
 
                         # Severity distribution
-                        severity = self._get_cwe_severity(cwe)
+                        severity = CWEType(cwe).get_cwe_severity()
                         stats["severity_distribution"][severity] += 1
 
                         # Call graph presence
@@ -427,7 +293,7 @@ class JitVulDatasetLoader:
                         continue
 
         except Exception:
-            self.logger.exception("Error generating statistics")
+            self.__logger.exception("Error generating statistics")
             return {}
 
         # Calculate averages
@@ -446,86 +312,3 @@ class JitVulDatasetLoader:
         stats["severity_distribution"] = dict(stats["severity_distribution"])
 
         return stats
-
-
-class JitVulDatasetLoaderFramework(IDatasetLoader):
-    """Framework-compatible dataset loader for JitVul."""
-
-    jitvul_loader: JitVulDatasetLoader = JitVulDatasetLoader()
-
-    def load_dataset(self, path: Path) -> list[BenchmarkSample]:
-        """
-        Load dataset using the framework interface.
-
-        Args:
-            path: Path to the dataset file
-
-        Returns:
-            list of BenchmarkSample objects
-        """
-        return self.jitvul_loader.load_dataset(
-            data_file=path, task_type="binary", use_call_graph=True
-        )
-
-
-def main() -> None:
-    """Example usage and testing of the JitVul dataset loader."""
-    loader = JitVulDatasetLoader()
-
-    # Example dataset path (adjust as needed)
-    dataset_path = (
-        Path(__file__).parent.parent.parent
-        / "benchmarks"
-        / "JitVul"
-        / "data"
-        / "final_benchmark.jsonl"
-    )
-
-    if dataset_path.exists():
-        try:
-            # Test different task types
-            print("Testing JitVul Dataset Loader")
-            print("=" * 40)
-
-            # Binary task
-            print("\n1. Binary Classification:")
-            binary_samples = loader.load_dataset(
-                dataset_path, task_type="binary", max_samples=10
-            )
-            print(f"   Loaded {len(binary_samples)} binary samples")
-
-            # Multiclass task
-            print("\n2. Multiclass Classification:")
-            multiclass_samples = loader.load_dataset(
-                dataset_path, task_type="multiclass", max_samples=10
-            )
-            print(f"   Loaded {len(multiclass_samples)} multiclass samples")
-
-            # CWE-specific task
-            print("\n3. CWE-Specific Classification:")
-            cwe_samples = loader.load_dataset(
-                dataset_path,
-                task_type="cwe_specific",
-                target_cwe="CWE-125",
-                max_samples=10,
-            )
-            print(f"   Loaded {len(cwe_samples)} CWE-125 samples")
-
-            # Get statistics
-            print("\n4. Dataset Statistics:")
-            stats = loader.get_dataset_stats(dataset_path)
-            print(f"   Total items: {stats.get('total_items', 0)}")
-            print(
-                f"   CWE distribution: {list(stats.get('cwe_distribution', {}).keys())[:5]}"
-            )
-            print(f"   Severity distribution: {stats.get('severity_distribution', {})}")
-
-        except Exception as e:
-            print(f"Error: {e}")
-    else:
-        print(f"Dataset file not found: {dataset_path}")
-        print("Please ensure the JitVul dataset is available.")
-
-
-if __name__ == "__main__":
-    main()

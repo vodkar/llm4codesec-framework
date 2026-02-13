@@ -11,7 +11,7 @@ echo "Starting comprehensive benchmark experiments..."
 # CASTLE Dataset Experiments
 echo "=== Running CASTLE Dataset Experiments ==="
 echo "Setting up CASTLE dataset..."
-$run_benchmark entrypoints/run_setup_castle_dataset.py
+$run_benchmark entrypoints/loaders/run_setup_castle_dataset.py
 
 # Define CASTLE experiment plans
 castle_plans=(
@@ -29,7 +29,7 @@ done
 # CVEFixes Dataset Experiments
 echo "=== Running CVEFixes Dataset Experiments ==="
 echo "Preparing CVEFixes datasets..."
-$run_benchmark entrypoints/prepare_cvefixes_datasets.py \
+$run_benchmark entrypoints/loaders/run_setup_cvefixes_datasets.py \
   --database-path datasets_processed/cvefixes/CVEfixes.db \
   --languages C Java Python
 
@@ -46,31 +46,31 @@ for plan in "${cvefixes_plans[@]}"; do
     $run_benchmark entrypoints/run_cvefixes_benchmark.py --plan "$plan"
 done
 
-# JitVul
+# JitVul Dataset Experiments
 echo "=== Running JitVul Dataset Experiments ==="
 echo "Preparing JitVul datasets..."
 $run_benchmark datasets/setup_jitvul_dataset.py \
     --data-file benchmarks/JitVul/data/final_benchmark.jsonl \
     --all
 
-# Define VulBench experiment plans
-vulbench_plans=(
+# Define jitvul experiment plans
+jitvul_plans=(
     "small_models_binary"
     "small_models_cwe_specific_analysis"
     "small_models_multiclass"
 )
 
-echo "Running VulBench experiments..."
-for plan in "${cvefixes_plans[@]}"; do
-    echo "Executing VulBench plan: $plan"
+echo "Running JitVul experiments..."
+for plan in "${jitvul_plans[@]}"; do
+    echo "Executing JitVul plan: $plan"
     $run_benchmark entrypoints/run_jitvul_benchmark.py --plan "$plan"
 done
 
 # VulBench Dataset Experiments
 echo "=== Running VulBench Dataset Experiments ==="
 echo "Preparing VulBench datasets..."
-$run_benchmark datasets/setup_jitvul_dataset.py \
-    --data-file benchmarks/JitVul/data/final_benchmark.jsonl \
+$run_benchmark datasets/setup_vulbench_dataset.py \
+    --data-file benchmarks/VulBench/data/final_benchmark.jsonl \
     --all
 
 # Define VulBench experiment plans
@@ -88,32 +88,10 @@ done
 
 echo "All benchmark experiments completed successfully!"
 
-
-# VulBench Dataset Experiments
-echo "=== Running VulBench Dataset Experiments ==="
-echo "Preparing VulBench datasets..."
-$run_benchmark scripts/process_vulbench_data.py
-
-# Define VulBench experiment plans
-vulbench_plans=(
-    "small_models_binary"
-    "small_models_vulnerability_specific"
-    "small_models_multiclass"
-)
-
-echo "Running VulBench experiments..."
-for plan in "${vulbench_plans[@]}"; do
-    echo "Executing VulBench plan: $plan"
-    $run_benchmark entrypoints/run_vulbench_benchmark.py --plan "$plan"
-done
-
-echo "All benchmark experiments completed successfully!"
-
-
 # VulDetectBench Dataset Experiments
 echo "=== Running VulDetectBench Dataset Experiments ==="
 echo "Preparing VulDetectBench datasets..."
-$run_benchmark scripts/process_vulbench_data.py
+$run_benchmark scripts/process_vuldetectbench_data.py
 
 # Define VulDetectBench experiment plans
 vuldetectbench_plans=(
@@ -126,7 +104,7 @@ vuldetectbench_plans=(
 
 echo "Running VulDetectBench experiments..."
 for plan in "${vuldetectbench_plans[@]}"; do
-    echo "Executing VulBench plan: $plan"
+    echo "Executing VulDetectBench plan: $plan"
     $run_benchmark entrypoints/run_vuldetectbench_benchmark.py --plan "$plan"
 done
 

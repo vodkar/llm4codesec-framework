@@ -30,7 +30,7 @@ done
 # CVEFixes Dataset Experiments
 echo "=== Running CVEFixes Dataset Experiments ==="
 echo "Preparing CVEFixes datasets..."
-$run_benchmark entrypoints/prepare_cvefixes_datasets.py \
+$run_benchmark entrypoints/run_setup_cvefixes_datasets.py \
   --database-path datasets_processed/cvefixes/CVEfixes.db \
   --languages C Java Python
 

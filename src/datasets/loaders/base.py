@@ -1,38 +1,26 @@
-import json
 from abc import ABC, abstractmethod
-from pathlib import Path
+from typing import Literal, TypedDict, Unpack
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from benchmark.models import BenchmarkSample
+from benchmark.models import SampleCollection
+from src.benchmark.enums import TaskType
+
+
+class DatasetLoadParams(TypedDict, total=False):
+    task_type: TaskType
+    programming_language: str | None
+    change_level: Literal["file", "method"] | None
+    limit: int | None
+    target_cwe: str | None
 
 
 class IDatasetLoader(ABC, BaseModel):
     """Interface for dataset loading implementations."""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     @abstractmethod
-    def load_dataset(self, path: Path) -> list[BenchmarkSample]:
+    def load_dataset(self, **kwargs: Unpack[DatasetLoadParams]) -> SampleCollection:
         """Load dataset from the specified path."""
         ...
-
-
-class JsonDatasetLoader(IDatasetLoader):
-    """Concrete implementation of IDatasetLoader for JSON datasets."""
-
-    def load_dataset(self, path: Path) -> list[BenchmarkSample]:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        samples: list[BenchmarkSample] = []
-        for sample_dict in data["samples"]:
-            sample = BenchmarkSample(
-                id=sample_dict["id"],
-                code=sample_dict["code"],
-                label=sample_dict["label"],
-                metadata=sample_dict["metadata"],
-                cwe_types=sample_dict.get("cwe_type"),
-                severity=sample_dict.get("severity"),
-            )
-            samples.append(sample)
-
-        return samples

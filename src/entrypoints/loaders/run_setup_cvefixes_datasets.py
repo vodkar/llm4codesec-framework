@@ -9,26 +9,10 @@ for use with the benchmark framework.
 import argparse
 import json
 import logging
-import sys
 from pathlib import Path
 
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
-
-
-def setup_logging(log_level: str = "INFO") -> None:
-    """Set up logging configuration."""
-    numeric_level = getattr(logging, log_level.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError(f"Invalid log level: {log_level}")
-
-    logging.basicConfig(
-        level=numeric_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler("cvefixes_preparation.log"),
-            logging.StreamHandler(sys.stdout),
-        ],
-    )
+from src.logging_tools import setup_logging
 
 
 def prepare_binary_datasets(
@@ -190,16 +174,16 @@ def main() -> int:
         epilog="""
 Examples:
   # Prepare all dataset types for C language
-  python src/entrypoints/prepare_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db
+  python src/entrypoints/run_setup_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db
 
   # Prepare only binary datasets with sample limit
-  python src/entrypoints/prepare_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --dataset-types binary --sample-limit 1000
+  python src/entrypoints/run_setup_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --dataset-types binary --sample-limit 1000
 
   # Prepare datasets for multiple languages
-  python src/entrypoints/prepare_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --languages C Java
+  python src/entrypoints/run_setup_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --languages C Java
 
   # Just analyze the database
-  python src/entrypoints/prepare_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --analyze-only
+  python src/entrypoints/run_setup_cvefixes_datasets.py --database-path datasets_processed/cvefixes/CVEfixes.db --analyze-only
         """,
     )
 
@@ -261,21 +245,13 @@ Examples:
 
     # System options
     parser.add_argument(
-        "--log-level",
-        type=str,
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        default="INFO",
-        help="Logging level (default: INFO)",
-    )
-
-    parser.add_argument(
-        "--force", action="store_true", help="Overwrite existing output files"
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     args = parser.parse_args()
 
     # Set up logging
-    setup_logging(args.log_level)
+    setup_logging(args.verbose)
 
     try:
         # Validate database path

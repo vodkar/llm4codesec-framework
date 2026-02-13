@@ -30,11 +30,11 @@ A comprehensive framework for benchmarking Large Language Models on static code 
 
 ```bash
 git clone <your-repo-url>
-cd llm4codesec-llm-benchmark
+cd llm4codesec-framework
 git submodule update --init --recursive
 ```
 
-2. Setup your .env variables
+1. Setup your .env variables
 
 ```bash
 cp .default.env .env
@@ -78,7 +78,7 @@ for plan in small_models_binary small_models_multiclass large_models_binary larg
 done
 
 # CVEFixes experiments
-run_benchmark entrypoints/prepare_cvefixes_datasets.py \
+run_benchmark entrypoints/run_setup_cvefixes_datasets.py \
   --database-path datasets_processed/cvefixes/CVEfixes.db \
   --languages C Java Python
 for plan in small_models_binary small_models_multiclass large_models_binary large_models_multiclass; do
@@ -92,11 +92,11 @@ done
 
 #### Setup nvidia container drivers
 
-##### a. 
+##### a
 
 Check for actual instruction [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
-##### OR b. 
+##### OR b
 
 Use docker cuda ready VPC image. For example in [selectel](https://docs.selectel.ru/en/cloud-servers/images/about-images/#default-images)
 
@@ -108,7 +108,7 @@ Use docker cuda ready VPC image. For example in [selectel](https://docs.selectel
 
 ### W/o Docker (not tested)
 
-#### Install dependencies using Poetry (recommended):
+#### Install dependencies using Poetry (recommended)
 
 ```bash
 pip install poetry

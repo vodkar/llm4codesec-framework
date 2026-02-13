@@ -11,12 +11,13 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Unpack
 
 from pydantic import ConfigDict
 
 from benchmark.enums import TaskType
-from benchmark.models import BenchmarkSample
+from benchmark.models import BenchmarkSample, Dataset, DatasetMetadata, SampleCollection
+from src.datasets.loaders.base import DatasetLoadParams, IDatasetLoader
 
 
 @dataclass
@@ -31,13 +32,12 @@ class CastleMetadata:
     line_marker: Optional[int] = None
 
 
-class CastleDatasetLoader:
+class CastleDatasetLoader(IDatasetLoader):
     """Loads and processes CASTLE benchmark dataset."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     source_dir: Path = Path("benchmarks/CASTLE-Source/dataset")
-    task_type: TaskType = TaskType.BINARY_VULNERABILITY
     logger: logging.Logger = logging.getLogger(__name__)
 
     def _parse_file_metadata(self, content: str) -> CastleMetadata:
@@ -162,34 +162,7 @@ class CastleDatasetLoader:
             severity="high" if metadata.vulnerable else "none",
         )
 
-    def load_dataset(self, path: Path) -> list[BenchmarkSample]:
-        """
-        Load dataset from JSON file created by CastleDatasetLoader.
-
-        Args:
-            path: Path to the JSON dataset file
-
-        Returns:
-            list[BenchmarkSample]: Loaded samples
-        """
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        samples: list[BenchmarkSample] = []
-        for sample_dict in data["samples"]:
-            sample = BenchmarkSample(
-                id=sample_dict["id"],
-                code=sample_dict["code"],
-                label=sample_dict["label"],
-                metadata=sample_dict["metadata"],
-                cwe_types=sample_dict.get("cwe_type"),
-                severity=sample_dict.get("severity"),
-            )
-            samples.append(sample)
-
-        return samples
-
-    def transform_dataset(self) -> list[BenchmarkSample]:
+    def load_dataset(self, **kwargs: Unpack[DatasetLoadParams]) -> SampleCollection:
         """
         Load the complete CASTLE dataset.
 
@@ -197,12 +170,14 @@ class CastleDatasetLoader:
             task_type: Type of task ("binary", "cwe_specific", "multiclass")
 
         Returns:
-            list[BenchmarkSample]: All processed samples
+            SampleCollection: All processed samples
         """
         if not self.source_dir.exists():
             raise FileNotFoundError(
                 f"CASTLE source directory not found: {self.source_dir}"
             )
+
+        task_type = kwargs.get("task_type", TaskType.BINARY_VULNERABILITY)
 
         samples: list[BenchmarkSample] = []
 
@@ -220,12 +195,12 @@ class CastleDatasetLoader:
                     sample = self.load_single_file(c_file)
 
                     # Adjust label based on task type
-                    if self.task_type == TaskType.MULTICLASS_VULNERABILITY:
+                    if task_type == TaskType.MULTICLASS_VULNERABILITY:
                         if not sample.cwe_types:
                             raise ValueError(f"No CWE types found for {c_file.name}")
                         # We don't have multiclass labels in CASTLE
                         sample.label = sample.cwe_types[0]
-                    elif self.task_type == TaskType.BINARY_CWE_SPECIFIC:
+                    elif task_type == TaskType.BINARY_CWE_SPECIFIC:
                         # For CWE-specific tasks, we might filter later
                         pass
 
@@ -236,9 +211,11 @@ class CastleDatasetLoader:
                     continue
 
         self.logger.info(f"Loaded {len(samples)} samples from CASTLE dataset")
-        return samples
+        return SampleCollection(root=samples)
 
-    def create_dataset_json(self, output_path: str, task_type: str = "binary") -> None:
+    def create_dataset_json(
+        self, output_path: str, task_type: TaskType = TaskType.BINARY_VULNERABILITY
+    ) -> None:
         """
         Create a JSON dataset file compatible with the benchmark framework.
 
@@ -246,101 +223,25 @@ class CastleDatasetLoader:
             output_path: Path to output JSON file
             task_type: Type of task classification
         """
-        samples = self.transform_dataset()
+        samples = self.load_dataset(task_type=task_type)
 
-        # Convert to dictionary format
-        dataset_dict: dict[str, Any] = {
-            "metadata": {
-                "name": "CASTLE-Benchmark",
-                "version": "1.2",
-                "task_type": task_type,
-                "total_samples": len(samples),
-                "vulnerable_samples": sum(
-                    1 for s in samples if s.metadata.get("cwe_number", 0) > 0
-                ),
-                "cwe_distribution": {},
-            },
-            "samples": [],
-        }
-
-        # Calculate CWE distribution
-        cwe_counts: dict[str, int] = {}
-        for sample in samples:
-            cwe = sample.metadata.get("cwe_number", 0)
-            cwe_key = f"CWE-{cwe}" if cwe > 0 else "SAFE"
-            cwe_counts[cwe_key] = cwe_counts.get(cwe_key, 0) + 1
-
-        dataset_dict["metadata"]["cwe_distribution"] = cwe_counts
-
-        # Convert samples to dict format
-        for sample in samples:
-            sample_dict: dict[str, Any] = {
-                "id": sample.id,
-                "code": sample.code,
-                "label": sample.label,
-                "cwe_type": sample.cwe_types,
-                "severity": sample.severity,
-                "metadata": sample.metadata,
-            }
-            dataset_dict["samples"].append(sample_dict)
+        dataset = Dataset(
+            metadata=DatasetMetadata(
+                name="CASTLE-Benchmark",
+                version="1.2",
+                task_type=task_type,
+                programming_language="C",
+            ),
+            samples=samples,
+        )
 
         # Write to file
         output_file = Path(output_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(dataset_dict, f, indent=2, ensure_ascii=False)
+            json.dump(dataset.model_dump(), f, indent=2, ensure_ascii=False)
 
         self.logger.info(f"Dataset saved to {output_path}")
         self.logger.info(f"Total samples: {len(samples)}")
-        self.logger.info(f"CWE distribution: {cwe_counts}")
-
-
-def filter_by_cwe(
-    samples: list[BenchmarkSample], target_cwe: str
-) -> list[BenchmarkSample]:
-    """
-    Filter samples by specific CWE type.
-
-    Args:
-        samples: list of benchmark samples
-        target_cwe: Target CWE type (e.g., "CWE-125")
-
-    Returns:
-        list[BenchmarkSample]: Filtered samples
-    """
-    filtered = []
-    for sample in samples:
-        sample_cwe = f"CWE-{sample.metadata.get('cwe_number', 0)}"
-        if sample_cwe == target_cwe or sample.cwe_types == ["SAFE"]:
-            # Create a copy with binary label for CWE-specific task
-            sample_copy = BenchmarkSample(
-                id=sample.id,
-                code=sample.code,
-                label=1 if sample_cwe == target_cwe else 0,
-                metadata=sample.metadata.copy(),
-                cwe_types=sample.cwe_types,
-                severity=sample.severity,
-            )
-            filtered.append(sample_copy)
-
-    return filtered
-
-
-def get_available_cwes(samples: list[BenchmarkSample]) -> list[str]:
-    """
-    Get list of available CWE types in the dataset.
-
-    Args:
-        samples: list of benchmark samples
-
-    Returns:
-        list[str]: Available CWE types
-    """
-    cwes: set[str] = set()
-    for sample in samples:
-        cwe_num = sample.metadata.get("cwe_number", 0)
-        if cwe_num > 0:
-            cwes.add(f"CWE-{cwe_num}")
-
-    return sorted(list(cwes))
+        self.logger.info(f"CWE distribution: {dataset.metadata.cwe_distribution}")

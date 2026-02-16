@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -14,6 +15,7 @@ class BenchmarkConfig(BaseModel):
     description: str
     dataset_path: Path
     output_dir: Path
+    backend: Literal["hf", "vllm", "llama_cpp"]
     batch_size: int = 1
     max_tokens: int = 512
     temperature: float = 0.1

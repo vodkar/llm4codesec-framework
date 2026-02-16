@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, RootModel, field_validator
 
-from src.benchmark.enums import TaskType
+from benchmark.enums import TaskType
 
 
 class BenchmarkSample(BaseModel):
@@ -24,6 +24,7 @@ class BenchmarkSample(BaseModel):
         for cwe_type in v:
             if cwe_type != "SAFE" and not cwe_type.startswith("CWE-"):
                 raise ValueError(f"Invalid CWE type format: {cwe_type}")
+        return list(v)
 
 
 class PredictionResult(BaseModel):

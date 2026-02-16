@@ -25,6 +25,10 @@ def is_flash_attention_available() -> bool:
 
 def is_flash_attention_supported() -> bool:
     """Check if a GPU supports FlashAttention 2."""
+    if not torch.cuda.is_available():
+        logging.info("CUDA is not available; FlashAttention is unsupported")
+        return False
+
     major, minor = torch.cuda.get_device_capability(0)
 
     # Check if the GPU architecture is Ampere (SM 8.x) or newer (SM 9.0)

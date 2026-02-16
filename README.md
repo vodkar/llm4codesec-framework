@@ -5,6 +5,7 @@ A comprehensive framework for benchmarking Large Language Models on static code 
 ## Features
 
 - **Multiple Model Support**: Llama3.2 and Llama4, Qwen3, DeepSeek (R1, V2, Coder), Wizard Coder, Gemma.
+- **Backend Choice**: Hugging Face transformers (default) or vLLM (Linux/CUDA only) or llama.cpp.
 - **Flexible Task Types**:
   - Binary vulnerability detection
   - CWE-specific vulnerability detection  
@@ -53,6 +54,8 @@ HF_TOKEN='hf_blabla...'
 
 PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 ```
+
+If you plan to use the vLLM backend, ensure vLLM is installed and you are running on Linux with CUDA support.
 
 ## ⚡️ Comprehensive experiment VERY QUICKSTART
 

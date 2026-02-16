@@ -26,8 +26,11 @@ from benchmark.prompt_generator import DefaultPromptGenerator
 from benchmark.response_parser import ResponseParserFactory
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
-from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoaderFramework
-from llm.hugging_face import HuggingFaceLLM
+from datasets.loaders.jitvul_dataset_loader import (
+    JitVulDatasetLoader,
+    JitVulDatasetLoaderFramework,
+)
+from llm.factory import create_llm_inference
 
 
 class JitVulBenchmarkRunner:
@@ -36,7 +39,9 @@ class JitVulBenchmarkRunner:
     def __init__(self, config: BenchmarkConfig):
         self.config: BenchmarkConfig = config
         self.dataset_loader: JitVulDatasetLoaderFramework = (
-            JitVulDatasetLoaderFramework()
+            JitVulDatasetLoaderFramework(
+                loader=JitVulDatasetLoader(source_path=config.dataset_path)
+            )
         )
 
     def run_benchmark(self, sample_limit: int | None = None) -> BenchmarkRunResult:
@@ -59,7 +64,7 @@ class JitVulBenchmarkRunner:
             logging.info(f"Loaded {len(samples)} samples")
 
             # Initialize components
-            llm = HuggingFaceLLM(self.config)
+            llm = create_llm_inference(self.config)
             prompt_generator = DefaultPromptGenerator(
                 system_prompt_template=self.config.system_prompt_template,
                 user_prompt_template=self.config.user_prompt_template,
@@ -206,6 +211,7 @@ def create_benchmark_config(
         description=f"{prompt_config['name']} - {dataset_config['description']}",
         dataset_path=Path(dataset_config["dataset_path"]),
         output_dir=Path(output_dir),
+        backend=model_config.get("backend", "hf"),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),

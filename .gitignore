@@ -170,3 +170,4 @@ datasets_processed/
 *.dataset.json
 castle_processed/
 
+llm_models/

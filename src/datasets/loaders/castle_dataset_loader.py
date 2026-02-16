@@ -17,7 +17,7 @@ from pydantic import ConfigDict
 
 from benchmark.enums import TaskType
 from benchmark.models import BenchmarkSample, Dataset, DatasetMetadata, SampleCollection
-from src.datasets.loaders.base import DatasetLoadParams, IDatasetLoader
+from datasets.loaders.base import DatasetLoadParams, IDatasetLoader
 
 
 @dataclass

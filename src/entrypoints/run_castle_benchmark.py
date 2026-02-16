@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import BenchmarkConfig
@@ -25,11 +25,13 @@ from benchmark.response_parser import ResponseParserFactory
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.result_types import BenchmarkReport, BenchmarkRunResult, ResultArtifacts
 from datasets.loaders.base import JsonDatasetLoader
-from llm.hugging_face import HuggingFaceLLM
+from llm.factory import create_llm_inference
 
 
 class CastleBenchmarkRunner(BaseModel):
     """Custom benchmark runner for CASTLE datasets."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     config: BenchmarkConfig
     dataset_loader: JsonDatasetLoader
@@ -53,7 +55,7 @@ class CastleBenchmarkRunner(BaseModel):
             logging.info(f"Loaded {len(samples)} samples")
 
             # Initialize components
-            llm = HuggingFaceLLM(self.config)
+            llm = create_llm_inference(self.config)
             prompt_generator = DefaultPromptGenerator(
                 system_prompt_template=self.config.system_prompt_template,
                 user_prompt_template=self.config.user_prompt_template,
@@ -154,6 +156,7 @@ def create_benchmark_config(
         description=f"{prompt_config['name']} - {dataset_config['description']}",
         dataset_path=Path(dataset_config["dataset_path"]),
         output_dir=Path(output_dir),
+        backend=model_config.get("backend", "hf"),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),
@@ -237,8 +240,8 @@ def run_single_experiment(
         return {
             "experiment_name": experiment_name,
             "status": "success",
-            "report": report,
-            "artifacts": artifacts,
+            "report": report.model_dump(),
+            "artifacts": artifacts.model_dump(),
             "accuracy": report.metrics.accuracy,
             "output_dir": str(output_dir),
         }

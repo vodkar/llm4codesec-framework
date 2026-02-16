@@ -74,16 +74,19 @@ python run_castle_experiments.py --plan small_models_multiclass
 ## Dataset Types
 
 ### 1. Binary Classification (`binary_all`)
+
 - **Task**: Determine if code is vulnerable or safe
 - **Labels**: 0 (safe) or 1 (vulnerable)
 - **Use Case**: General vulnerability detection
 
 ### 2. Multi-class Classification (`multiclass_all`)
+
 - **Task**: Identify the specific vulnerability type
 - **Labels**: "CWE-XXX" or "SAFE"
 - **Use Case**: Vulnerability categorization
 
 ### 3. CWE-Specific Detection
+
 - **Task**: Detect specific vulnerability types
 - **Available CWEs**: CWE-125, CWE-134, CWE-190, CWE-22, CWE-253, CWE-327, etc.
 - **Labels**: 0 (no target CWE) or 1 (target CWE present)
@@ -94,31 +97,39 @@ python run_castle_experiments.py --plan small_models_multiclass
 ### Binary Classification Prompts
 
 ### 1. Basic Security (`basic_security`)
+
 Simple, direct security analysis prompt for binary vulnerability detection.
 
 ### 2. Detailed Analysis (`detailed_analysis`)
+
 Comprehensive security analysis with specific guidelines for binary classification.
 
 ### 3. Context-Aware (`context_aware`)
+
 Production environment focused analysis for binary classification.
 
 ### 4. Step-by-Step (`step_by_step`)
+
 Systematic analysis approach with defined steps for binary classification.
 
 ### CWE-Specific Prompts
 
 ### 5. CWE-Focused (`cwe_focused`)
+
 Specialized prompt for CWE-specific vulnerability detection in binary classification tasks.
 
 ### Multiclass Classification Prompts
 
 ### 6. Multiclass Basic (`multiclass_basic`)
+
 Simple, direct vulnerability classification prompt that identifies specific CWE types or marks code as safe.
 
 ### 7. Multiclass Detailed (`multiclass_detailed`)
+
 Comprehensive multiclass analysis with detailed CWE pattern descriptions and systematic vulnerability type identification.
 
 ### 8. Multiclass Comprehensive (`multiclass_comprehensive`)
+
 Production-level context-aware multiclass analysis considering exploitation patterns and edge cases for precise CWE classification.
 
 ## Experiment Plans
@@ -126,11 +137,13 @@ Production-level context-aware multiclass analysis considering exploitation patt
 ### Quick Testing Plans
 
 #### Quick Test (`quick_test`)
+
 - **Purpose**: Fast validation with limited samples for binary classification
 - **Configuration**: Multiple small models, binary prompts, 10 samples
 - **Duration**: ~5-10 minutes
 
 #### Multiclass Quick Test (`multiclass_quick_test`)
+
 - **Purpose**: Fast validation with limited samples for multiclass classification
 - **Configuration**: Multiple small models, multiclass prompts, 10 samples
 - **Duration**: ~5-10 minutes
@@ -138,11 +151,13 @@ Production-level context-aware multiclass analysis considering exploitation patt
 ### Prompt Comparison Plans
 
 #### Prompt Comparison (`prompt_comparison`)
+
 - **Purpose**: Compare different binary classification prompt strategies
 - **Configuration**: Single model, all binary prompts, binary classification
 - **Duration**: ~15-30 minutes
 
 #### Multiclass Prompt Comparison (`multiclass_prompt_comparison`)
+
 - **Purpose**: Compare different multiclass classification prompt strategies
 - **Configuration**: Single model, all multiclass prompts, multiclass classification
 - **Duration**: ~15-30 minutes
@@ -150,11 +165,13 @@ Production-level context-aware multiclass analysis considering exploitation patt
 ### Model Comparison Plans
 
 #### Model Comparison (`model_comparison`)
+
 - **Purpose**: Compare different LLM models on binary classification
 - **Configuration**: Multiple models, best binary prompt, binary classification
 - **Duration**: ~30-60 minutes
 
 #### Multiclass Model Comparison (`multiclass_model_comparison`)
+
 - **Purpose**: Compare different LLM models on multiclass classification
 - **Configuration**: Multiple models, best multiclass prompt, multiclass classification
 - **Duration**: ~30-60 minutes
@@ -162,6 +179,7 @@ Production-level context-aware multiclass analysis considering exploitation patt
 ### Specialized Analysis Plans
 
 #### CWE-Specific Analysis (`cwe_specific_analysis`)
+
 - **Purpose**: Evaluate CWE-specific detection capabilities
 - **Configuration**: Multiple models, CWE-focused prompt, all CWE datasets
 - **Duration**: ~1-2 hours
@@ -169,21 +187,25 @@ Production-level context-aware multiclass analysis considering exploitation patt
 ### Comprehensive Evaluation Plans
 
 #### Small Models Binary (`small_models_binary`)
+
 - **Purpose**: Full evaluation of small models on binary classification tasks
 - **Configuration**: Small models, binary prompts, binary + CWE datasets
 - **Duration**: ~2-4 hours
 
 #### Small Models Multiclass (`small_models_multiclass`)
+
 - **Purpose**: Full evaluation of small models on multiclass classification
 - **Configuration**: Small models, multiclass prompts, multiclass dataset
 - **Duration**: ~1-2 hours
 
 #### Large Models Binary (`large_models_binary`)
+
 - **Purpose**: Full evaluation of large models on binary classification tasks
 - **Configuration**: Large models, binary prompts, binary + CWE datasets
 - **Duration**: ~4-8 hours
 
 #### Large Models Multiclass (`large_models_multiclass`)
+
 - **Purpose**: Full evaluation of large models on multiclass classification
 - **Configuration**: Large models, multiclass prompts, multiclass dataset
 - **Duration**: ~2-4 hours
@@ -231,12 +253,14 @@ python run_castle_experiments.py --plan small_models_multiclass --sample-limit 1
 ### Custom Configurations
 
 Edit `castle_experiments.json` to:
+
 - Add new models
 - Create custom prompt strategies
 - Define new experiment plans
 - Modify evaluation settings
 
 **Important**: Ensure prompt strategies match task types:
+
 - Use binary prompts (`basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`) for binary classification
 - Use multiclass prompts (`multiclass_basic`, `multiclass_detailed`, `multiclass_comprehensive`) for multiclass classification
 - Use CWE-focused prompts (`cwe_focused`) for CWE-specific detection
@@ -244,6 +268,7 @@ Edit `castle_experiments.json` to:
 ## Configuration Details
 
 ### Model Configurations
+
 ```json
 {
   "model_name": "meta-llama/Llama-3.2-3B-Instruct",
@@ -255,6 +280,7 @@ Edit `castle_experiments.json` to:
 ```
 
 ### Dataset Configurations
+
 ```json
 {
   "dataset_path": "datasets_processed/castle/castle_binary.json",
@@ -264,6 +290,7 @@ Edit `castle_experiments.json` to:
 ```
 
 ### Binary Classification Prompt Strategies
+
 ```json
 {
   "name": "Basic Security Analysis",
@@ -273,6 +300,7 @@ Edit `castle_experiments.json` to:
 ```
 
 ### Multiclass Classification Prompt Strategies
+
 ```json
 {
   "name": "Basic Multiclass Vulnerability Analysis",
@@ -284,6 +312,7 @@ Edit `castle_experiments.json` to:
 ## Results and Analysis
 
 ### Output Structure
+
 ```
 results/castle_experiments/
 ├── plan_prompt_comparison_20250617_143022/
@@ -305,6 +334,7 @@ results/castle_experiments/
 ### Key Metrics
 
 #### Binary Classification
+
 - **Accuracy**: Overall correctness
 - **Precision**: True positive rate
 - **Recall**: Detection rate for vulnerabilities
@@ -312,16 +342,19 @@ results/castle_experiments/
 - **AUC**: Area under ROC curve
 
 #### Multiclass Classification
+
 - **Accuracy**: Overall correctness across all classes
 - **Per-class Precision/Recall/F1**: Metrics for each CWE type
 - **Macro/Micro Averages**: Aggregated performance metrics
 - **Confusion Matrix**: Detailed classification breakdown
 
 #### CWE-Specific Detection
+
 - **Binary metrics**: Applied to specific CWE vs. non-CWE classification
 - **Per-CWE Analysis**: Individual performance for each vulnerability type
 
 ### Analysis Features
+
 - Per-CWE performance breakdown
 - Confusion matrices
 - Error analysis with sample details
@@ -334,18 +367,21 @@ results/castle_experiments/
 The CASTLE integration now properly separates different task types to ensure optimal performance:
 
 #### Binary Classification Tasks
+
 - **Datasets**: `binary_all`, `cwe_*` (for CWE-specific binary detection)
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`, `cwe_focused`
 - **Output Format**: "VULNERABLE" or "SAFE"
 - **Use Cases**: General vulnerability detection, specific CWE presence detection
 
 #### Multiclass Classification Tasks
+
 - **Datasets**: `multiclass_all`
 - **Prompts**: `multiclass_basic`, `multiclass_detailed`, `multiclass_comprehensive`
 - **Output Format**: "CWE-XXX" (e.g., "CWE-125", "CWE-190") or "SAFE"
 - **Use Cases**: Vulnerability type identification, precise security categorization
 
 #### Experiment Planning Guidelines
+
 1. **Don't mix task types**: Use binary prompts for binary datasets and multiclass prompts for multiclass datasets
 2. **Start small**: Use quick test plans to validate configurations before running comprehensive evaluations
 3. **Resource planning**: Multiclass classification typically requires more computational resources and time
@@ -360,6 +396,7 @@ The CASTLE integration now properly separates different task types to ensure opt
    - Multiclass prompts should output specific CWE identifiers (e.g., "CWE-125") or "SAFE"
    - CWE-focused prompts should output "VULNERABLE" or "SAFE" for specific CWE detection
 4. Test with single experiment:
+
    ```powershell
    # Test binary prompt
    python run_castle_benchmark.py --model qwen3-4b --dataset binary_all --prompt your_new_binary_prompt
@@ -374,6 +411,40 @@ The CASTLE integration now properly separates different task types to ensure opt
 2. Ensure model is supported by the framework
 3. Test with quick experiment first
 
+### Using llama.cpp Backend (GGUF Models)
+
+The framework supports running GGUF-quantized models via the llama.cpp backend.
+This is useful for CPU-only environments or when GPU memory is limited.
+
+**Pre-configured models:**
+
+| Config Key          | Model                                     | Quant  | Size    |
+|---------------------|-------------------------------------------|--------|---------|
+| `qwen3-8b-gguf`     | `Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf`| Q4_K_M | 5.03 GB |
+| `qwen3-8b-gguf-q8`  | `Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf`  | Q8_0   | 8.71 GB |
+
+**Running llama.cpp experiments:**
+
+```bash
+# Quick test (10 samples, qwen3-8b-gguf Q4_K_M)
+PYTHONPATH=src .venv/bin/python -m entrypoints.run_castle_experiments --plan quick_test
+
+# Full evaluation (50 samples, both quants, 2 prompts)
+PYTHONPATH=src .venv/bin/python -m entrypoints.run_castle_experiments --plan llama_cpp_evaluation
+```
+
+**Pre-downloading models (optional):**
+
+```bash
+# Via llama-cli
+llama-cli --hf-repo Qwen/Qwen3-8B-GGUF --hf-file Qwen3-8B-Q4_K_M.gguf -n 0
+
+# Via huggingface-cli
+huggingface-cli download Qwen/Qwen3-8B-GGUF Qwen3-8B-Q4_K_M.gguf --local-dir llm_models
+```
+
+Models are auto-downloaded via `Llama.from_pretrained()` on first use if the
+`hf://` prefix is used in `model_name`.
 
 ### Validation Commands
 

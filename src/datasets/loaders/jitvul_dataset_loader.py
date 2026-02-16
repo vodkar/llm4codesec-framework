@@ -13,11 +13,11 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Unpack
 
-from pydantic import PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 
+from benchmark.enums import TaskType
 from benchmark.models import BenchmarkSample, CWEType, SampleCollection
 from datasets.loaders.base import DatasetLoadParams, IDatasetLoader
-from src.benchmark.enums import TaskType
 
 
 class JitVulDatasetLoader(IDatasetLoader):
@@ -204,6 +204,45 @@ class JitVulDatasetLoader(IDatasetLoader):
                 samples.extend([vuln_sample, non_vuln_sample])
 
         return samples
+
+
+class JitVulDatasetLoaderFramework(BaseModel):
+    """Framework-compatible wrapper for JitVul dataset loader."""
+
+    loader: JitVulDatasetLoader
+
+    def load_dataset(
+        self,
+        dataset_path: str,
+        max_samples: int | None = None,
+        task_type: TaskType | None = None,
+        target_cwe: str | None = None,
+        is_use_call_graph: bool = True,
+    ) -> list[BenchmarkSample]:
+        """
+        Load dataset compatible with benchmark framework.
+
+        Args:
+            dataset_path: Path to the dataset file.
+            max_samples: Maximum number of samples to load.
+            task_type: Benchmark task type override.
+            target_cwe: Target CWE for cwe_specific task.
+            is_use_call_graph: Whether to include call graph context.
+
+        Returns:
+            list of BenchmarkSample objects.
+        """
+        self.loader.source_path = Path(dataset_path)
+        resolved_task_type: TaskType = task_type or TaskType.BINARY_VULNERABILITY
+
+        samples: SampleCollection = self.loader.load_dataset(
+            is_use_call_graph=is_use_call_graph,
+            task_type=resolved_task_type,
+            target_cwe=target_cwe,
+            limit=max_samples,
+        )
+
+        return list(samples)
 
     def _augment_code_with_context(
         self, code: str, item: dict[str, Any], use_call_graph: bool

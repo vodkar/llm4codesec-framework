@@ -97,10 +97,49 @@ Edit the configuration file to add new models:
     "my_custom_model": {
       "model_name": "custom/my-new-model",
       "model_type": "CUSTOM",
+      "backend": "vllm",
       "config": {
         "max_tokens": 2048,
         "temperature": 0.0
       }
+    }
+  }
+}
+```
+
+### Using llama.cpp Backend
+
+Provide a local GGUF path as `model_name` and set `backend` to `llama_cpp`:
+
+```json
+{
+  "model_configurations": {
+    "llama_cpp_local": {
+      "model_name": "/path/to/model.gguf",
+      "model_type": "CUSTOM",
+      "backend": "llama_cpp",
+      "max_tokens": 512,
+      "temperature": 0.1,
+      "batch_size": 1
+    }
+  }
+}
+```
+
+Use an `hf://` reference to automatically download a GGUF from Hugging Face to `llm_models/`.
+The model is loaded via `Llama.from_pretrained()` — no manual download needed:
+
+```json
+{
+  "model_configurations": {
+    "qwen3-8b-gguf": {
+      "model_name": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+      "model_type": "QWEN",
+      "backend": "llama_cpp",
+      "max_tokens": 2048,
+      "temperature": 0.6,
+      "batch_size": 1,
+      "use_quantization": false
     }
   }
 }
@@ -127,6 +166,7 @@ Edit the configuration file to add new models:
 ### From Old System to New System
 
 **Old JitVul Command:**
+
 ```bash
 python src/entrypoints/run_jitvul_benchmark.py \
   --model Qwen/Qwen2.5-7B-Instruct \
@@ -135,6 +175,7 @@ python src/entrypoints/run_jitvul_benchmark.py \
 ```
 
 **New JitVul Command:**
+
 ```bash
 python src/entrypoints/run_jitvul_benchmark.py \
   --model qwen3-4b \
@@ -143,6 +184,7 @@ python src/entrypoints/run_jitvul_benchmark.py \
 ```
 
 **Old CVEFixes Command:**
+
 ```bash
 python src/entrypoints/run_cvefixes_benchmark.py \
   --model-type qwen \
@@ -150,6 +192,7 @@ python src/entrypoints/run_cvefixes_benchmark.py \
 ```
 
 **New CVEFixes Command:**
+
 ```bash
 python src/entrypoints/run_cvefixes_benchmark.py \
   --model qwen3-4b \
@@ -160,21 +203,25 @@ python src/entrypoints/run_cvefixes_benchmark.py \
 ## Benefits of the New System
 
 ### 1. Consistency
+
 - Same CLI arguments across all benchmarks
 - Identical configuration structure
 - Unified model definitions
 
 ### 2. Flexibility  
+
 - Easy experiment plan definitions
 - Mix and match models/datasets/prompts
 - Configurable sample limits and output directories
 
 ### 3. Maintainability
+
 - Single source of truth for configurations
 - No hard-coded model names or paths
 - Easy to add new models and experiments
 
 ### 4. Usability
+
 - Single unified entry point option
 - Clear configuration listing
 - Helpful error messages and validation
@@ -184,6 +231,7 @@ python src/entrypoints/run_cvefixes_benchmark.py \
 ### Common Issues
 
 1. **Configuration not found**
+
    ```bash
    # List available configurations
    python src/entrypoints/run_jitvul_benchmark.py --list-configs

@@ -1,6 +1,5 @@
 import json
 import logging
-from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol
@@ -188,7 +187,7 @@ class BenchmarkResultProcessor:
 
     def _to_prediction_record(self, prediction: PredictionResult) -> PredictionRecord:
         """Convert PredictionResult to a serializable prediction record."""
-        prediction_dict: dict[str, Any] = asdict(prediction)
+        prediction_dict: dict[str, Any] = prediction.model_dump()
         predicted_label_raw: Any = prediction_dict.get("predicted_label")
         true_label_raw: Any = prediction_dict.get("true_label")
         predicted_label: int | str = (

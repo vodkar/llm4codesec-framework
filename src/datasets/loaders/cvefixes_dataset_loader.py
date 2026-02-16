@@ -14,9 +14,9 @@ from typing import Any, Unpack
 
 from pydantic import PrivateAttr, field_validator
 
+from benchmark.enums import TaskType
 from benchmark.models import BenchmarkSample, Dataset, DatasetMetadata, SampleCollection
-from src.benchmark.enums import TaskType
-from src.datasets.loaders.base import DatasetLoadParams, IDatasetLoader
+from datasets.loaders.base import DatasetLoadParams, IDatasetLoader
 
 
 class CVEFixesDatasetLoader(IDatasetLoader):

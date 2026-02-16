@@ -33,7 +33,7 @@ from benchmark.result_types import (
 from datasets.loaders.vuldetectbench_dataset_loader import (
     VulDetectBenchDatasetLoaderFramework,
 )
-from llm.hugging_face import HuggingFaceLLM
+from llm.factory import create_llm_inference
 
 
 class VulDetectBenchResponseParser(IResponseParser):
@@ -102,7 +102,7 @@ class VulDetectBenchBenchmarkRunner:
             logging.info(f"Loaded {len(samples)} samples")
 
             # Initialize components
-            llm = HuggingFaceLLM(self.config)
+            llm = create_llm_inference(self.config)
             prompt_generator = DefaultPromptGenerator(
                 system_prompt_template=self.config.system_prompt_template,
                 user_prompt_template=self.config.user_prompt_template,
@@ -266,6 +266,7 @@ def create_benchmark_config(
         description=f"{prompt_config['name']} - {dataset_config['description']}",
         dataset_path=Path(dataset_config["dataset_path"]),
         output_dir=Path(output_dir),
+        backend=model_config.get("backend", "hf"),
         batch_size=model_config.get("batch_size", 1),
         max_tokens=model_config.get("max_tokens", 512),
         temperature=model_config.get("temperature", 0.1),

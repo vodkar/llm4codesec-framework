@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 
 from datasets.loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
-from src.logging_tools import setup_logging
+from logging_tools import setup_logging
 
 
 def prepare_binary_datasets(

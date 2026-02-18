@@ -110,19 +110,47 @@ class VulBenchMulticlassResponseParser(IResponseParser):
             return "UNKNOWN"
 
 
+class VulDetectBenchResponseParser(IResponseParser):
+    """Custom response parser for VulDetectBench tasks."""
+
+    def __init__(self, task_type: str):
+        self.task_type: str = task_type
+
+    def parse_response(self, response: str) -> str:
+        """Parse response based on VulDetectBench task type."""
+        response_text = response.strip()
+
+        if self.task_type == "task1":
+            # Binary classification: YES/NO
+            if "YES" in response_text.upper():
+                return "YES"
+            elif "NO" in response_text.upper():
+                return "NO"
+            else:
+                # Default to NO if unclear
+                return "NO"
+        elif self.task_type == "task2":
+            # Multi-choice: A/B/C/D/E
+            for choice in ["A", "B", "C", "D", "E"]:
+                if f"{choice}." in response_text or f"{choice}:" in response_text:
+                    return choice
+            # Default to A if unclear
+            return "A"
+        else:
+            # Task 3-5: Keep as string (code snippets)
+            return response_text
+
+
 class ResponseParserFactory:
     """Factory for creating response parsers based on task type and dataset."""
 
     @staticmethod
-    def create_parser(
-        task_type: TaskType, is_vulbench: bool = False
-    ) -> IResponseParser:
+    def create_parser(task_type: TaskType) -> IResponseParser:
         """
         Create appropriate response parser based on task type.
 
         Args:
             task_type: The type of task
-            is_vulbench: Whether this is for VulBench dataset
 
         Returns:
             IResponseParser: Appropriate parser instance
@@ -134,9 +162,8 @@ class ResponseParserFactory:
         elif task_type == TaskType.BINARY_VULNERABILITY_SPECIFIC:
             return BinaryVulnerabilitySpecificResponseParser()
         elif task_type == TaskType.MULTICLASS_VULNERABILITY:
-            if is_vulbench:
-                return VulBenchMulticlassResponseParser()
-            else:
-                return MulticlassResponseParser()
+            return MulticlassResponseParser()
+        elif task_type == TaskType.VULBENCH_MULTICLASS:
+            return VulBenchMulticlassResponseParser()
         else:
             raise ValueError(f"Unsupported task type: {task_type}")

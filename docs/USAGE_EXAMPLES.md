@@ -134,7 +134,7 @@ The model is loaded via `Llama.from_pretrained()` — no manual download needed:
   "model_configurations": {
     "qwen3-8b-gguf": {
       "model_name": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "backend": "llama_cpp",
       "max_tokens": 2048,
       "temperature": 0.6,

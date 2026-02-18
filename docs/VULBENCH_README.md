@@ -7,6 +7,7 @@ The VulBench benchmark provides comprehensive vulnerability detection evaluation
 ## Unified Configuration System
 
 ### Key Features ✅
+
 - **Unified Configuration**: JSON-based experiment configuration following CASTLE/CVEFixes/JitVul pattern
 - **Consistent CLI**: Same command-line interface across all benchmarks
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability detection
@@ -16,6 +17,7 @@ The VulBench benchmark provides comprehensive vulnerability detection evaluation
 - **Fixed Label Format**: Corrected label parsing and response format compatibility
 
 ### Core Components
+
 - **Configuration File**: `src/configs/vulbench_experiments.json`
 - **Benchmark Runner**: `src/entrypoints/run_vulbench_benchmark_new.py`
 - **Unified Runner**: `src/entrypoints/run_unified_benchmark.py` (handles all datasets)
@@ -37,17 +39,20 @@ VulBench contains 5 sub-datasets, each available in both binary and multiclass v
 ## Available Prompt Strategies
 
 ### Binary Classification Prompts
+
 - **`basic_security`**: Simple C/C++ vulnerability detection analysis
 - **`detailed_analysis`**: Comprehensive C/C++ security analysis with CWE knowledge
 - **`context_aware`**: Production-focused C/C++ analysis considering real-world exploitation
 - **`step_by_step`**: Methodical C/C++ analysis following systematic steps
 
 ### Multiclass Classification Prompts
+
 - **`multiclass_basic`**: Basic C/C++ vulnerability type classification
 - **`multiclass_detailed`**: Detailed C/C++ vulnerability pattern analysis and classification
 - **`multiclass_comprehensive`**: Comprehensive C/C++ vulnerability classification for production systems
 
 ### Vulnerability Types in VulBench
+
 - **Integer-Overflow**: Integer overflow/underflow vulnerabilities
 - **Buffer-Overflow**: Buffer overflow/underflow vulnerabilities
 - **Null-Pointer-Dereference**: NULL pointer dereference issues
@@ -59,6 +64,7 @@ VulBench contains 5 sub-datasets, each available in both binary and multiclass v
 ## Command Line Interface
 
 ### Individual Experiments
+
 ```bash
 # Binary classification experiment
 python src/entrypoints/run_vulbench_benchmark_new.py \
@@ -81,6 +87,7 @@ python src/entrypoints/run_unified_benchmark.py \
 ```
 
 ### Experiment Plans
+
 ```bash
 # Quick testing
 python src/entrypoints/run_vulbench_benchmark_new.py --plan quick_test
@@ -115,6 +122,7 @@ python src/entrypoints/run_vulbench_benchmark_new.py --plan large_models_vulnera
 ```
 
 ### Common Options
+
 ```bash
 # List available configurations
 python src/entrypoints/run_vulbench_benchmark_new.py --list-configs
@@ -134,18 +142,22 @@ python src/entrypoints/run_vulbench_benchmark_new.py \
 ## Available Experiment Plans
 
 ### Quick Testing
+
 - **`quick_test`**: Binary classification with 10 samples for development
 - **`multiclass_quick_test`**: Multiclass classification with 10 samples for development
 
 ### Prompt Strategy Analysis
+
 - **`prompt_comparison`**: Compare all binary classification prompts on D2A dataset
 - **`multiclass_prompt_comparison`**: Compare all multiclass classification prompts on D2A dataset
 
 ### Dataset Performance Analysis
+
 - **`binary_dataset_comparison`**: Compare performance across all binary datasets
 - **`multiclass_dataset_comparison`**: Compare performance across all multiclass datasets
 
 ### Model Performance Analysis
+
 - **`model_comparison`**: Compare models on binary classification
 - **`multiclass_model_comparison`**: Compare models on multiclass classification
 - **`small_models_binary`**: Evaluate small models (≤4B parameters) on binary tasks
@@ -154,15 +166,18 @@ python src/entrypoints/run_vulbench_benchmark_new.py \
 - **`large_models_multiclass`**: Evaluate large models on multiclass tasks
 
 ### Comprehensive Analysis
+
 - **`comprehensive_evaluation`**: Full evaluation across all datasets and models
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
 - **`large_models_vulnerability_specific`**: Large models evaluation on vulnerability-specific detection
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -207,7 +222,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -219,12 +234,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -233,6 +250,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -240,12 +258,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -314,6 +334,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -321,6 +342,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -328,6 +350,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -335,6 +358,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -342,6 +366,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -349,6 +374,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -393,7 +419,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -405,12 +431,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -419,6 +447,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -426,12 +455,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -500,6 +531,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -507,6 +539,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -514,6 +547,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -521,6 +555,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -528,6 +563,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -535,6 +571,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -579,7 +616,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -591,12 +628,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -605,6 +644,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -612,12 +652,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -686,6 +728,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -693,6 +736,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -700,6 +744,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -707,6 +752,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -714,6 +760,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -721,6 +768,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -765,7 +813,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -777,12 +825,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -791,6 +841,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -798,12 +849,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -872,6 +925,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -879,6 +933,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -886,6 +941,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -893,6 +949,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -900,6 +957,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -907,6 +965,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -951,7 +1010,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -963,12 +1022,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -977,6 +1038,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -984,12 +1046,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -1058,6 +1122,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -1065,6 +1130,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -1072,6 +1138,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -1079,6 +1146,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -1086,6 +1154,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -1093,6 +1162,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -1137,7 +1207,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -1149,12 +1219,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -1163,6 +1235,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -1170,12 +1243,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -1244,6 +1319,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -1251,6 +1327,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -1258,6 +1335,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -1265,6 +1343,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -1272,6 +1351,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -1279,6 +1359,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -1323,7 +1404,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -1335,12 +1416,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -1349,6 +1432,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -1356,12 +1440,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -1430,6 +1516,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -1437,6 +1524,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -1444,6 +1532,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -1451,6 +1540,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -1458,6 +1548,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -1465,6 +1556,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -1509,7 +1601,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -1521,12 +1613,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -1535,6 +1629,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -1542,12 +1637,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system
@@ -1616,6 +1713,7 @@ python run_unified_benchmark.py vulbench --plan binary_classification_focus
 The configuration includes several pre-defined experiment plans:
 
 ### `quick_test`
+
 - **Purpose**: Fast validation of setup
 - **Datasets**: Binary D2A, Binary Big-Vul
 - **Models**: GPT-4 Turbo, Qwen2.5-7B
@@ -1623,6 +1721,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~30 minutes
 
 ### `comprehensive_evaluation`
+
 - **Purpose**: Full benchmark evaluation
 - **Datasets**: All 10 datasets (5 binary + 5 multiclass)
 - **Models**: All 11 configured models
@@ -1630,6 +1729,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: Several hours
 
 ### `binary_classification_focus`
+
 - **Purpose**: Focus on binary vulnerability detection
 - **Datasets**: All 5 binary datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5, CodeLlama
@@ -1637,6 +1737,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~2 hours
 
 ### `multiclass_analysis`
+
 - **Purpose**: Focus on vulnerability type classification
 - **Datasets**: All 5 multiclass datasets
 - **Models**: GPT-4, Claude-3.5, Qwen2.5
@@ -1644,6 +1745,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~3 hours
 
 ### `model_comparison`
+
 - **Purpose**: Compare different model families
 - **Datasets**: Binary and multiclass D2A, Big-Vul
 - **Models**: Representative models from each family
@@ -1651,6 +1753,7 @@ The configuration includes several pre-defined experiment plans:
 - **Runtime**: ~1.5 hours
 
 ### Vulnerability-Specific Analysis
+
 - **`vulnerability_specific_analysis`**: Comprehensive vulnerability-specific detection evaluation
 - **`vulnerability_prompt_comparison`**: Compare different vulnerability-specific prompt strategies  
 - **`small_models_vulnerability_specific`**: Small models evaluation on vulnerability-specific detection
@@ -1695,7 +1798,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
   "model_configurations": {
     "qwen3-4b": {
       "model_name": "Qwen/Qwen3-4B",
-      "model_type": "QWEN",
+      "model_type": "qwen-3",
       "max_tokens": 512,
       "temperature": 0.1
       }
@@ -1707,12 +1810,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Task Types
 
 ### Binary Vulnerability Detection
+
 - **Purpose**: Determine if C/C++ code contains any security vulnerability
 - **Output**: `VULNERABLE` or `SAFE`
 - **Datasets**: `binary_d2a`, `binary_ctf`, `binary_magma`, `binary_big_vul`, `binary_devign`
 - **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`
 
 ### Multiclass Vulnerability Classification  
+
 - **Purpose**: Identify specific vulnerability type in C/C++ code
 - **Output**: Specific vulnerability type (e.g., `Integer-Overflow`) or `SAFE`
 - **Datasets**: `multiclass_d2a`, `multiclass_ctf`, `multiclass_magma`, `multiclass_big_vul`, `multiclass_devign`
@@ -1721,6 +1826,7 @@ The VulBench configuration follows the same structure as other benchmarks for co
 ## Key Features
 
 ### 1. Unified Configuration System
+
 - **C/C++-Specific Prompts**: Tailored prompts for C/C++ vulnerability patterns
 - **Task Separation**: Distinct prompts and experiments for binary vs. multiclass tasks
 - **JSON Configuration**: All experiments defined in `vulbench_experiments.json`
@@ -1728,12 +1834,14 @@ The VulBench configuration follows the same structure as other benchmarks for co
 - **Experiment Plans**: Predefined experimental setups for different analysis needs
 
 ### 2. Enhanced VulBench Support
+
 - **Multiple Datasets**: Support for all 5 VulBench sub-datasets
 - **Vulnerability Types**: Proper handling of VulBench vulnerability type names
 - **Response Parsing**: Updated parser to handle both CWE and VulBench formats
 - **Label Consistency**: Fixed dataset loader to provide consistent integer labels for binary tasks
 
 ### 3. Comprehensive Evaluation
+
 - **Standard Metrics**: AUC-ROC (primary), Accuracy, Precision, Recall, F1-score
 - **Per-Dataset Analysis**: Individual performance analysis for each VulBench sub-dataset
 - **Framework Integration**: Uses unified benchmark framework evaluation system

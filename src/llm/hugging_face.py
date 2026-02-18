@@ -13,7 +13,7 @@ from transformers import (
 )
 from transformers.pipelines import Pipeline
 
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from flash_attention import is_flash_attention_available, is_flash_attention_supported
 from llm.llm import ILLMInference
 
@@ -21,8 +21,8 @@ from llm.llm import ILLMInference
 class HuggingFaceLLM(ILLMInference):
     """Hugging Face transformers-based LLM interface."""
 
-    def __init__(self, config: BenchmarkConfig):
-        self.config: BenchmarkConfig = config
+    def __init__(self, config: ExperimentConfig):
+        self.config: ExperimentConfig = config
         self.device: str = "cuda" if torch.cuda.is_available() else "cpu"
         self.tokenizer: PreTrainedTokenizerBase | None = None
         self.model: AutoModelForCausalLM | None = None
@@ -33,7 +33,7 @@ class HuggingFaceLLM(ILLMInference):
 
     def _load_model(self) -> None:
         """Load the model and tokenizer."""
-        logging.info(f"Loading model: {self.config.model_name}")
+        logging.info(f"Loading model: {self.config.model_identifier}")
 
         # Configure quantization if requested
         quantization_config: BitsAndBytesConfig | None = None
@@ -72,7 +72,7 @@ class HuggingFaceLLM(ILLMInference):
                 torch_dtype = torch.bfloat16 if gpu_memory >= 35 else torch.float16
                 logging.info(f"No quantization, using {torch_dtype}")
 
-            if "gemma-3" in self.config.model_name:
+            if "gemma-3" in self.config.model_identifier:
                 torch_dtype = torch.bfloat16
                 quantization_config = BitsAndBytesConfig(
                     load_in_4bit=True,
@@ -83,7 +83,7 @@ class HuggingFaceLLM(ILLMInference):
 
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.config.model_name,
+                self.config.model_identifier,
                 trust_remote_code=True,
                 padding_side="left",
                 token=os.getenv("HF_TOKEN", None),
@@ -96,7 +96,7 @@ class HuggingFaceLLM(ILLMInference):
                 self.tokenizer.pad_token = self.tokenizer.eos_token
 
             self.model = AutoModelForCausalLM.from_pretrained(
-                self.config.model_name,
+                self.config.model_identifier,
                 quantization_config=quantization_config,
                 device_map="auto",
                 torch_dtype=torch_dtype,
@@ -129,7 +129,7 @@ class HuggingFaceLLM(ILLMInference):
             logging.info(f"Model loaded successfully on {self.device}")
 
         except Exception:
-            logging.exception("Failed to load model %s", self.config.model_name)
+            logging.exception("Failed to load model %s", self.config.model_identifier)
             raise
 
     def generate_response(
@@ -277,7 +277,7 @@ class HuggingFaceLLM(ILLMInference):
                     messages,
                     tokenize=False,
                     add_generation_prompt=True,
-                    enable_thinking=self.config.is_thinking_enabled,
+                    is_thinking_enabled=self.config.is_thinking_enabled,
                 )
                 return str(formatted_prompt)
             raise AttributeError("apply_chat_template is not available")
@@ -286,13 +286,13 @@ class HuggingFaceLLM(ILLMInference):
             # Fallback to generic format if chat template is not available
             logging.warning(
                 "Chat template not available for %s, using fallback format",
-                self.config.model_name,
+                self.config.model_identifier,
             )
             return self._format_prompt_fallback(system_prompt, user_prompt)
 
     def _format_prompt_fallback(self, system_prompt: str, user_prompt: str) -> str:
         """Fallback prompt formatting for models without chat templates."""
-        model_name_lower = self.config.model_name.lower()
+        model_name_lower = self.config.model_identifier.lower()
 
         # Llama models (includes Llama-2, Llama-3.2, Llama-3.3)
         if "llama" in model_name_lower:

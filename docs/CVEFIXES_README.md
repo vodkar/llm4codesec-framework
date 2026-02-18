@@ -133,7 +133,6 @@ All prompts are **language-agnostic** and work effectively across C, Java, and P
 ### Core Entry Points
 
 - **Main Runner**: `src/entrypoints/run_cvefixes_benchmark.py`
-- **Batch Runner**: `src/entrypoints/run_cvefixes_experiments.py`
 - **Dataset Preparation**: `src/entrypoints/run_setup_cvefixes_datasets.py`
 
 #### Single Experiments
@@ -160,9 +159,6 @@ python src/entrypoints/run_cvefixes_benchmark.py --plan quick_test
 
 # Multi-language comparison plan
 python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_binary
-
-# Batch experiment execution
-python src/entrypoints/run_cvefixes_experiments.py --plan comprehensive_evaluation
 ```
 
 #### Common Options
@@ -304,16 +300,6 @@ python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_bina
 
 # Compare multiclass classification across languages  
 python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_multiclass
-```
-
-### Comprehensive Model Evaluation
-
-```bash
-# Small models comprehensive evaluation
-python src/entrypoints/run_cvefixes_experiments.py --plan small_models_binary
-
-# Large models with all tasks
-python src/entrypoints/run_cvefixes_experiments.py --plan large_models_multiclass
 ```
 
 ### Custom Experiments

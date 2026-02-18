@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from benchmark.enums import ModelType, TaskType
 from benchmark.metrics_calculator import (
     BinaryMetricsCalculator,
@@ -22,9 +22,8 @@ from benchmark.metrics_calculator import (
 )
 from benchmark.models import BenchmarkSample, PredictionResult
 from benchmark.prompt_generator import DefaultPromptGenerator
-from benchmark.response_parser import IResponseParser
 from benchmark.result_processor import BenchmarkResultProcessor
-from benchmark.result_types import (
+from benchmark.results import (
     BenchmarkReport,
     BenchmarkRunResult,
     MetricsResult,
@@ -36,42 +35,11 @@ from datasets.loaders.vuldetectbench_dataset_loader import (
 from llm.factory import create_llm_inference
 
 
-class VulDetectBenchResponseParser(IResponseParser):
-    """Custom response parser for VulDetectBench tasks."""
-
-    def __init__(self, task_type: str):
-        self.task_type: str = task_type
-
-    def parse_response(self, response: str) -> Any:
-        """Parse response based on VulDetectBench task type."""
-        response_text = response.strip()
-
-        if self.task_type == "task1":
-            # Binary classification: YES/NO
-            if "YES" in response_text.upper():
-                return 1
-            elif "NO" in response_text.upper():
-                return 0
-            else:
-                # Default to 0 if unclear
-                return 0
-        elif self.task_type == "task2":
-            # Multi-choice: A/B/C/D/E
-            for choice in ["A", "B", "C", "D", "E"]:
-                if f"{choice}." in response_text or f"{choice}:" in response_text:
-                    return choice
-            # Default to A if unclear
-            return "A"
-        else:
-            # Task 3-5: Keep as string (code snippets)
-            return response_text
-
-
 class VulDetectBenchBenchmarkRunner:
     """Custom benchmark runner for VulDetectBench datasets."""
 
-    def __init__(self, config: BenchmarkConfig):
-        self.config: BenchmarkConfig = config
+    def __init__(self, config: ExperimentConfig):
+        self.config: ExperimentConfig = config
         self.logger: logging.Logger = logging.getLogger(__name__)
 
         # Initialize dataset loader
@@ -156,7 +124,7 @@ class VulDetectBenchBenchmarkRunner:
                 llm=llm,
                 config=self.config,
             )
-            predictions = runner.process_samples_with_batch_optimization(
+            predictions = runner._process_samples_with_batch_optimization(
                 processed_samples
             )
 
@@ -229,7 +197,7 @@ def create_benchmark_config(
     dataset_config: dict[str, Any],
     prompt_config: dict[str, Any],
     output_dir: str,
-) -> BenchmarkConfig:
+) -> ExperimentConfig:
     """
     Create a BenchmarkConfig from experiment configuration.
 
@@ -244,11 +212,11 @@ def create_benchmark_config(
     """
     # Map string model types to enum
     model_type_map = {
-        "LLAMA": ModelType.LLAMA,
-        "QWEN": ModelType.QWEN,
-        "DEEPSEEK": ModelType.DEEPSEEK,
+        "LLAMA": ModelType.LLAMA_2,
+        "QWEN": ModelType.QWEN_2_5,
+        "DEEPSEEK": ModelType.DEEPSEEK_CODER,
         "CODEBERT": ModelType.CODEBERT,
-        "WIZARD": ModelType.CUSTOM,
+        "WIZARDCODER": ModelType.CUSTOM,
         "GEMMA": ModelType.CUSTOM,
     }
 
@@ -259,7 +227,7 @@ def create_benchmark_config(
         "code_analysis": TaskType.BINARY_VULNERABILITY,  # Default for code analysis tasks
     }
 
-    return BenchmarkConfig(
+    return ExperimentConfig(
         model_name=model_config["model_name"],
         model_type=model_type_map[model_config["model_type"]],
         task_type=task_type_map[dataset_config["task_type"]],
@@ -274,7 +242,7 @@ def create_benchmark_config(
         cwe_type=dataset_config.get("cwe_type"),
         system_prompt_template=prompt_config.get("system_prompt") or "",
         user_prompt_template=prompt_config["user_prompt"],
-        is_thinking_enabled=prompt_config.get("enable_thinking", False),
+        is_thinking_enabled=prompt_config.get("is_thinking_enabled", False),
     )
 
 

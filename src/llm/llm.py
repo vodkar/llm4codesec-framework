@@ -46,7 +46,7 @@ class ILLMInference(ABC):
             user_prompts: List of user prompts (must be same length as system_prompts)
 
         Returns:
-            List of (response_text, token_count) tuples
+            List of (response_text, token_count, duration) tuples
         """
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")

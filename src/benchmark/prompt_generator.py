@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
+from benchmark.config import ExperimentConfig
+
 
 class IPromptGenerator(ABC, BaseModel):
     system_prompt_template: str
@@ -51,3 +53,13 @@ class DefaultPromptGenerator(IPromptGenerator):
         return self.user_prompt_template.format(
             **self.template_values, **template_values
         )
+
+
+def get_prompt_generator(
+    config: ExperimentConfig, template_values: dict[str, str]
+) -> IPromptGenerator:
+    return DefaultPromptGenerator(
+        system_prompt_template=config.system_prompt_template,
+        user_prompt_template=config.user_prompt_template,
+        template_values=template_values,
+    )

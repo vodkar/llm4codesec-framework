@@ -1,13 +1,13 @@
 import logging
 from typing import Final
 
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from llm.llm import ILLMInference
 
 LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 
 
-def create_llm_inference(config: BenchmarkConfig) -> ILLMInference:
+def create_llm_inference(config: ExperimentConfig) -> ILLMInference:
     """
     Create an LLM inference backend based on configuration.
 

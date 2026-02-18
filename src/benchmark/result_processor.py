@@ -2,50 +2,32 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
+from pydantic import BaseModel
 from scipy import stats
 
-
-class _DescribeResult(Protocol):
-    """Protocol describing the result from scipy.stats.describe."""
-
-    @property
-    def nobs(self) -> float: ...
-
-    @property
-    def minmax(
-        self,
-    ) -> tuple[float | NDArray[np.float64], float | NDArray[np.float64]]: ...
-
-    @property
-    def mean(self) -> float | NDArray[np.float64]: ...
-
-    @property
-    def variance(self) -> float | NDArray[np.float64]: ...
-
-
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from benchmark.models import PredictionResult
-from benchmark.result_types import (
+from benchmark.results import (
     BenchmarkInfo,
     BenchmarkReport,
+    DescribeResult,
     MetricsResult,
     PredictionRecord,
     ResultArtifacts,
 )
 
+_LOGGER = logging.getLogger(__name__)
 
-class BenchmarkResultProcessor:
+
+class BenchmarkResultProcessor(BaseModel):
     """Build and persist standardized benchmark results."""
 
-    def __init__(self, config: BenchmarkConfig, experiment_name: str | None = None):
-        self.config: BenchmarkConfig = config
-        self.experiment_name: str | None = experiment_name
-        self.logger: logging.Logger = logging.getLogger(__name__)
+    config: ExperimentConfig
 
     def build_report(
         self,
@@ -90,6 +72,8 @@ class BenchmarkResultProcessor:
             benchmark_info=benchmark_info,
             metrics=metrics,
             predictions=prediction_records,
+            # Only If all predictions are marked as success, we consider the overall benchmark a success
+            is_success=all(prediction.is_success for prediction in predictions),
         )
 
         return report
@@ -154,7 +138,7 @@ class BenchmarkResultProcessor:
             predictions_json=str(predictions_json_path),
         )
 
-        self.logger.info("Saved benchmark report to %s", report_path)
+        _LOGGER.info("Saved benchmark report to %s", report_path)
         return artifacts
 
     def build_and_save(
@@ -231,7 +215,7 @@ class BenchmarkResultProcessor:
             }
 
         time_array: NDArray[np.float64] = np.array(times, dtype=float)
-        summary: _DescribeResult = stats.describe(time_array)
+        summary: DescribeResult = stats.describe(time_array)
 
         return {
             "count": int(summary.nobs),
@@ -255,7 +239,7 @@ class BenchmarkResultProcessor:
             return None
 
         token_array: NDArray[np.float64] = np.array(tokens, dtype=float)
-        summary: _DescribeResult = stats.describe(token_array)
+        summary: DescribeResult = stats.describe(token_array)
 
         return {
             "count": int(summary.nobs),
@@ -290,7 +274,7 @@ class BenchmarkResultProcessor:
             )
 
         return BenchmarkInfo(
-            experiment_name=self.experiment_name,
+            experiment_name=self.config.experiment_name,
             model_name=self.config.model_name,
             model_type=self.config.model_type.value,
             task_type=self.config.task_type.value,

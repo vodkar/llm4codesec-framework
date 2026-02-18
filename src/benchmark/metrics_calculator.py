@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 from benchmark.enums import TaskType
 from benchmark.models import PredictionResult
-from benchmark.result_types import MetricsResult
+from benchmark.results import MetricsResult
 
 
 class IMetricsCalculator(ABC):

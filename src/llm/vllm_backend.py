@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Final
 import torch
 from transformers import PreTrainedTokenizerBase
 
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from llm.llm import ILLMInference
 
 if TYPE_CHECKING:
@@ -20,14 +20,14 @@ LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 class VllmLLM(ILLMInference):
     """vLLM-based LLM inference backend."""
 
-    def __init__(self, config: BenchmarkConfig):
+    def __init__(self, config: ExperimentConfig):
         """
         Initialize the vLLM backend.
 
         Args:
             config: Benchmark configuration for model and generation settings.
         """
-        self.config: BenchmarkConfig = config
+        self.config: ExperimentConfig = config
         self.llm: LLM | None = None
         self.tokenizer: PreTrainedTokenizerBase | None = None
 
@@ -44,10 +44,10 @@ class VllmLLM(ILLMInference):
                 "Install with `pip install vllm`."
             ) from exc
 
-        LOGGER.info("Loading vLLM model: %s", self.config.model_name)
+        LOGGER.info("Loading vLLM model: %s", self.config.model_identifier)
 
         self.llm = LLM(
-            model=self.config.model_name,
+            model=self.config.model_identifier,
             trust_remote_code=True,
             max_num_seqs=max(self.config.batch_size, 1),
         )
@@ -246,7 +246,7 @@ class VllmLLM(ILLMInference):
                         messages,
                         tokenize=False,
                         add_generation_prompt=True,
-                        enable_thinking=True,
+                        is_thinking_enabled=True,
                     )
                 else:
                     formatted_prompt = apply_chat_template(
@@ -256,7 +256,7 @@ class VllmLLM(ILLMInference):
             except Exception:
                 LOGGER.exception(
                     "vLLM chat template failed for %s, falling back",
-                    self.config.model_name,
+                    self.config.model_identifier,
                 )
 
         return self._format_prompt_fallback(system_prompt, user_prompt)
@@ -272,7 +272,7 @@ class VllmLLM(ILLMInference):
         Returns:
             Formatted prompt string.
         """
-        model_name_lower: str = self.config.model_name.lower()
+        model_name_lower: str = self.config.model_identifier.lower()
 
         if "llama" in model_name_lower:
             if "llama-3" in model_name_lower:

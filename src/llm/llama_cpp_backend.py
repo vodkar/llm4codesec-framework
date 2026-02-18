@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 import os
 import shutil
@@ -15,7 +13,7 @@ from llama_cpp.llama_types import (
     CreateCompletionResponse,
 )
 
-from benchmark.config import BenchmarkConfig
+from benchmark.config import ExperimentConfig
 from llm.llm import ILLMInference
 
 LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
@@ -34,14 +32,14 @@ class LlamaCppLLM(ILLMInference):
     - Pre-downloading with ``llama-cli`` through ``download_model_via_cli()``.
     """
 
-    def __init__(self, config: BenchmarkConfig) -> None:
+    def __init__(self, config: ExperimentConfig) -> None:
         """
         Initialize the llama.cpp backend.
 
         Args:
             config: Benchmark configuration for model and generation settings.
         """
-        self.config: BenchmarkConfig = config
+        self.config: ExperimentConfig = config
         self.model: Llama | None = None
 
         self._load_model()
@@ -52,18 +50,9 @@ class LlamaCppLLM(ILLMInference):
 
     def _load_model(self) -> None:
         """Load the llama.cpp model from a local path or HuggingFace repo."""
-        try:
-            from llama_cpp import Llama
-        except ImportError as exc:
-            LOGGER.exception("llama-cpp-python is not installed")
-            raise RuntimeError(
-                "llama.cpp backend selected but llama-cpp-python is not installed. "
-                "Install with `pip install llama-cpp-python`."
-            ) from exc
-
-        model_ref: str = self.config.model_name
+        model_ref: str = self.config.model_identifier
         if not model_ref:
-            raise ValueError("model_name must be set for llama.cpp backend")
+            raise ValueError("model_identifier must be set for llama.cpp backend")
 
         n_ctx: int = int(os.getenv("LLAMA_CPP_N_CTX", "4096"))
         n_threads: int | None = self._get_int_env("LLAMA_CPP_N_THREADS")
@@ -104,8 +93,6 @@ class LlamaCppLLM(ILLMInference):
         Returns:
             Loaded ``Llama`` model instance.
         """
-        from llama_cpp import Llama
-
         repo_id, filename = self.parse_hf_reference(model_ref)
 
         model_dir: Path = Path(os.getenv("LLAMA_CPP_MODEL_DIR", _DEFAULT_MODEL_DIR))

@@ -1,5 +1,8 @@
 import json
+import logging
+import random
 from abc import ABC, abstractmethod
+from functools import cache
 from pathlib import Path
 from typing import Any, Literal, TypedDict, Unpack
 
@@ -7,6 +10,8 @@ from pydantic import BaseModel, ConfigDict
 
 from benchmark.enums import TaskType
 from benchmark.models import BenchmarkSample, SampleCollection
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class DatasetLoadParams(TypedDict, total=False):
@@ -31,7 +36,13 @@ class IDatasetLoader(ABC, BaseModel):
 class JsonDatasetLoader:
     """Loader for processed JSON benchmark datasets."""
 
-    def load_dataset(self, dataset_path: Path | str) -> list[BenchmarkSample]:
+    # Here we use cache, to keep the loaded dataset in memory for subsequent calls,
+    # which is useful for batch processing and multiple runs on the same dataset.
+    # This makes results of experiments more consistent
+    @cache
+    def load_dataset(
+        self, dataset_path: Path, sample_limit: int | None
+    ) -> SampleCollection:
         """
         Load a processed benchmark dataset from JSON.
 
@@ -39,7 +50,7 @@ class JsonDatasetLoader:
             dataset_path: Path to the JSON dataset file.
 
         Returns:
-            list of BenchmarkSample objects.
+            SampleCollection object.
         """
         resolved_path: Path = Path(dataset_path)
         if not resolved_path.exists():
@@ -49,4 +60,12 @@ class JsonDatasetLoader:
             payload: dict[str, Any] = json.load(handle)
 
         raw_samples: list[dict[str, Any]] = list(payload.get("samples", []))
-        return [BenchmarkSample.model_validate(sample) for sample in raw_samples]
+        samples = [BenchmarkSample.model_validate(sample) for sample in raw_samples]
+
+        # Apply sample limit if specified
+        if sample_limit and sample_limit < len(samples):
+            random.shuffle(samples)
+            samples = samples[:sample_limit]
+            _LOGGER.info(f"Limited to {sample_limit} samples")
+
+        return SampleCollection(samples)

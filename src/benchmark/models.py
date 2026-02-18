@@ -37,6 +37,8 @@ class PredictionResult(BaseModel):
     response_text: str
     processing_time: float
     tokens_used: int | None = None
+    is_success: bool
+    error_message: str | None
 
 
 class SampleCollection(RootModel[list[BenchmarkSample]]):

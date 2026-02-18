@@ -8,10 +8,11 @@ flexible configuration options for different vulnerability detection tasks.
 import argparse
 import logging
 import sys
-from pathlib import Path
 
 from benchmark.config import ExperimentConfig
 from benchmark.run_experiment import run_single_experiment
+from consts import CONFIG_DIRECTORY
+from entrypoints.utils import resolve_config_path
 from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ def main() -> None:
 
     parser.add_argument(
         "--config",
-        default="castle_experiments_config.json",
+        default=(CONFIG_DIRECTORY / "castle_experiments.json").absolute(),
         help="Path to CASTLE experiments configuration file",
     )
 
@@ -87,7 +88,7 @@ def main() -> None:
         sys.exit(1)
 
     config = ExperimentConfig.from_file(
-        config=Path(args.config),
+        config=resolve_config_path(args.config),
         model_key=args.model,
         dataset_key=args.dataset,
         prompt_key=args.prompt,

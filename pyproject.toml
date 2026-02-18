@@ -35,7 +35,11 @@ dependencies = [
     "protobuf>=6.31.1,<7",
     "ipykernel>=6.29.5,<7",
     "pydantic>=2.12.5",
+    "typer>=0.16.1,<0.17",
 ]
+
+  [project.scripts]
+  llm4codesec-benchmark = "cli:app"
 
 [dependency-groups]
 dev = [

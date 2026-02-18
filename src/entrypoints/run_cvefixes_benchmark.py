@@ -7,11 +7,8 @@ flexible configuration options for different vulnerability detection tasks.
 """
 
 import argparse
-import json
 import logging
 import sys
-from pathlib import Path
-from typing import Any
 
 from benchmark.config import ExperimentConfig
 from benchmark.run_experiment import (
@@ -19,14 +16,12 @@ from benchmark.run_experiment import (
     run_experiment_plan,
     run_single_experiment,
 )
-from entrypoints.utils import list_plans
+from entrypoints.utils import (
+    list_plans,
+    log_available_configurations,
+    resolve_config_path,
+)
 from logging_tools import setup_logging
-
-
-def load_cvefixes_config(config_path: str) -> dict[str, Any]:
-    """Load CVEFixes experiment configuration."""
-    with open(config_path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def main() -> None:
@@ -84,22 +79,10 @@ def main() -> None:
     logger = logging.getLogger(__name__)
 
     # Load configuration
-    config_path = Path(args.config)
+    config_path = resolve_config_path(args.config)
     if not config_path.exists():
-        # Try relative to configs directory
-        config_path = Path("configs") / args.config
-    if not config_path.exists():
-        # Try relative to parent directory
-        config_path = Path("../configs") / args.config
-    if not config_path.exists():
-        # Try absolute path from project root
-        project_root = Path(__file__).parent.parent.parent
-        config_path = project_root / "src" / "configs" / args.config
-
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {args.config}")
-
-    cvefixes_config = load_cvefixes_config(str(config_path))
+        logger.error("Configuration file not found: %s", args.config)
+        sys.exit(1)
 
     # Handle list-plans option
     if args.list_plans:
@@ -113,9 +96,10 @@ def main() -> None:
             output_base_dir=args.output_dir,
         )
         summary = create_experiment_summary(results)
-        print("\n" + "=" * 80)
-        print(summary)
-        print("=" * 80)
+        logger.info("%s", "=" * 80)
+        for line in summary.splitlines():
+            logger.info(line)
+        logger.info("%s", "=" * 80)
 
         if results.summary.failed_experiments > 0:
             logger.warning("Some experiments failed. Check logs for details.")
@@ -137,24 +121,25 @@ def main() -> None:
         result = run_single_experiment(config=config)
 
         if result.is_success:
-            print(
-                f"Experiment completed successfully: {result.benchmark_info.experiment_name}"
+            logger.info(
+                "Experiment completed successfully: %s",
+                result.benchmark_info.experiment_name,
             )
-            print(f"Accuracy: {result.metrics.accuracy:.3f}")
+            logger.info("Accuracy: %.3f", result.metrics.accuracy)
         else:
-            print(f"Experiment failed: {result.benchmark_info.experiment_name}")
-            print(
-                f"Error: {result.metrics.details.get('error', 'Unknown error') if result.metrics else 'Unknown error'}"
+            logger.error("Experiment failed: %s", result.benchmark_info.experiment_name)
+            logger.error(
+                "Error: %s",
+                result.metrics.details.get("error", "Unknown error")
+                if result.metrics
+                else "Unknown error",
             )
             sys.exit(1)
 
     else:
         parser.print_help()
-        print("\nAvailable configurations:")
-        print("Models:", list(cvefixes_config["model_configurations"].keys()))
-        print("Datasets:", list(cvefixes_config["dataset_configurations"].keys()))
-        print("Prompts:", list(cvefixes_config["prompt_strategies"].keys()))
-        print("Plans:", list(cvefixes_config["experiment_plans"].keys()))
+        logger.info("")
+        log_available_configurations(config_path, logger=logger)
 
 
 if __name__ == "__main__":

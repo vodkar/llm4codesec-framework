@@ -77,7 +77,7 @@ alias run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 # CASTLE experiments
 run_benchmark entrypoints/run_setup_castle_dataset.py
 for plan in small_models_binary small_models_multiclass large_models_binary large_models_multiclass; do
-    run_benchmark entrypoints/run_castle_experiments.py --plan $plan
+  run_benchmark -m cli run-plan castle --plan $plan
 done
 
 # CVEFixes experiments
@@ -85,7 +85,7 @@ run_benchmark entrypoints/run_setup_cvefixes_datasets.py \
   --database-path datasets_processed/cvefixes/CVEfixes.db \
   --languages C Java Python
 for plan in small_models_binary small_models_multiclass large_models_binary large_models_multiclass; do
-    run_benchmark entrypoints/run_cvefixes_benchmark.py --plan $plan
+  run_benchmark -m cli run-plan cvefixes --plan $plan
 done
 ```
 
@@ -124,21 +124,25 @@ poetry env activate
 #### Run quick experiment
 
 ```bash
-python src/entrypoints/run_castle_experiments.py --plan quick_test
+PYTHONPATH=src python -m cli run-plan castle --plan quick_test
 ```
 
 #### Run Specific Benchmarks
 
 ```bash
-python src/entrypoints/run_cvefixes_benchmark.py \
-  --plan basic_evaluation \
+PYTHONPATH=src python -m cli run-plan cvefixes \
+  --plan quick_test \
   --sample-limit 100 \
   --output-dir results/cvefixes_test
 
-python src/entrypoints/run_jitvul_benchmark.py \
-  --plan basic_evaluation \
+PYTHONPATH=src python -m cli run-plan jitvul \
+  --plan quick_test \
   --sample-limit 100 \
   --output-dir results/jitvul_test
+
+PYTHONPATH=src python -m cli run-plan vulbench \
+  --plan quick_test \
+  --output-dir results/vulbench_test
 ```
 
 ## Metrics

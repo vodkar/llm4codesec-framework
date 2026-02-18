@@ -132,20 +132,20 @@ All prompts are **language-agnostic** and work effectively across C, Java, and P
 
 ### Core Entry Points
 
-- **Main Runner**: `src/entrypoints/run_cvefixes_benchmark.py`
+- **Unified CLI**: `src/cli.py`
 - **Dataset Preparation**: `src/entrypoints/run_setup_cvefixes_datasets.py`
 
 #### Single Experiments
 
 ```bash
 # Run specific model/dataset/prompt combination
-python src/entrypoints/run_cvefixes_benchmark.py \
+PYTHONPATH=src python -m cli run cvefixes \
   --model qwen3-4b \
   --dataset binary_java_file \
   --prompt detailed_analysis
 
 # Multi-language comparison
-python src/entrypoints/run_cvefixes_benchmark.py \
+PYTHONPATH=src python -m cli run cvefixes \
   --model deepseek-coder-v2-lite-16b \
   --dataset multiclass_python_method \
   --prompt multiclass_detailed
@@ -155,20 +155,20 @@ python src/entrypoints/run_cvefixes_benchmark.py \
 
 ```bash
 # Run predefined experiment plan
-python src/entrypoints/run_cvefixes_benchmark.py --plan quick_test
+PYTHONPATH=src python -m cli run-plan cvefixes --plan quick_test
 
 # Multi-language comparison plan
-python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_binary
+PYTHONPATH=src python -m cli run-plan cvefixes --plan language_comparison_binary
 ```
 
 #### Common Options
 
 ```bash
 # List available configurations
-python src/entrypoints/run_cvefixes_benchmark.py --list-configs
+PYTHONPATH=src python -m cli list-configs cvefixes
 
 # Limit samples and set output directory
-python src/entrypoints/run_cvefixes_benchmark.py \
+PYTHONPATH=src python -m cli run-plan cvefixes \
   --plan multiclass_quick_test \
   --sample-limit 100 \
   --output-dir results/cvefixes_test
@@ -192,7 +192,7 @@ All models support quantization and are configured for vulnerability detection t
 - **multiclass_vulnerability**: Multi-class CWE type classification  
 - **binary_cwe_specific**: CWE-specific binary classification
 
-## Experiment Plans
+## Available Plans
 
 ### Quick Testing (2 plans)
 
@@ -286,34 +286,34 @@ python src/entrypoints/run_setup_cvefixes_datasets.py \
 
 ```bash
 # Test binary classification across languages
-python src/entrypoints/run_cvefixes_benchmark.py --plan quick_test
+PYTHONPATH=src python -m cli run-plan cvefixes --plan quick_test
 
 # Test multiclass classification
-python src/entrypoints/run_cvefixes_benchmark.py --plan multiclass_quick_test
+PYTHONPATH=src python -m cli run-plan cvefixes --plan multiclass_quick_test
 ```
 
 ### Language Comparison Studies
 
 ```bash
 # Compare binary detection across C, Java, Python
-python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_binary
+PYTHONPATH=src python -m cli run-plan cvefixes --plan language_comparison_binary
 
 # Compare multiclass classification across languages  
-python src/entrypoints/run_cvefixes_benchmark.py --plan language_comparison_multiclass
+PYTHONPATH=src python -m cli run-plan cvefixes --plan language_comparison_multiclass
 ```
 
 ### Custom Experiments
 
 ```bash
 # Java-specific method-level analysis
-python src/entrypoints/run_cvefixes_benchmark.py \
+PYTHONPATH=src python -m cli run cvefixes \
   --model deepseek-coder-v2-lite-16b \
   --dataset multiclass_java_method \
   --prompt multiclass_comprehensive \
   --sample-limit 500
 
 # Python file-level binary classification
-python src/entrypoints/run_cvefixes_benchmark.py \
+PYTHONPATH=src python -m cli run cvefixes \
   --model qwen3-30b \
   --dataset binary_python_file \
   --prompt context_aware

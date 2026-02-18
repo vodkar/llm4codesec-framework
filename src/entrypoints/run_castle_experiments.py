@@ -15,10 +15,8 @@ from benchmark.run_experiment import (
     run_experiment_plan,
 )
 from consts import CONFIG_DIRECTORY
-from entrypoints.run_castle_experiment import (
-    setup_logging,
-)
-from entrypoints.utils import list_plans
+from entrypoints.utils import list_plans, resolve_config_path
+from logging_tools import setup_logging
 
 
 def main() -> None:
@@ -59,12 +57,13 @@ def main() -> None:
     _LOGGER = logging.getLogger(__name__)
 
     # Load configuration
-    if not Path(args.config).exists():
+    config_path: Path = resolve_config_path(args.config)
+    if not config_path.exists():
         _LOGGER.error(f"Configuration file not found: {args.config}")
         sys.exit(1)
 
-    castle_config = Path(args.config)
-    _LOGGER.info(f"Loaded configuration from {args.config}")
+    castle_config = config_path
+    _LOGGER.info(f"Loaded configuration from {castle_config}")
 
     # List plans if requested
     if args.list_plans:
@@ -88,9 +87,10 @@ def main() -> None:
 
     # Print summary
     summary = create_experiment_summary(results)
-    print("\n" + "=" * 80)
-    print(summary)
-    print("=" * 80)
+    _LOGGER.info("%s", "=" * 80)
+    for line in summary.splitlines():
+        _LOGGER.info(line)
+    _LOGGER.info("%s", "=" * 80)
 
     if results.summary.failed_experiments > 0:
         _LOGGER.warning("Some experiments failed. Check logs for details.")

@@ -12,6 +12,7 @@ import logging
 import sys
 from pathlib import Path
 
+from benchmark.enums import TaskType
 from benchmark.models import Dataset, DatasetMetadata
 from datasets.loaders.castle_dataset_loader import (
     CastleDatasetLoader,
@@ -65,7 +66,9 @@ def create_binary_dataset(loader: CastleDatasetLoader, output_dir: Path) -> None
     logger.info("Creating binary classification dataset...")
 
     output_file = output_dir / "castle_binary.json"
-    loader.create_dataset_json(str(output_file), task_type="binary")
+    loader.create_dataset_json(
+        str(output_file), task_type=TaskType.BINARY_VULNERABILITY
+    )
 
     logger.info(f"Binary dataset created: {output_file}")
 
@@ -77,7 +80,9 @@ def create_multiclass_dataset(loader: CastleDatasetLoader, output_dir: Path) -> 
     logger.info("Creating multi-class classification dataset...")
 
     output_file = output_dir / "castle_multiclass.json"
-    loader.create_dataset_json(str(output_file), task_type="multiclass")
+    loader.create_dataset_json(
+        str(output_file), task_type=TaskType.MULTICLASS_VULNERABILITY
+    )
 
     logger.info(f"Multi-class dataset created: {output_file}")
 
@@ -92,7 +97,7 @@ def create_cwe_specific_datasets(
     logger.info("Creating CWE-specific datasets...")
 
     # Load all samples first
-    all_samples = loader.load_dataset()
+    all_samples = loader.load_dataset(task_type=TaskType.BINARY_CWE_SPECIFIC)
     available_cwes = all_samples.available_cwes
 
     logger.info(f"Available CWEs in dataset: {available_cwes}")
@@ -166,42 +171,37 @@ def main() -> None:
     setup_logging(args.verbose)
     logger: logging.Logger = logging.getLogger(__name__)
 
-    try:
-        logger.info("CASTLE Dataset Setup")
-        logger.info("=" * 50)
+    logger.info("CASTLE Dataset Setup")
+    logger.info("=" * 50)
 
-        source_dir = Path(args.source_dir)
+    source_dir = Path(args.source_dir)
 
-        # Validate CASTLE source
-        if not validate_castle_source(source_dir):
-            sys.exit(1)
-
-        # Create output directory
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Output directory: {output_dir}")
-
-        # Initialize dataset loader
-        loader: CastleDatasetLoader = CastleDatasetLoader(source_dir=source_dir)
-
-        create_binary_dataset(loader, output_dir)
-
-        create_multiclass_dataset(loader, output_dir)
-
-        create_cwe_specific_datasets(loader, output_dir)
-
-        logger.info("Dataset setup completed successfully!")
-        logger.info(f"Processed datasets saved to: {output_dir}")
-
-        # Print summary
-        dataset_files = list(output_dir.glob("*.json"))
-        logger.info(f"Created {len(dataset_files)} dataset files:")
-        for file in sorted(dataset_files):
-            logger.info(f"  - {file.name}")
-
-    except Exception:
-        logger.exception("Dataset setup failed")
+    # Validate CASTLE source
+    if not validate_castle_source(source_dir):
         sys.exit(1)
+
+    # Create output directory
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Output directory: {output_dir}")
+
+    # Initialize dataset loader
+    loader: CastleDatasetLoader = CastleDatasetLoader(source_dir=source_dir)
+
+    create_binary_dataset(loader, output_dir)
+
+    create_multiclass_dataset(loader, output_dir)
+
+    create_cwe_specific_datasets(loader, output_dir)
+
+    logger.info("Dataset setup completed successfully!")
+    logger.info(f"Processed datasets saved to: {output_dir}")
+
+    # Print summary
+    dataset_files = list(output_dir.glob("*.json"))
+    logger.info(f"Created {len(dataset_files)} dataset files:")
+    for file in sorted(dataset_files):
+        logger.info(f"  - {file.name}")
 
 
 if __name__ == "__main__":

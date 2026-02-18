@@ -9,7 +9,7 @@
 	url = git@github.com:LauraWartschinski/VulnerabilityDetection.git
 [submodule "benchmarks/CASTLE-Source"]
 	path = benchmarks/CASTLE-Source
-	url = git@github.com:CASTLE-Benchmark/CASTLE-Source.git
+	url = https://github.com/CASTLE-Benchmark/CASTLE-Source.git
 [submodule "benchmarks/CVEfixes"]
 	path = benchmarks/CVEfixes
 	url = git@github.com:secureIT-project/CVEfixes.git

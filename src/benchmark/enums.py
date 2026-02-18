@@ -1,7 +1,7 @@
 from enum import Enum, StrEnum
 
 
-class TaskType(Enum):
+class TaskType(StrEnum):
     """Enumeration of supported task types."""
 
     BINARY_VULNERABILITY = "binary_vulnerability"

@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -109,10 +108,7 @@ def run_experiment_plan(
     _LOGGER.info(f"Description: {plan.description}")
 
     # Create plan-specific output directory
-    plan_output_dir = (
-        Path(output_base_dir)
-        / f"plan_{plan_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    )
+    plan_output_dir = Path(output_base_dir) / plan_name
     plan_output_dir.mkdir(parents=True, exist_ok=True)
 
     start_time = datetime.now()
@@ -163,8 +159,9 @@ def run_experiment_plan(
 
     # Save plan results
     plan_results_file = plan_output_dir / "experiment_plan_results.json"
-    with open(plan_results_file, "w", encoding="utf-8") as f:
-        json.dump(plan_result.model_dump(), f, indent=2, ensure_ascii=False)
+    plan_results_file.write_text(
+        plan_result.model_dump_json(indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
     _LOGGER.info(
         f"Experiment plan completed: {successful_experiments}/{total_experiments} successful"

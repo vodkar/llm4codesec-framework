@@ -11,15 +11,18 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from datasets.loaders.jitvul_dataset_loader import JitVulDatasetLoader
+from benchmark.enums import TaskType
+from datasets.loaders.jitvul import JitVulDatasetLoader
 
 
 def tuple_encoder(obj: Any) -> Any:
     """Encode tuples for JSON serialization."""
     if isinstance(obj, tuple):
-        return {"__tuple__": True, "items": list(obj)}
+        tuple_obj: tuple[Any, ...] = cast(tuple[Any, ...], obj)
+        tuple_items: list[Any] = list(tuple_obj)
+        return {"__tuple__": True, "items": tuple_items}
     return obj
 
 
@@ -51,7 +54,8 @@ def create_binary_dataset(
 
     # Load samples
     samples = loader.load_dataset(
-        data_file=data_file, task_type="binary", max_samples=max_samples
+        task_type=TaskType.BINARY_VULNERABILITY,
+        limit=max_samples,
     )
 
     # Create dataset dictionary
@@ -101,7 +105,8 @@ def create_multiclass_dataset(
 
     # Load samples
     samples = loader.load_dataset(
-        data_file=data_file, task_type="multiclass", max_samples=max_samples
+        task_type=TaskType.MULTICLASS_VULNERABILITY,
+        limit=max_samples,
     )
 
     # Calculate CWE distribution
@@ -109,7 +114,6 @@ def create_multiclass_dataset(
     for sample in samples:
         cwes = sample.cwe_types or ["UNKNOWN"]
         for cwe in cwes:
-            cwe = cwe[0]
             cwe_counts[cwe] = cwe_counts.get(cwe, 0) + 1
 
     # Create dataset dictionary
@@ -178,10 +182,9 @@ def create_cwe_specific_datasets(
 
         # Load samples for this specific CWE
         samples = loader.load_dataset(
-            data_file=data_file,
-            task_type="cwe_specific",
+            task_type=TaskType.BINARY_CWE_SPECIFIC,
             target_cwe=cwe,
-            max_samples=max_samples,
+            limit=max_samples,
         )
 
         if not samples:
@@ -335,7 +338,7 @@ def main() -> None:
         logger.info(f"Output directory: {output_dir}")
 
         # Initialize dataset loader
-        loader: JitVulDatasetLoader = JitVulDatasetLoader(source_path=args.source_dir)
+        loader: JitVulDatasetLoader = JitVulDatasetLoader(source_path=data_file_path)
 
         # Determine which datasets to create
         create_binary = args.binary or args.all

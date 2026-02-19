@@ -5,7 +5,7 @@ This module provides loaders for various vulnerability detection datasets includ
 CASTLE and CVEFixes benchmarks.
 """
 
-from .loaders.castle_dataset_loader import CastleDatasetLoader
-from .loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
+from .loaders.castle import CastleDatasetLoader
+from .loaders.cvefixes import CVEFixesDatasetLoader
 
 __all__ = ["CastleDatasetLoader", "CVEFixesDatasetLoader"]

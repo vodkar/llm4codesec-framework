@@ -3,10 +3,10 @@
 	url = https://github.com/Sweetaroo/VulDetectBench.git
 [submodule "benchmarks/VulBench"]
 	path = benchmarks/VulBench
-	url = git@github.com:vodkar/VulBench.git
+	url = https://github.com/Hustcw/VulBench.git
 [submodule "benchmarks/VulnerabilityDetection"]
 	path = benchmarks/VulnerabilityDetection
-	url = git@github.com:LauraWartschinski/VulnerabilityDetection.git
+	url = https://github.com/LauraWartschinski/VulnerabilityDetection.git
 [submodule "benchmarks/CASTLE-Source"]
 	path = benchmarks/CASTLE-Source
 	url = https://github.com/CASTLE-Benchmark/CASTLE-Source.git

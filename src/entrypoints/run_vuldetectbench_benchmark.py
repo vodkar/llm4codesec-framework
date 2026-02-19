@@ -29,7 +29,7 @@ from benchmark.results import (
     MetricsResult,
     ResultArtifacts,
 )
-from datasets.loaders.vuldetectbench_dataset_loader import (
+from datasets.loaders.vuldetectbench import (
     VulDetectBenchDatasetLoaderFramework,
 )
 from llm.factory import create_llm_inference

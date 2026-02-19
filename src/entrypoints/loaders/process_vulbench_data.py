@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from datasets.loaders.vulbench_dataset_loader import VulBenchDatasetLoader
+from datasets.loaders.vulbench import VulBenchDatasetLoader
 
 
 def process_vulbench_datasets() -> None:

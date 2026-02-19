@@ -11,7 +11,8 @@ import json
 import logging
 from pathlib import Path
 
-from datasets.loaders.cvefixes_dataset_loader import CVEFixesDatasetLoader
+from benchmark.enums import TaskType
+from datasets.loaders.cvefixes import CVEFixesDatasetLoader
 from logging_tools import setup_logging
 
 
@@ -30,7 +31,7 @@ def prepare_binary_datasets(
     logging.info(f"Creating binary file-level dataset: {file_output}")
     loader.create_dataset_json(
         output_path=str(file_output),
-        task_type="binary",
+        task_type=TaskType.BINARY_VULNERABILITY,
         programming_language=programming_language,
         change_level="file",
         limit=sample_limit,
@@ -43,7 +44,7 @@ def prepare_binary_datasets(
     logging.info(f"Creating binary method-level dataset: {method_output}")
     loader.create_dataset_json(
         output_path=str(method_output),
-        task_type="binary",
+        task_type=TaskType.BINARY_VULNERABILITY,
         programming_language=programming_language,
         change_level="method",
         limit=sample_limit,
@@ -65,7 +66,7 @@ def prepare_multiclass_datasets(
     logging.info(f"Creating multiclass file-level dataset: {file_output}")
     loader.create_dataset_json(
         output_path=str(file_output),
-        task_type="multiclass",
+        task_type=TaskType.MULTICLASS_VULNERABILITY,
         programming_language=programming_language,
         change_level="file",
         limit=sample_limit,
@@ -78,7 +79,7 @@ def prepare_multiclass_datasets(
     logging.info(f"Creating multiclass method-level dataset: {method_output}")
     loader.create_dataset_json(
         output_path=str(method_output),
-        task_type="multiclass",
+        task_type=TaskType.MULTICLASS_VULNERABILITY,
         programming_language=programming_language,
         change_level="method",
         limit=sample_limit,
@@ -120,7 +121,8 @@ def prepare_cwe_specific_datasets(
         try:
             loader.create_dataset_json(
                 output_path=str(output_file),
-                task_type=cwe_type,
+                task_type=TaskType.BINARY_CWE_SPECIFIC,
+                target_cwe=cwe_type,
                 programming_language=programming_language,
                 change_level="file",
                 limit=sample_limit,
@@ -264,7 +266,7 @@ Examples:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize loader
-        loader = CVEFixesDatasetLoader(str(database_path))
+        loader = CVEFixesDatasetLoader(database_path=database_path)
 
         # Analyze database if requested
         if not args.skip_analysis:

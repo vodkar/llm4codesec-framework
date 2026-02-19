@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from datasets.loaders.vuldetectbench_dataset_loader import VulDetectBenchDatasetLoader
+from datasets.loaders.vuldetectbench import VulDetectBenchDatasetLoader
 
 
 def setup_logging(verbose: bool = False) -> None:

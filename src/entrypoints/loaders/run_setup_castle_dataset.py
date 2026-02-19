@@ -14,7 +14,7 @@ from pathlib import Path
 
 from benchmark.enums import TaskType
 from benchmark.models import Dataset, DatasetMetadata
-from datasets.loaders.castle_dataset_loader import (
+from datasets.loaders.castle import (
     CastleDatasetLoader,
 )
 from logging_tools import setup_logging

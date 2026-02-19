@@ -318,6 +318,13 @@ class VllmLLM(ILLMInference):
 
         return f"System: {system_prompt}\n\nUser: {user_prompt}\n\nAssistant:"
 
+    def count_input_tokens(self, text: str) -> int:
+        """Count tokenizer tokens for input text."""
+        if not self.tokenizer:
+            raise RuntimeError("vLLM tokenizer not loaded")
+
+        return len(self.tokenizer.encode(text))
+
     def cleanup(self) -> None:
         """Clean up vLLM model resources."""
         if self.llm:

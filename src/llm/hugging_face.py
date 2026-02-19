@@ -337,6 +337,13 @@ class HuggingFaceLLM(ILLMInference):
             # Generic format for unknown models
             return f"System: {system_prompt}\n\nUser: {user_prompt}\n\nAssistant:"
 
+    def count_input_tokens(self, text: str) -> int:
+        """Count tokenizer tokens for input text."""
+        if not self.tokenizer:
+            raise RuntimeError("Tokenizer not loaded")
+
+        return len(self.tokenizer.encode(text))
+
     def cleanup(self) -> None:
         """Clean up model resources."""
         if self.model:

@@ -59,6 +59,11 @@ class ILLMInference(ABC):
         return results
 
     @abstractmethod
+    def count_input_tokens(self, text: str) -> int:
+        """Count input tokens for the provided text using backend tokenizer."""
+        pass
+
+    @abstractmethod
     def cleanup(self) -> None:
         """Clean up model resources."""
         pass

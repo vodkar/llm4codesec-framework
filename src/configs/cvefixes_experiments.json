@@ -262,6 +262,24 @@
             "temperature": 0.1,
             "batch_size": 2,
             "use_quantization": true
+        },
+        "qwen3-8b-gguf": {
+            "model_identifier": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+            "model_type": "qwen-3",
+            "backend": "llama_cpp",
+            "max_tokens": 4096,
+            "temperature": 0.6,
+            "batch_size": 1,
+            "use_quantization": false
+        },
+        "qwen3-8b-gguf-q8": {
+            "model_identifier": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf",
+            "model_type": "qwen-3",
+            "backend": "llama_cpp",
+            "max_tokens": 4096,
+            "temperature": 0.6,
+            "batch_size": 1,
+            "use_quantization": false
         }
     },
     "experiment_plans": {
@@ -284,6 +302,20 @@
                 "context_aware"
             ],
             "sample_limit": 10
+        },
+        "llama_cpp_evaluation": {
+            "description": "llama.cpp backend evaluation using Qwen3-8B GGUF quantizations",
+            "datasets": [
+                "binary_c_file"
+            ],
+            "models": [
+                "qwen3-8b-gguf",
+                "qwen3-8b-gguf-q8"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 3
         },
         "multiclass_quick_test": {
             "description": "Quick test for multiclass classification with limited samples",

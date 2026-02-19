@@ -1,3 +1,4 @@
+import random
 import time
 
 from pydantic import BaseModel, ConfigDict
@@ -32,29 +33,37 @@ class BenchmarkRunner(BaseModel):
         _LOGGER.info(
             f"Loading {self.config.dataset_name} dataset from: {self.config.dataset_path}"
         )
-        samples = self.dataset_loader.load_dataset(
-            self.config.dataset_path, self.config.sample_limit
-        )
+        samples = self.dataset_loader.load_dataset(self.config.dataset_path, None)
         _LOGGER.info(f"Loaded {len(samples)} samples")
 
-        prompt_generator = get_prompt_generator(
-            self.config,
-            template_values={"cwe": self.config.cwe_type}
-            if self.config.cwe_type
-            else {},
-        )
-
-        response_parser = ResponseParserFactory.create_parser(
-            self.config.task_type,
-        )
-
         llm = create_llm_inference(self.config)
-        start_time = time.time()
-        predictions = self._process_samples_with_batch_optimization(
-            samples, llm, prompt_generator, response_parser
-        )
-        total_time: float = time.time() - start_time
-        llm.cleanup()
+        try:
+            samples = self._filter_samples_by_token_limit(samples, llm)
+            samples = self._apply_sample_limit(samples)
+
+            if len(samples) == 0:
+                raise RuntimeError(
+                    "No samples available after token filtering and sample limit application"
+                )
+
+            prompt_generator = get_prompt_generator(
+                self.config,
+                template_values={"cwe": self.config.cwe_type}
+                if self.config.cwe_type
+                else {},
+            )
+
+            response_parser = ResponseParserFactory.create_parser(
+                self.config.task_type,
+            )
+
+            start_time = time.time()
+            predictions = self._process_samples_with_batch_optimization(
+                samples, llm, prompt_generator, response_parser
+            )
+            total_time: float = time.time() - start_time
+        finally:
+            llm.cleanup()
 
         metrics_calculator = MetricsCalculatorFactory.create_calculator(
             self.config.task_type
@@ -68,6 +77,42 @@ class BenchmarkRunner(BaseModel):
             total_time=total_time,
             predictions=predictions,
         )
+
+    def _filter_samples_by_token_limit(
+        self,
+        samples: SampleCollection,
+        llm: ILLMInference,
+    ) -> SampleCollection:
+        """Filter samples using code token count threshold from config.max_tokens."""
+        token_limit: int = self.config.max_tokens
+        filtered_samples = [
+            sample
+            for sample in samples
+            if llm.count_input_tokens(sample.code) <= token_limit
+        ]
+
+        removed_samples: int = len(samples) - len(filtered_samples)
+        if removed_samples > 0:
+            _LOGGER.info(
+                "Filtered out %d samples with input tokens above max_tokens=%d",
+                removed_samples,
+                token_limit,
+            )
+        _LOGGER.info("Samples after token filtering: %d", len(filtered_samples))
+
+        return SampleCollection(filtered_samples)
+
+    def _apply_sample_limit(self, samples: SampleCollection) -> SampleCollection:
+        """Apply randomized sample limit after token filtering."""
+        sample_limit = self.config.sample_limit
+        if sample_limit and sample_limit < len(samples):
+            shuffled_samples = list(samples)
+            random.shuffle(shuffled_samples)
+            limited_samples = shuffled_samples[:sample_limit]
+            _LOGGER.info(f"Limited to {sample_limit} samples")
+            return SampleCollection(limited_samples)
+
+        return samples
 
     def _process_samples_with_batch_optimization(
         self,

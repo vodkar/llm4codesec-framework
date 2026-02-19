@@ -436,6 +436,14 @@ class LlamaCppLLM(ILLMInference):
             return None
         return int(raw_value)
 
+    def count_input_tokens(self, text: str) -> int:
+        """Count llama.cpp tokens for input text."""
+        if not self.model:
+            raise RuntimeError("llama.cpp model not loaded")
+
+        token_ids: list[int] = self.model.tokenize(text.encode("utf-8"), add_bos=False)
+        return len(token_ids)
+
     def cleanup(self) -> None:
         """Clean up model resources."""
         if self.model:

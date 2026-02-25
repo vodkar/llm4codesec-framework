@@ -1,0 +1,272 @@
+{
+    "experiment_metadata": {
+        "name": "VulBench Benchmark LLM Evaluation",
+        "description": "Comprehensive evaluation of LLMs on VulBench benchmark with multiple prompt strategies",
+        "version": "1.0",
+        "dataset": "VulBench v1.0",
+        "created_date": "2025-01-16"
+    },
+    "experiment_plans": {
+        "quick_test": {
+            "description": "Quick test with limited samples for development",
+            "datasets": [
+                "binary_d2a"
+            ],
+            "models": [
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "context_aware"
+            ],
+            "sample_limit": 10
+        },
+        "multiclass_quick_test": {
+            "description": "Quick test for multiclass classification with limited samples",
+            "datasets": [
+                "multiclass_d2a"
+            ],
+            "models": [
+                "gemma3-4b"
+            ],
+            "prompts": [
+                "multiclass_detailed"
+            ],
+            "sample_limit": 10
+        },
+        "prompt_comparison": {
+            "description": "Compare different prompt strategies on binary classification",
+            "datasets": [
+                "binary_d2a"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "basic_security",
+                "detailed_analysis",
+                "context_aware",
+                "step_by_step"
+            ],
+            "sample_limit": 100
+        },
+        "multiclass_prompt_comparison": {
+            "description": "Compare different prompt strategies on multiclass classification",
+            "datasets": [
+                "multiclass_d2a"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "multiclass_basic",
+                "multiclass_detailed",
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_binary": {
+            "description": "Evaluate small models on binary classification",
+            "datasets": [
+                "binary_d2a",
+                "binary_ctf",
+                "binary_magma",
+                "binary_big_vul",
+                "binary_devign"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "detailed_analysis"
+            ],
+            "sample_limit": 50
+        },
+        "small_models_multiclass": {
+            "description": "Evaluate small models on multiclass classification",
+            "datasets": [
+                "multiclass_d2a",
+                "multiclass_ctf",
+                "multiclass_magma",
+                "multiclass_big_vul",
+                "multiclass_devign"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 50
+        },
+        "large_models_binary": {
+            "description": "Evaluate large models on binary classification",
+            "datasets": [
+                "binary_d2a",
+                "binary_ctf",
+                "binary_magma",
+                "binary_big_vul",
+                "binary_devign"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "detailed_analysis",
+                "step_by_step"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_multiclass": {
+            "description": "Evaluate large models on multiclass classification",
+            "datasets": [
+                "multiclass_d2a",
+                "multiclass_ctf",
+                "multiclass_magma",
+                "multiclass_big_vul",
+                "multiclass_devign"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_vulnerability_specific": {
+            "description": "Small models evaluation on vulnerability-specific detection",
+            "datasets": [
+                "vulnerability_buffer_overflow",
+                "vulnerability_integer_overflow",
+                "vulnerability_null_pointer_dereference",
+                "vulnerability_use_after_free",
+                "vulnerability_memory_leak",
+                "vulnerability_race_condition"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "vulnerability_expert"
+            ],
+            "sample_limit": 50
+        },
+        "quick_small_models_vulnerability_specific": {
+            "description": "Small models evaluation on vulnerability-specific detection",
+            "datasets": [
+                "vulnerability_buffer_overflow",
+                "vulnerability_integer_overflow",
+                "vulnerability_null_pointer_dereference",
+                "vulnerability_use_after_free",
+                "vulnerability_memory_leak",
+                "vulnerability_race_condition"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "vulnerability_expert"
+            ],
+            "sample_limit": 5
+        },
+        "large_models_vulnerability_specific": {
+            "description": "Large models evaluation on vulnerability-specific detection",
+            "datasets": [
+                "vulnerability_buffer_overflow",
+                "vulnerability_integer_overflow",
+                "vulnerability_null_pointer_dereference",
+                "vulnerability_use_after_free",
+                "vulnerability_memory_leak",
+                "vulnerability_race_condition"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "vulnerability_expert"
+            ],
+            "sample_limit": 100
+        },
+        "quick_small_models_multiclass": {
+            "description": "Quick Evaluate small models on multiclass classification",
+            "datasets": [
+                "multiclass_d2a"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 2
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/vulbench_experiments",
+        "create_subdirs": true,
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    },
+    "evaluation_settings": {
+        "metrics": [
+            "auc",
+            "accuracy",
+            "precision",
+            "recall",
+            "f1"
+        ],
+        "calculate_per_cwe": true,
+        "create_confusion_matrix": true,
+        "analyze_errors": true
+    }
+}

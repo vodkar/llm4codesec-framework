@@ -1,0 +1,234 @@
+{
+    "experiment_metadata": {
+        "name": "JitVul Benchmark LLM Evaluation",
+        "description": "Comprehensive evaluation of LLMs on JitVul benchmark with multiple prompt strategies",
+        "version": "1.0",
+        "dataset": "JitVul-Benchmark v1.0",
+        "created_date": "2025-06-12"
+    },
+    "experiment_plans": {
+        "quick_test": {
+            "description": "Quick test with limited samples for development",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "deepseek-r1-distill-qwen2.5-7b",
+                "gemma3-4b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 5
+        },
+        "multiclass_quick_test": {
+            "description": "Quick test for multiclass classification with limited samples",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "multiclass_detailed"
+            ],
+            "sample_limit": 5
+        },
+        "cwe_specific_quick_test": {
+            "description": "Quick test for cwe classification with limited samples",
+            "datasets": [
+                "cwe_125",
+                "cwe_190",
+                "cwe_476",
+                "cwe_787"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "cwe_focused"
+            ],
+            "sample_limit": 5
+        },
+        "prompt_comparison": {
+            "description": "Compare different prompt strategies on binary classification",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "basic_security",
+                "detailed_analysis",
+                "context_aware",
+                "step_by_step"
+            ],
+            "sample_limit": null
+        },
+        "multiclass_prompt_comparison": {
+            "description": "Compare different prompt strategies on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "multiclass_basic",
+                "multiclass_detailed",
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 100
+        },
+        "small_models_cwe_specific_analysis": {
+            "description": "CWE-specific vulnerability detection",
+            "datasets": [
+                "cwe_125",
+                "cwe_190",
+                "cwe_476",
+                "cwe_787"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "cwe_focused"
+            ],
+            "sample_limit": 50
+        },
+        "large_models_cwe_specific_analysis": {
+            "description": "CWE-specific vulnerability detection",
+            "datasets": [
+                "cwe_125",
+                "cwe_190",
+                "cwe_476",
+                "cwe_787"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "cwe_focused"
+            ],
+            "sample_limit": 50
+        },
+        "small_models_binary": {
+            "description": "Evaluate small models on binary classification",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "detailed_analysis"
+            ],
+            "sample_limit": 200
+        },
+        "small_models_multiclass": {
+            "description": "Evaluate small models on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 200
+        },
+        "large_models_binary": {
+            "description": "Evaluate large models on binary classification",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "detailed_analysis",
+                "step_by_step"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_multiclass": {
+            "description": "Evaluate large models on multiclass classification",
+            "datasets": [
+                "multiclass_all"
+            ],
+            "models": [
+                "qwen3-30b",
+                "qwen3-30b-thinking",
+                "deepseek-coder-v2-lite-16b",
+                "deepseek-r1-distill-qwen2.5-32b",
+                "wizard-coder-34b",
+                "llama4-scout-17b-16e",
+                "gemma3-27b"
+            ],
+            "prompts": [
+                "multiclass_comprehensive"
+            ],
+            "sample_limit": 50
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/jitvul_experiments",
+        "create_subdirs": true,
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    },
+    "evaluation_settings": {
+        "metrics": [
+            "auc",
+            "accuracy",
+            "precision",
+            "recall",
+            "f1"
+        ],
+        "calculate_per_cwe": true,
+        "create_confusion_matrix": true,
+        "analyze_errors": true
+    }
+}

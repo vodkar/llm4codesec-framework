@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import typer
 
@@ -15,11 +16,11 @@ from benchmark.run_experiment import (
     run_single_experiment,
 )
 from consts import CONFIG_DIRECTORY
-from entrypoints.utils import list_plans as log_plans
 from entrypoints.utils import (
+    compose_benchmark_config,
     log_available_configurations,
-    resolve_config_path,
 )
+from entrypoints.utils import list_plans as log_plans
 from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -84,14 +85,24 @@ def _get_benchmark(name: str) -> BenchmarkCliConfig:
 
 
 def _resolve_benchmark_config(
-    benchmark: BenchmarkCliConfig, config: str | None
-) -> Path:
-    """Resolve config path from explicit value or benchmark defaults."""
-    selected: Path = benchmark.config_file if config is None else Path(config)
-    resolved: Path = resolve_config_path(selected)
-    if not resolved.exists():
-        raise FileNotFoundError(f"Configuration file not found: {selected}")
-    return resolved
+    benchmark_name: str,
+    benchmark: BenchmarkCliConfig,
+    config: str | None,
+    config_dir: str | None,
+    experiments_config: str | None,
+    datasets_config: str | None,
+) -> dict[str, Any]:
+    """Resolve benchmark config data from monolithic and split config sources."""
+    base_config: str | Path | None = (
+        config if config is not None else benchmark.config_file
+    )
+    return compose_benchmark_config(
+        benchmark_name=benchmark_name,
+        base_config=base_config,
+        config_directory=config_dir,
+        experiments_config=experiments_config,
+        datasets_config=datasets_config,
+    )
 
 
 @app.command("run")
@@ -109,6 +120,21 @@ def run(
     config: str | None = typer.Option(
         None, "--config", help="Path to experiment config file."
     ),
+    config_dir: str | None = typer.Option(
+        None,
+        "--config-dir",
+        help="Directory containing split config files (models.json/prompts.json/etc).",
+    ),
+    experiments_config: str | None = typer.Option(
+        None,
+        "--experiments-config",
+        help="Path to experiments config file (overrides config-dir discovery).",
+    ),
+    datasets_config: str | None = typer.Option(
+        None,
+        "--datasets-config",
+        help="Path to datasets config file (overrides config-dir discovery).",
+    ),
     sample_limit: int | None = typer.Option(
         None,
         "--sample-limit",
@@ -123,11 +149,18 @@ def run(
     _configure_logging(verbose=verbose, log_level=log_level)
 
     benchmark_config: BenchmarkCliConfig = _get_benchmark(benchmark)
-    config_path: Path = _resolve_benchmark_config(benchmark_config, config)
+    config_data: dict[str, Any] = _resolve_benchmark_config(
+        benchmark_name=benchmark,
+        benchmark=benchmark_config,
+        config=config,
+        config_dir=config_dir,
+        experiments_config=experiments_config,
+        datasets_config=datasets_config,
+    )
 
-    _LOGGER.info("Running benchmark '%s' from config %s", benchmark, config_path)
+    _LOGGER.info("Running benchmark '%s'", benchmark)
     experiment_config: ExperimentConfig = ExperimentConfig.from_file(
-        config=config_path,
+        config=config_data,
         model_key=model,
         dataset_key=dataset,
         prompt_key=prompt,
@@ -152,6 +185,21 @@ def run_plan(
     config: str | None = typer.Option(
         None, "--config", help="Path to experiment config file."
     ),
+    config_dir: str | None = typer.Option(
+        None,
+        "--config-dir",
+        help="Directory containing split config files (models.json/prompts.json/etc).",
+    ),
+    experiments_config: str | None = typer.Option(
+        None,
+        "--experiments-config",
+        help="Path to experiments config file (overrides config-dir discovery).",
+    ),
+    datasets_config: str | None = typer.Option(
+        None,
+        "--datasets-config",
+        help="Path to datasets config file (overrides config-dir discovery).",
+    ),
     output_dir: str | None = typer.Option(
         None,
         "--output-dir",
@@ -166,13 +214,20 @@ def run_plan(
     _configure_logging(verbose=verbose, log_level=log_level)
 
     benchmark_config: BenchmarkCliConfig = _get_benchmark(benchmark)
-    config_path: Path = _resolve_benchmark_config(benchmark_config, config)
+    config_data: dict[str, Any] = _resolve_benchmark_config(
+        benchmark_name=benchmark,
+        benchmark=benchmark_config,
+        config=config,
+        config_dir=config_dir,
+        experiments_config=experiments_config,
+        datasets_config=datasets_config,
+    )
     selected_output_dir: str = output_dir or benchmark_config.output_dir
 
     _LOGGER.info("Running plan '%s' for benchmark '%s'", plan, benchmark)
     results = run_experiment_plan(
         plan_name=plan,
-        config=config_path,
+        config=config_data,
         output_base_dir=selected_output_dir,
     )
 
@@ -195,6 +250,21 @@ def list_available_plans(
     config: str | None = typer.Option(
         None, "--config", help="Path to experiment config file."
     ),
+    config_dir: str | None = typer.Option(
+        None,
+        "--config-dir",
+        help="Directory containing split config files (models.json/prompts.json/etc).",
+    ),
+    experiments_config: str | None = typer.Option(
+        None,
+        "--experiments-config",
+        help="Path to experiments config file (overrides config-dir discovery).",
+    ),
+    datasets_config: str | None = typer.Option(
+        None,
+        "--datasets-config",
+        help="Path to datasets config file (overrides config-dir discovery).",
+    ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose logging."
     ),
@@ -204,8 +274,15 @@ def list_available_plans(
     _configure_logging(verbose=verbose, log_level=log_level)
 
     benchmark_config: BenchmarkCliConfig = _get_benchmark(benchmark)
-    config_path: Path = _resolve_benchmark_config(benchmark_config, config)
-    log_plans(config_path, logger=_LOGGER)
+    config_data: dict[str, Any] = _resolve_benchmark_config(
+        benchmark_name=benchmark,
+        benchmark=benchmark_config,
+        config=config,
+        config_dir=config_dir,
+        experiments_config=experiments_config,
+        datasets_config=datasets_config,
+    )
+    log_plans(config_data, logger=_LOGGER)
 
 
 @app.command("list-configs")
@@ -216,6 +293,21 @@ def list_available_configs(
     config: str | None = typer.Option(
         None, "--config", help="Path to experiment config file."
     ),
+    config_dir: str | None = typer.Option(
+        None,
+        "--config-dir",
+        help="Directory containing split config files (models.json/prompts.json/etc).",
+    ),
+    experiments_config: str | None = typer.Option(
+        None,
+        "--experiments-config",
+        help="Path to experiments config file (overrides config-dir discovery).",
+    ),
+    datasets_config: str | None = typer.Option(
+        None,
+        "--datasets-config",
+        help="Path to datasets config file (overrides config-dir discovery).",
+    ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose logging."
     ),
@@ -225,8 +317,15 @@ def list_available_configs(
     _configure_logging(verbose=verbose, log_level=log_level)
 
     benchmark_config: BenchmarkCliConfig = _get_benchmark(benchmark)
-    config_path: Path = _resolve_benchmark_config(benchmark_config, config)
-    log_available_configurations(config_path, logger=_LOGGER)
+    config_data: dict[str, Any] = _resolve_benchmark_config(
+        benchmark_name=benchmark,
+        benchmark=benchmark_config,
+        config=config,
+        config_dir=config_dir,
+        experiments_config=experiments_config,
+        datasets_config=datasets_config,
+    )
+    log_available_configurations(config_data, logger=_LOGGER)
 
 
 if __name__ == "__main__":

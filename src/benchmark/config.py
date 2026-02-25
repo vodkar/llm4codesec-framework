@@ -1,4 +1,3 @@
-import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -6,48 +5,9 @@ from typing import Any
 from pydantic import BaseModel, PrivateAttr
 
 from benchmark.enums import BackendFrameworks, ModelType, TaskType
+from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def _normalize_schema(config_data: dict[str, Any]) -> dict[str, Any]:
-    """Normalize legacy config keys to canonical schema names."""
-    normalized: dict[str, Any] = dict(config_data)
-
-    models: dict[str, Any] = dict(
-        config_data.get("models", config_data.get("model_configurations", {}))
-    )
-    for model_key, model_config in models.items():
-        if (
-            isinstance(model_config, dict)
-            and "model_identifier" not in model_config
-            and "model_name" in model_config
-        ):
-            models[model_key] = {
-                **model_config,
-                "model_identifier": model_config["model_name"],
-            }
-    normalized["models"] = models
-
-    datasets: dict[str, Any] = dict(
-        config_data.get("datasets", config_data.get("dataset_configurations", {}))
-    )
-    for dataset_key, dataset_config in datasets.items():
-        if (
-            isinstance(dataset_config, dict)
-            and "path" not in dataset_config
-            and "dataset_path" in dataset_config
-        ):
-            datasets[dataset_key] = {
-                **dataset_config,
-                "path": dataset_config["dataset_path"],
-            }
-    normalized["datasets"] = datasets
-
-    normalized["prompts"] = dict(
-        config_data.get("prompts", config_data.get("prompt_strategies", {}))
-    )
-    return normalized
 
 
 class ModelConfig(BaseModel):
@@ -131,17 +91,19 @@ class ExperimentConfig(BaseModel):
     @classmethod
     def from_file(
         cls,
-        config: Path,
+        config: Path | str | dict[str, Any],
         model_key: str,
         dataset_key: str,
         prompt_key: str,
         experiment_name: str,
         sample_limit: int | None = None,
     ) -> "ExperimentConfig":
-        if not config.exists():
-            raise FileNotFoundError(f"Config file not found: {config}")
+        if isinstance(config, (Path, str)):
+            config_path = Path(config)
+            if not config_path.exists():
+                raise FileNotFoundError(f"Config file not found: {config}")
 
-        config_data = _normalize_schema(json.loads(config.read_text()))
+        config_data: dict[str, Any] = normalize_config_schema(load_config_dict(config))
 
         # Extract relevant sections based on keys
         if model_key not in config_data["models"]:
@@ -245,11 +207,15 @@ class ExperimentsPlanConfig(BaseModel):
     experiments: list[ExperimentConfig]
 
     @classmethod
-    def from_file(cls, config: Path, plan_name: str) -> "ExperimentsPlanConfig":
-        if not config.exists():
-            raise FileNotFoundError(f"Config file not found: {config}")
+    def from_file(
+        cls, config: Path | str | dict[str, Any], plan_name: str
+    ) -> "ExperimentsPlanConfig":
+        if isinstance(config, (Path, str)):
+            config_path = Path(config)
+            if not config_path.exists():
+                raise FileNotFoundError(f"Config file not found: {config}")
 
-        config_data = _normalize_schema(json.loads(config.read_text()))
+        config_data: dict[str, Any] = normalize_config_schema(load_config_dict(config))
         if "experiment_plans" not in config_data:
             raise ValueError("Config file missing 'experiment_plans' section")
         if plan_name not in config_data["experiment_plans"]:
@@ -278,11 +244,15 @@ class ExperimentsPlanConfig(BaseModel):
         )
 
     @staticmethod
-    def list_plans(config: Path) -> list["ExperimentsPlanConfig"]:
-        if not config.exists():
-            raise FileNotFoundError(f"Config file not found: {config}")
+    def list_plans(
+        config: Path | str | dict[str, Any],
+    ) -> list["ExperimentsPlanConfig"]:
+        if isinstance(config, (Path, str)):
+            config_path = Path(config)
+            if not config_path.exists():
+                raise FileNotFoundError(f"Config file not found: {config}")
 
-        config_data = _normalize_schema(json.loads(config.read_text()))
+        config_data: dict[str, Any] = normalize_config_schema(load_config_dict(config))
         if "experiment_plans" not in config_data:
             raise ValueError("Config file missing 'experiment_plans' section")
         plans: dict[str, dict[str, Any]] = config_data.get("experiment_plans", {})

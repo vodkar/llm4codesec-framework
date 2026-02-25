@@ -1,0 +1,90 @@
+{
+    "datasets": {
+        "binary_d2a": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_d2a.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: D2A vulnerability detection"
+        },
+        "binary_ctf": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_ctf.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: CTF vulnerability detection"
+        },
+        "binary_magma": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_magma.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: MAGMA vulnerability detection"
+        },
+        "binary_big_vul": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_big_vul.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Big-Vul vulnerability detection"
+        },
+        "binary_devign": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_devign.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Devign vulnerability detection"
+        },
+        "multiclass_d2a": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_multiclass_d2a.json",
+            "task_type": "vulbench_multiclass",
+            "description": "Multi-class classification: D2A vulnerability type identification"
+        },
+        "multiclass_ctf": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_multiclass_ctf.json",
+            "task_type": "vulbench_multiclass",
+            "description": "Multi-class classification: CTF vulnerability type identification"
+        },
+        "multiclass_magma": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_multiclass_magma.json",
+            "task_type": "vulbench_multiclass",
+            "description": "Multi-class classification: MAGMA vulnerability type identification"
+        },
+        "multiclass_big_vul": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_multiclass_big_vul.json",
+            "task_type": "vulbench_multiclass",
+            "description": "Multi-class classification: Big-Vul vulnerability type identification"
+        },
+        "multiclass_devign": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_multiclass_devign.json",
+            "task_type": "vulbench_multiclass",
+            "description": "Multi-class classification: Devign vulnerability type identification"
+        },
+        "vulnerability_buffer_overflow": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_buffer_overflow.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Buffer-Overflow",
+            "description": "Buffer-Overflow: Specific vulnerability detection"
+        },
+        "vulnerability_integer_overflow": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_integer_overflow.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Integer-Overflow",
+            "description": "Integer-Overflow: Specific vulnerability detection"
+        },
+        "vulnerability_null_pointer_dereference": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_null_pointer_dereference.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Null-Pointer-Dereference",
+            "description": "Null-Pointer-Dereference: Specific vulnerability detection"
+        },
+        "vulnerability_use_after_free": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_use_after_free.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Use-After-Free",
+            "description": "Use-After-Free: Specific vulnerability detection"
+        },
+        "vulnerability_memory_leak": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_memory_leak.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Memory-Leak",
+            "description": "Memory-Leak: Specific vulnerability detection"
+        },
+        "vulnerability_race_condition": {
+            "dataset_path": "datasets_processed/vulbench/vulbench_binary_race_condition.json",
+            "task_type": "binary_vulnerability_specific",
+            "vulnerability_type": "Race-Condition",
+            "description": "Race-Condition: Specific vulnerability detection"
+        }
+    }
+}

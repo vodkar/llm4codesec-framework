@@ -1,0 +1,100 @@
+{
+    "datasets": {
+        "binary_c_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_c_file.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C file-level vulnerability detection"
+        },
+        "binary_c_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_c_method.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C method-level vulnerability detection"
+        },
+        "multiclass_c_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_c_file.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: C file-level CWE identification"
+        },
+        "multiclass_c_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_c_method.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: C method-level CWE identification"
+        },
+        "binary_java_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_java_file.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java file-level vulnerability detection"
+        },
+        "binary_python_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_python_file.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Python file-level vulnerability detection"
+        },
+        "binary_java_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_java_method.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java method-level vulnerability detection"
+        },
+        "binary_python_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_python_method.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Python method-level vulnerability detection"
+        },
+        "multiclass_java_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_java_file.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: Java file-level CWE identification"
+        },
+        "multiclass_java_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_java_method.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: Java method-level CWE identification"
+        },
+        "multiclass_python_file": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_python_file.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: Python file-level CWE identification"
+        },
+        "multiclass_python_method": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_multiclass_python_method.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: Python method-level CWE identification"
+        },
+        "cwe_119": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_119.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-119",
+            "description": "CWE-119: Improper Restriction of Operations within Bounds of Memory Buffer"
+        },
+        "cwe_120": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_120.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-120",
+            "description": "CWE-120: Buffer Copy without Checking Size of Input (Classic Buffer Overflow)"
+        },
+        "cwe_125": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_125.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-125",
+            "description": "CWE-125: Out-of-bounds Read"
+        },
+        "cwe_190": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_190.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-190",
+            "description": "CWE-190: Integer Overflow or Wraparound"
+        },
+        "cwe_476": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_476.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-476",
+            "description": "CWE-476: NULL Pointer Dereference"
+        },
+        "cwe_787": {
+            "dataset_path": "datasets_processed/cvefixes/cvefixes_cwe_787.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-787",
+            "description": "CWE-787: Out-of-bounds Write"
+        }
+    }
+}

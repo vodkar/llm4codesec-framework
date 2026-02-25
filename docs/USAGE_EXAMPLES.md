@@ -71,6 +71,21 @@ PYTHONPATH=src python -m cli run cvefixes \
 PYTHONPATH=src python -m cli run-plan jitvul \
   --config src/configs/jitvul_experiments.json \
   --plan comprehensive_evaluation
+
+PYTHONPATH=src python -m cli run-plan castle \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/castle/experiments.json \
+  --datasets-config src/configs/castle/datasets.json \
+  --plan quick_test
+
+PYTHONPATH=src python -m cli run castle \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/castle/experiments.json \
+  --datasets-config src/configs/castle/datasets.json \
+  --model qwen3-8b-gguf \
+  --dataset binary_all \
+  --prompt basic_security \
+  --sample-limit 5
 ```
 
 ## Troubleshooting

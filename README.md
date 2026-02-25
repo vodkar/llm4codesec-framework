@@ -125,6 +125,13 @@ poetry env activate
 
 ```bash
 PYTHONPATH=src python -m cli run-plan castle --plan quick_test
+
+# Split config mode (shared models/prompts + explicit experiments/datasets)
+PYTHONPATH=src python -m cli run-plan castle \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/castle/experiments.json \
+  --datasets-config src/configs/castle/datasets.json \
+  --plan quick_test
 ```
 
 #### Run Specific Benchmarks

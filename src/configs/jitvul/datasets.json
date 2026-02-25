@@ -1,0 +1,38 @@
+{
+    "datasets": {
+        "binary_all": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: all vulnerability types"
+        },
+        "multiclass_all": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: vulnerability type identification"
+        },
+        "cwe_125": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_cwe_125.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-125",
+            "description": "CWE-125: Out-of-bounds Read detection"
+        },
+        "cwe_190": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_cwe_190.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-190",
+            "description": "CWE-190: Integer Overflow detection"
+        },
+        "cwe_476": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_cwe_476.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-476",
+            "description": "CWE-476: NULL Pointer Dereference detection"
+        },
+        "cwe_787": {
+            "dataset_path": "datasets_processed/jitvul/jitvul_cwe_787.json",
+            "task_type": "binary_cwe_specific",
+            "cwe_type": "CWE-787",
+            "description": "CWE-787: Out-of-bounds Write detection"
+        }
+    }
+}

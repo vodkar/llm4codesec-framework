@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import ExperimentConfig, ExperimentsPlanConfig
@@ -87,7 +88,7 @@ def create_experiment_summary(results: ExperimentPlanResult) -> str:
 
 def run_experiment_plan(
     plan_name: str,
-    config: Path,
+    config: Path | str | dict[str, Any],
     output_base_dir: str,
 ) -> ExperimentPlanResult:
     """

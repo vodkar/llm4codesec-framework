@@ -1,0 +1,29 @@
+{
+    "datasets": {
+        "task1_vulnerability": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task1.json",
+            "task_type": "binary_vulnerability",
+            "description": "Task 1: Binary vulnerability existence detection (YES/NO)"
+        },
+        "task2_multiclass": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task2.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Task 2: Multi-choice vulnerability type inference"
+        },
+        "task3_objects": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task3.json",
+            "task_type": "code_analysis",
+            "description": "Task 3: Key objects and functions identification"
+        },
+        "task4_root_cause": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task4.json",
+            "task_type": "code_analysis",
+            "description": "Task 4: Root cause location identification"
+        },
+        "task5_trigger_point": {
+            "dataset_path": "datasets_processed/vuldetectbench/vuldetectbench_task5.json",
+            "task_type": "code_analysis",
+            "description": "Task 5: Trigger point location identification"
+        }
+    }
+}

@@ -1,0 +1,43 @@
+{
+    "experiment_metadata": {
+        "name": "ContextAssembler vs CVEFixes Comparison",
+        "description": "Comparison of ContextAssembler extended-context Python dataset against matched CVEFixes Python samples using the same CVE IDs",
+        "version": "1.0",
+        "dataset": "ContextAssembler-CVEFixes-Python v1.0",
+        "created_date": "2026-02-25"
+    },
+    "experiment_plans": {
+        "llama_cpp_test": {
+            "description": "Quick smoke-test with llama.cpp GGUF backend on the ContextAssembler binary dataset",
+            "datasets": [
+                "context_assembler_binary"
+            ],
+            "models": [
+                "qwen3-8b-gguf"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 3
+        },
+        "vllm_comparison": {
+            "description": "Full comparison between ContextAssembler and matched CVEFixes datasets across vllm models",
+            "datasets": [
+                "context_assembler_binary",
+                "cvefixes_python_matched"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "llama4-scout-redhat"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": null
+        }
+    }
+}

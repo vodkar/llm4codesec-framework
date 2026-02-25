@@ -56,6 +56,11 @@ BENCHMARKS: dict[str, BenchmarkCliConfig] = {
         config_file=CONFIG_DIRECTORY / "vulbench_experiments.json",
         output_dir="results/vulbench_experiments",
     ),
+    "context_assembler": BenchmarkCliConfig(
+        name="context_assembler",
+        config_file=CONFIG_DIRECTORY / "context_assembler_experiments.json",
+        output_dir="results/context_assembler_experiments",
+    ),
 }
 
 app = typer.Typer(help="Unified benchmark CLI for experiments and plans.")

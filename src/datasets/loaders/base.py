@@ -20,6 +20,7 @@ class DatasetLoadParams(TypedDict, total=False):
     change_level: Literal["file", "method"] | None
     limit: int | None
     target_cwe: str | None
+    target_cve_ids: set[str] | None
 
 
 class IDatasetLoader(ABC, BaseModel):

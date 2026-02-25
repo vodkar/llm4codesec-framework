@@ -76,7 +76,10 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         return {f"CWE-{cwe_id}": count for cwe_id, count in results if cwe_id}
 
     def _extract_file_level_data(
-        self, programming_language: str = "C", limit: int | None = None
+        self,
+        programming_language: str = "C",
+        limit: int | None = None,
+        target_cve_ids: set[str] | None = None,
     ) -> list[
         tuple[
             str,
@@ -136,6 +139,11 @@ class CVEFixesDatasetLoader(IDatasetLoader):
 
         params: list[str | int] = [programming_language]
 
+        if target_cve_ids:
+            placeholders: str = ",".join("?" * len(target_cve_ids))
+            query += f" AND cv.cve_id IN ({placeholders})"
+            params.extend(sorted(target_cve_ids))
+
         if limit:
             query += " LIMIT ?"
             params.append(limit)
@@ -145,7 +153,10 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         return cursor.fetchall()
 
     def _extract_method_level_data(
-        self, programming_language: str = "C", limit: int | None = None
+        self,
+        programming_language: str = "C",
+        limit: int | None = None,
+        target_cve_ids: set[str] | None = None,
     ) -> list[
         tuple[
             str,
@@ -209,6 +220,11 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         """
 
         params: list[str | int] = [programming_language]
+
+        if target_cve_ids:
+            placeholders: str = ",".join("?" * len(target_cve_ids))
+            query += f" AND cv.cve_id IN ({placeholders})"
+            params.extend(sorted(target_cve_ids))
 
         if limit:
             query += " LIMIT ?"
@@ -407,13 +423,14 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         limit = kwargs.get("limit", None)
         task_type = kwargs.get("task_type", TaskType.BINARY_VULNERABILITY)
         target_cwe = (kwargs.get("target_cwe") or "").upper()
+        target_cve_ids: set[str] | None = kwargs.get("target_cve_ids")
 
         try:
             self.__conn = self._create_connection()
 
             if change_level == "file":
                 file_data_rows = self._extract_file_level_data(
-                    programming_language, limit
+                    programming_language, limit, target_cve_ids
                 )
                 for i, file_row in enumerate(file_data_rows):
                     try:
@@ -450,7 +467,7 @@ class CVEFixesDatasetLoader(IDatasetLoader):
 
             elif change_level == "method":
                 method_data_rows = self._extract_method_level_data(
-                    programming_language, limit
+                    programming_language, limit, target_cve_ids
                 )
                 for i, method_row in enumerate(method_data_rows):
                     try:
@@ -513,6 +530,7 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         change_level = kwargs.get("change_level", "file")
         limit = kwargs.get("limit", None)
         target_cwe = kwargs.get("target_cwe")
+        target_cve_ids: set[str] | None = kwargs.get("target_cve_ids")
 
         samples = self.load_dataset(
             task_type=task_type,
@@ -520,6 +538,7 @@ class CVEFixesDatasetLoader(IDatasetLoader):
             change_level=change_level,
             limit=limit,
             target_cwe=target_cwe,
+            target_cve_ids=target_cve_ids,
         )
 
         # Calculate statistics

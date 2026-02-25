@@ -1,0 +1,14 @@
+{
+    "datasets": {
+        "context_assembler_binary": {
+            "dataset_path": "datasets_processed/context_assembler/context_assembler_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler: Python binary vulnerability detection with extended CVE context (1=vulnerable, 0=safe)"
+        },
+        "cvefixes_python_matched": {
+            "dataset_path": "datasets_processed/context_assembler/cvefixes_python_matched.json",
+            "task_type": "binary_vulnerability",
+            "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)"
+        }
+    }
+}

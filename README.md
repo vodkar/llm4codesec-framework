@@ -111,12 +111,22 @@ Use docker cuda ready VPC image. For example in [selectel](https://docs.selectel
 
 ### W/o Docker (not tested)
 
-#### Install dependencies using Poetry (recommended)
+#### Install dependencies using uv
+
+Install only the dependencies for your chosen backend:
 
 ```bash
-pip install poetry
-poetry install
-poetry env activate
+# HuggingFace transformers backend
+uv sync --extra hf
+
+# vLLM backend (Linux/CUDA only)
+uv sync --extra vllm
+
+# llama.cpp backend
+uv sync --extra llama-cpp
+
+# Multiple backends at once
+uv sync --extra hf --extra vllm
 ```
 
 ### How to run

@@ -12,25 +12,12 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "torchaudio>=2.0.0",
-    "transformers>=4.51.0",
-    "vllm>=0.6.6",
-    "llama-cpp-python>=0.3.1",
-    "tokenizers>=0.14.0",
-    "accelerate>=0.24.0",
-    "bitsandbytes>=0.49.1",
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "scikit-learn>=1.3.0",
-    "datasets>=2.14.0",
     "tqdm>=4.65.0",
     "psutil>=5.9.0",
-    "huggingface-hub[hf_xet]>=0.32.4,<0.33",
     "packaging>=25.0,<26",
-    "ninja>=1.11.1.4,<2",
-    "fbgemm-gpu>=1.4.1; platform_system != 'Darwin' or platform_machine != 'arm64'",
     "tiktoken>=0.9.0,<0.10",
     "protobuf>=6.31.1,<7",
     "ipykernel>=6.29.5,<7",
@@ -38,8 +25,32 @@ dependencies = [
     "typer>=0.16.1,<0.17",
 ]
 
-  [project.scripts]
-  llm4codesec-benchmark = "cli:app"
+[project.optional-dependencies]
+hf = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+    "transformers>=4.51.0",
+    "tokenizers>=0.14.0",
+    "accelerate>=0.24.0",
+    "bitsandbytes>=0.49.1",
+    "datasets>=2.14.0",
+    "huggingface-hub[hf_xet]>=0.32.4,<0.33",
+]
+vllm = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+    "vllm>=0.6.6",
+    "ninja>=1.11.1.4,<2",
+    "fbgemm-gpu>=1.4.1; platform_system != 'Darwin' or platform_machine != 'arm64'",
+]
+llama-cpp = [
+    "llama-cpp-python>=0.3.1",
+]
+
+[project.scripts]
+llm4codesec-benchmark = "cli:app"
 
 [dependency-groups]
 dev = [

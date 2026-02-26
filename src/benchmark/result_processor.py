@@ -282,7 +282,7 @@ class BenchmarkResultProcessor(BaseModel):
             description=self.config.description,
             cwe_type=self.config.cwe_type,
             batch_size=int(self.config.batch_size),
-            max_tokens=int(self.config.max_tokens),
+            max_output_tokens=int(self.config.max_output_tokens),
             temperature=float(self.config.temperature),
             use_quantization=bool(self.config.use_quantization),
             is_thinking_enabled=bool(self.config.is_thinking_enabled),

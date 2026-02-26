@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for LLM4CodeSec Benchmark with NVIDIA CUDA support
-FROM nvcr.io/nvidia/cuda:12.8.1-devel-ubuntu22.04
+FROM nvcr.io/nvidia/cuda:12.9.1-devel-ubuntu24.04
 
 # Set environment variables for non-interactive builds
 ENV DEBIAN_FRONTEND=noninteractive
@@ -8,6 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV PYTHONPATH=/app
+ENV PATH=/root/.cargo/bin:${PATH}
 
 
 # Install system dependencies
@@ -16,6 +17,7 @@ RUN apt-get update && apt-get install -y  --no-install-recommends \
     python3-pip \
     python3-packaging \
     ninja-build \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
@@ -27,11 +29,13 @@ ENV UV_NO_DEV=1
 
 COPY pyproject.toml uv.lock ./
 
-RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=600 uv sync --locked
+RUN uv python install 3.13
+
+RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=600 uv sync --locked --extra vllm
 
 # Install flash attention
-RUN uv pip install ninja setuptools && \
-    MAX_JOBS=2 uv pip install flash-attn --no-build-isolation
+# RUN uv pip install ninja setuptools && \
+#     MAX_JOBS=2 uv pip install flash-attn --no-build-isolation
 
 COPY src/ .
 

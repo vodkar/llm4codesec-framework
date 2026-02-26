@@ -113,17 +113,15 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-                "qwen3-4b",
                 "qwen3-4b-thinking",
-                "qwen3-8b",
                 "qwen3-8b-thinking",
                 "llama3.2-3B",
                 "llama4-scout-redhat"
             ],
             "prompts": [
-                "basic_security"
+                "step_by_step"
             ],
-            "sample_limit": null
+            "sample_limit": 3
         }
     },
     "output_settings": {

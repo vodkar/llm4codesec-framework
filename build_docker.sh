@@ -114,7 +114,7 @@ fi
 # Check NVIDIA Docker support if testing GPU
 if [[ $TEST_GPU == true ]]; then
     print_status "Checking NVIDIA Docker support..."
-    if ! docker run --rm --gpus all nvidia/cuda:12.8.1-devel-ubuntu24.04 > /dev/null 2>&1; then
+    if ! docker run --rm --gpus all nvidia/cuda:12.9.1-devel-ubuntu24.04 > /dev/null 2>&1; then
         print_warning "GPU test failed. NVIDIA Docker support might not be available."
         print_warning "Continuing with build, but GPU functionality may not work."
         TEST_GPU=false

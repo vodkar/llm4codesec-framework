@@ -44,12 +44,23 @@ class VllmLLM(ILLMInference):
                 "Install with `pip install vllm`."
             ) from exc
 
-        LOGGER.info("Loading vLLM model: %s", self.config.model_identifier)
+        LOGGER.info("Loading vLLM model: %s", self.config.model_config)
+
+        os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
+        quantization = "fp8" if self.config.use_quantization else None
+        kv_cache_dtype = "fp8" if self.config.use_quantization else "auto"
 
         self.llm = LLM(
             model=self.config.model_identifier,
             trust_remote_code=True,
             max_num_seqs=max(self.config.batch_size, 1),
+            gpu_memory_utilization=0.82,
+            max_model_len=self.config.model_context_length_tokens,
+            dtype="bfloat16",
+            quantization=quantization,
+            kv_cache_dtype=kv_cache_dtype,
+            enforce_eager=True,
         )
         self.tokenizer = self.llm.get_tokenizer()
 
@@ -246,7 +257,7 @@ class VllmLLM(ILLMInference):
                         messages,
                         tokenize=False,
                         add_generation_prompt=True,
-                        is_thinking_enabled=True,
+                        enable_thinking=True,
                     )
                 else:
                     formatted_prompt = apply_chat_template(

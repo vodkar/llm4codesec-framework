@@ -38,7 +38,7 @@ class BenchmarkRunner(BaseModel):
 
         llm = create_llm_inference(self.config)
         try:
-            samples = self._filter_samples_by_token_limit(samples, llm)
+            # samples = self._filter_samples_by_token_limit(samples, llm)
             samples = self._apply_sample_limit(samples)
 
             if len(samples) == 0:

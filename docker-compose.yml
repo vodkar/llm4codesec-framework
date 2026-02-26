@@ -28,6 +28,7 @@ services:
       
       # Hugging Face cache (optional)
       - HF_HOME=/app/.cache/huggingface
+      - VLLM_CACHE_ROOT=/app/.cache/huggingface
 
       - CUDA_LAUNCH_BLOCKING=1
 

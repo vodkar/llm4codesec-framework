@@ -63,7 +63,7 @@ BENCHMARKS: dict[str, BenchmarkCliConfig] = {
     ),
 }
 
-app = typer.Typer(help="Unified benchmark CLI for experiments and plans.")
+app = typer.Typer(help="Unified benchmark CLI for experiments and plans.", pretty_exceptions_enable=False, pretty_exceptions_show_locals=False)
 
 
 def _configure_logging(verbose: bool, log_level: str) -> None:
@@ -126,7 +126,7 @@ def run(
         None, "--config", help="Path to experiment config file."
     ),
     config_dir: str | None = typer.Option(
-        None,
+        "src/configs/shared",
         "--config-dir",
         help="Directory containing split config files (models.json/prompts.json/etc).",
     ),
@@ -186,12 +186,12 @@ def run_plan(
     benchmark: str = typer.Argument(
         ..., help="Benchmark name (castle/cvefixes/jitvul/vulbench)."
     ),
-    plan: str = typer.Option(..., "--plan", help="Experiment plan name."),
+    plan: str = typer.Argument(..., help="Experiment plan name."),
     config: str | None = typer.Option(
         None, "--config", help="Path to experiment config file."
     ),
     config_dir: str | None = typer.Option(
-        None,
+        "src/configs/shared",
         "--config-dir",
         help="Directory containing split config files (models.json/prompts.json/etc).",
     ),

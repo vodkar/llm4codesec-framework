@@ -17,7 +17,8 @@ class ModelConfig(BaseModel):
     model_identifier: str
     model_type: ModelType
     batch_size: int
-    max_tokens: int
+    max_output_tokens: int
+    context_length: int | None = None
     temperature: float
     use_quantization: bool
     backend: BackendFrameworks
@@ -74,10 +75,11 @@ class ExperimentConfig(BaseModel):
     backend: BackendFrameworks
     experiment_name: str
     batch_size: int
-    max_tokens: int
+    max_output_tokens: int
     temperature: float
     use_quantization: bool = True
     is_thinking_enabled: bool = False
+    context_length: int | None = None
     cwe_type: str | None = None
     system_prompt_template: str
     user_prompt_template: str
@@ -158,10 +160,11 @@ class ExperimentConfig(BaseModel):
             backend=model_config.backend,
             experiment_name=experiment_name,
             batch_size=model_config.batch_size,
-            max_tokens=model_config.max_tokens,
+            max_output_tokens=model_config.max_output_tokens,
             temperature=model_config.temperature,
             use_quantization=model_config.use_quantization,
             is_thinking_enabled=model_config.is_thinking_enabled,
+            context_length=model_config.context_length,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,
@@ -198,6 +201,10 @@ class ExperimentConfig(BaseModel):
     def model_name(self) -> str:
         return self.__model_config.model_name
 
+    @property
+    def model_context_length_tokens(self) -> int:
+        ctx = self.__model_config.context_length
+        return ctx if ctx is not None else self.__model_config.max_output_tokens
 
 class ExperimentsPlanConfig(BaseModel):
     """Configuration for running a plan of experiments."""

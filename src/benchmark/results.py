@@ -40,7 +40,7 @@ class BenchmarkInfo(BaseModel):
     description: str
     cwe_type: str | None
     batch_size: int
-    max_tokens: int
+    max_output_tokens: int
     temperature: float
     use_quantization: bool
     is_thinking_enabled: bool

@@ -6,7 +6,7 @@
             "max_output_tokens": 2048,
             "context_length": 16384,
             "temperature": 0.1,
-            "batch_size": 1,
+            "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
         },
@@ -14,9 +14,9 @@
             "model_identifier": "Qwen/Qwen3-4B",
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
-            "context_length": 16384,
+            "context_length": 18432,
             "temperature": 0.1,
-            "batch_size": 1,
+            "batch_size": 5,
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true
@@ -27,7 +27,7 @@
             "max_output_tokens": 2048,
             "context_length": 16384,
             "temperature": 0.1,
-            "batch_size": 1,
+            "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
         },
@@ -35,9 +35,9 @@
             "model_identifier": "Qwen/Qwen3-8B",
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
-            "context_length": 16384,
+            "context_length": 18432,
             "temperature": 0.1,
-            "batch_size": 1,
+            "batch_size": 5,
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true
@@ -74,10 +74,11 @@
         "deepseek-r1-distill-qwen2.5-7b": {
             "model_identifier": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
             "model_type": "deepseek-r1",
-            "max_output_tokens": 32768,
+            "max_output_tokens": 8192,
+            "context_length": 18432,
             "temperature": 0.1,
-            "batch_size": 50,
-            "backend": "hf",
+            "batch_size": 5,
+            "backend": "vllm",
             "use_quantization": true
         },
         "deepseek-r1-distill-qwen2.5-32b": {
@@ -101,10 +102,11 @@
         "llama3.2-3B": {
             "model_identifier": "meta-llama/Llama-3.2-3B-Instruct",
             "model_type": "llama-3",
-            "max_output_tokens": 32768,
+            "max_output_tokens": 2048,
+            "context_length": 16384,
             "temperature": 0.1,
-            "batch_size": 30,
-            "backend": "hf",
+            "batch_size": 5,
+            "backend": "vllm",
             "use_quantization": true
         },
         "llama4-scout-17b-16e": {
@@ -121,7 +123,7 @@
             "model_type": "gemma-3",
             "max_output_tokens": 32768,
             "temperature": 0.1,
-            "batch_size": 50,
+            "batch_size": 5,
             "backend": "hf",
             "use_quantization": true
         },
@@ -153,7 +155,7 @@
             "use_quantization": false
         },
         "llama4-scout-redhat": {
-            "model_identifier": "hf://RedHatAI/Llama-4-Scout-17B-16E-Instruct-quantized.w4a16",
+            "model_identifier": "RedHatAI/Llama-4-Scout-17B-16E-Instruct-quantized.w4a16",
             "model_type": "llama-4",
             "backend": "vllm",
             "max_output_tokens": 32768,

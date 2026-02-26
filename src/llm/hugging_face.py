@@ -203,7 +203,7 @@ class HuggingFaceLLM(ILLMInference):
                 # Generate responses for the batch
                 batch_responses: Any = self.pipeline(
                     batch_prompts,
-                    max_new_tokens=self.config.max_tokens,
+                    max_new_tokens=self.config.max_output_tokens,
                     temperature=self.config.temperature,
                     do_sample=self.config.temperature > 0,
                     return_full_text=False,

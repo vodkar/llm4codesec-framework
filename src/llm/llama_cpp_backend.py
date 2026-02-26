@@ -346,7 +346,7 @@ class LlamaCppLLM(ILLMInference):
             start_time: float = time.time()
             output: CreateCompletionResponse = self.model(  # type: ignore[assignment]
                 prompt,
-                max_tokens=self.config.max_tokens,
+                max_tokens=self.config.max_output_tokens,
                 temperature=self.config.temperature,
             )
             duration: float = time.time() - start_time
@@ -368,7 +368,7 @@ class LlamaCppLLM(ILLMInference):
         ]
         response: CreateChatCompletionResponse = self.model.create_chat_completion(  # type: ignore[assignment]
             messages=messages,
-            max_tokens=self.config.max_tokens,
+            max_tokens=self.config.max_output_tokens,
             temperature=self.config.temperature,
         )
 
@@ -392,7 +392,7 @@ class LlamaCppLLM(ILLMInference):
         prompt: str = self._format_prompt(system_prompt, user_prompt)
         response: CreateCompletionResponse = self.model(  # type: ignore[assignment]
             prompt,
-            max_tokens=self.config.max_tokens,
+            max_tokens=self.config.max_output_tokens,
             temperature=self.config.temperature,
         )
         response_text: str = self._extract_completion_text(response)

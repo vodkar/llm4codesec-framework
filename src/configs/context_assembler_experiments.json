@@ -18,80 +18,6 @@
             "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)"
         }
     },
-    "prompt_strategies": {
-        "basic_security": {
-            "name": "Basic Security Analysis",
-            "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision on concrete security risks, not coding style issues\n- Apply security analysis principles across different programming languages",
-            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
-        },
-        "detailed_analysis": {
-            "name": "Detailed Security Analysis",
-            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of code to identify potential security vulnerabilities across multiple programming languages.\n\nAnalysis Guidelines:\n- Examine the code for input validation issues, injection vulnerabilities, improper data handling\n- Check for insecure use of external data, missing authentication checks, race conditions\n- Look for information disclosure, improper error handling, insecure deserialization\n- Consider null/None pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices\n- Assess Python-specific risks: eval/exec, pickle, subprocess, os.system, etc.\n\nResponse Format: Respond with only \"VULNERABLE\" or \"SAFE\"",
-            "user_prompt": "Please analyze the following Python code for security vulnerabilities:\n\n```python\n{code}\n```"
-        }
-    },
-    "model_configurations": {
-        "qwen3-4b": {
-            "model_name": "Qwen/Qwen3-4B",
-            "model_type": "qwen-3",
-            "max_tokens": 2048,
-            "temperature": 0.1,
-            "batch_size": 2,
-            "use_quantization": true
-        },
-        "qwen3-4b-thinking": {
-            "model_name": "Qwen/Qwen3-4B",
-            "model_type": "qwen-3",
-            "max_tokens": 2048,
-            "temperature": 0.1,
-            "batch_size": 2,
-            "use_quantization": true,
-            "is_thinking_enabled": true
-        },
-        "qwen3-8b": {
-            "model_name": "Qwen/Qwen3-8B",
-            "model_type": "qwen-3",
-            "max_tokens": 2048,
-            "temperature": 0.1,
-            "batch_size": 1,
-            "use_quantization": true
-        },
-        "qwen3-8b-thinking": {
-            "model_name": "Qwen/Qwen3-8B",
-            "model_type": "qwen-3",
-            "max_tokens": 2048,
-            "temperature": 0.1,
-            "batch_size": 1,
-            "use_quantization": true,
-            "is_thinking_enabled": true
-        },
-        "llama3.2-3B": {
-            "model_name": "meta-llama/Llama-3.2-3B-Instruct",
-            "model_type": "llama-3",
-            "max_tokens": 512,
-            "temperature": 0.1,
-            "batch_size": 1,
-            "use_quantization": true
-        },
-        "llama4-scout-redhat": {
-            "model_identifier": "RedHatAI/Llama-4-Scout-17B-16E-Instruct-quantized.w4a16",
-            "model_type": "llama-4",
-            "backend": "vllm",
-            "max_tokens": 1024,
-            "temperature": 0.1,
-            "batch_size": 2,
-            "use_quantization": false
-        },
-        "qwen3-8b-gguf": {
-            "model_identifier": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
-            "model_type": "qwen-3",
-            "backend": "llama_cpp",
-            "max_tokens": 4096,
-            "temperature": 0.6,
-            "batch_size": 1,
-            "use_quantization": false
-        }
-    },
     "experiment_plans": {
         "llama_cpp_test": {
             "description": "Quick smoke-test with llama.cpp GGUF backend on the ContextAssembler binary dataset",
@@ -116,12 +42,12 @@
                 "qwen3-4b-thinking",
                 "qwen3-8b-thinking",
                 "llama3.2-3B",
-                "llama4-scout-redhat"
+                "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
                 "step_by_step"
             ],
-            "sample_limit": 3
+            "sample_limit": 5
         }
     },
     "output_settings": {

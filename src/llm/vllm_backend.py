@@ -46,7 +46,7 @@ class VllmLLM(ILLMInference):
 
         LOGGER.info("Loading vLLM model: %s", self.config.model_config)
 
-        os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+        os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
         quantization = "fp8" if self.config.use_quantization else None
         kv_cache_dtype = "fp8" if self.config.use_quantization else "auto"
@@ -176,7 +176,7 @@ class VllmLLM(ILLMInference):
             SamplingParams: Configured sampling parameters.
         """
         return sampling_params_cls(
-            max_tokens=self.config.max_tokens,
+            max_tokens=self.config.max_output_tokens,
             temperature=self.config.temperature,
         )
 

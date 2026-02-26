@@ -17,6 +17,7 @@ from logging_tools import get_logger
 _LOGGER = get_logger(__name__)
 
 _ERRORS_THRESHOLD = 0.2  # If more than 20% of samples fail, fail the experiment
+_CHAT_TEMPLATE_TOKEN_OVERHEAD = 200  # Safety margin for chat-template special tokens
 
 
 class BenchmarkRunner(BaseModel):
@@ -38,20 +39,20 @@ class BenchmarkRunner(BaseModel):
 
         llm = create_llm_inference(self.config)
         try:
-            # samples = self._filter_samples_by_token_limit(samples, llm)
-            samples = self._apply_sample_limit(samples)
-
-            if len(samples) == 0:
-                raise RuntimeError(
-                    "No samples available after token filtering and sample limit application"
-                )
-
             prompt_generator = get_prompt_generator(
                 self.config,
                 template_values={"cwe": self.config.cwe_type}
                 if self.config.cwe_type
                 else {},
             )
+
+            samples = self._filter_samples_by_token_limit(samples, llm, prompt_generator)
+            samples = self._apply_sample_limit(samples)
+
+            if len(samples) == 0:
+                raise RuntimeError(
+                    "No samples available after token filtering and sample limit application"
+                )
 
             response_parser = ResponseParserFactory.create_parser(
                 self.config.task_type,
@@ -82,21 +83,46 @@ class BenchmarkRunner(BaseModel):
         self,
         samples: SampleCollection,
         llm: ILLMInference,
+        prompt_generator: IPromptGenerator,
     ) -> SampleCollection:
-        """Filter samples using code token count threshold from config.max_tokens."""
-        token_limit: int = self.config.max_tokens
-        filtered_samples = [
-            sample
-            for sample in samples
-            if llm.count_input_tokens(sample.code) <= token_limit
-        ]
+        """Filter samples whose full formatted prompt exceeds the model's input budget.
 
-        removed_samples: int = len(samples) - len(filtered_samples)
+        Counts tokens on the complete prompt text (system + user with code substituted)
+        and compares against context_length - max_output_tokens - chat template overhead.
+        """
+        context_len = self.config.model_context_length_tokens
+        output_budget = self.config.max_output_tokens
+        input_budget = context_len - output_budget - _CHAT_TEMPLATE_TOKEN_OVERHEAD
+
+        if input_budget <= 0:
+            _LOGGER.warning(
+                "Input budget is %d (context_length=%d, max_output_tokens=%d, overhead=%d). "
+                "Token filtering skipped — set context_length separately in model config.",
+                input_budget,
+                context_len,
+                output_budget,
+                _CHAT_TEMPLATE_TOKEN_OVERHEAD,
+            )
+            return samples
+
+        filtered_samples = []
+        for sample in samples:
+            system_prompt = prompt_generator.get_system_prompt()
+            user_prompt = prompt_generator.get_user_prompt({"code": sample.code})
+            full_text = system_prompt + "\n" + user_prompt
+            if llm.count_input_tokens(full_text) <= input_budget:
+                filtered_samples.append(sample)
+
+        removed_samples = len(samples) - len(filtered_samples)
         if removed_samples > 0:
             _LOGGER.info(
-                "Filtered out %d samples with input tokens above max_tokens=%d",
+                "Filtered out %d samples exceeding input budget of %d tokens "
+                "(context=%d, output_budget=%d, overhead=%d)",
                 removed_samples,
-                token_limit,
+                input_budget,
+                context_len,
+                output_budget,
+                _CHAT_TEMPLATE_TOKEN_OVERHEAD,
             )
         _LOGGER.info("Samples after token filtering: %d", len(filtered_samples))
 

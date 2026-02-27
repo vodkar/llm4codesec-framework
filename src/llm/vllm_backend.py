@@ -51,16 +51,18 @@ class VllmLLM(ILLMInference):
         quantization = "fp8" if self.config.use_quantization else None
         kv_cache_dtype = "fp8" if self.config.use_quantization else "auto"
 
+        max_num_seqs: int = int(os.getenv("MAX_NUM_SEQS", "32"))
+
         self.llm = LLM(
             model=self.config.model_identifier,
             trust_remote_code=True,
-            max_num_seqs=max(self.config.batch_size, 1),
+            max_num_seqs=max_num_seqs,
             gpu_memory_utilization=0.82,
             max_model_len=self.config.model_context_length_tokens,
             dtype="bfloat16",
             quantization=quantization,
             kv_cache_dtype=kv_cache_dtype,
-            enforce_eager=True,
+            enable_prefix_caching=True,
         )
         self.tokenizer = self.llm.get_tokenizer()
 
@@ -131,37 +133,18 @@ class VllmLLM(ILLMInference):
             LOGGER.exception("vLLM SamplingParams import failed")
             raise RuntimeError("vLLM is not installed") from exc
 
-        hard_batch_size: int = int(
-            os.getenv("HARD_BATCH_SIZE", str(self.config.batch_size))
+        sampling_params = self._create_sampling_params(SamplingParams)
+
+        LOGGER.info("Submitting %d prompts to vLLM scheduler", len(prompts))
+        start_time: float = time.time()
+        all_outputs: list[RequestOutput] = self.llm.generate(prompts, sampling_params)
+        duration: float = time.time() - start_time
+
+        return self._collect_batch_results(
+            batch_outputs=all_outputs,
+            duration=duration,
+            batch_size=len(prompts),
         )
-        batch_size: int = max(min(hard_batch_size, len(prompts)), 1)
-        results: list[tuple[str, int, float]] = []
-
-        for i in range(0, len(prompts), batch_size):
-            batch_prompts = prompts[i : i + batch_size]
-            sampling_params = self._create_sampling_params(SamplingParams)
-
-            start_time: float = time.time()
-            batch_outputs: list[RequestOutput] = self.llm.generate(
-                batch_prompts, sampling_params
-            )
-            duration: float = time.time() - start_time
-
-            results.extend(
-                self._collect_batch_results(
-                    batch_outputs=batch_outputs,
-                    duration=duration,
-                    batch_size=len(batch_prompts),
-                )
-            )
-
-            LOGGER.info(
-                "Processed vLLM batch %d/%d",
-                i // batch_size + 1,
-                (len(prompts) - 1) // batch_size + 1,
-            )
-
-        return results
 
     def _create_sampling_params(
         self, sampling_params_cls: type[SamplingParams]

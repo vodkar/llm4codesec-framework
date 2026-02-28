@@ -66,6 +66,14 @@ analytics = [
     "seaborn>=0.13.2,<0.14",
     "plotly>=6.2.0,<7",
 ]
+notebooks = [
+    "jupyter-core>=5.7.2,<6",
+    "jupyter-client>=8.6.3,<9",
+    "notebook>=7.4.0,<8",
+    "ipython>=8.31.0,<9",
+    "ipywidgets>=8.1.0,<9",
+    "nbformat>=5.10.0,<6",
+]
 
 [tool.uv]
 package = false

@@ -206,6 +206,11 @@ class ExperimentConfig(BaseModel):
         ctx = self.__model_config.context_length
         return ctx if ctx is not None else self.__model_config.max_output_tokens
 
+    @property
+    def prompt_identifier(self) -> str:
+        return self.__prompt_config.slug
+
+
 class ExperimentsPlanConfig(BaseModel):
     """Configuration for running a plan of experiments."""
 

@@ -14,7 +14,7 @@
             "model_identifier": "Qwen/Qwen3-4B",
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
-            "context_length": 18432,
+            "context_length": 20480,
             "temperature": 0.1,
             "batch_size": 5,
             "use_quantization": true,
@@ -35,7 +35,7 @@
             "model_identifier": "Qwen/Qwen3-8B",
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
-            "context_length": 18432,
+            "context_length": 20480,
             "temperature": 0.1,
             "batch_size": 5,
             "use_quantization": true,
@@ -75,7 +75,7 @@
             "model_identifier": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
             "model_type": "deepseek-r1",
             "max_output_tokens": 8192,
-            "context_length": 18432,
+            "context_length": 20480,
             "temperature": 0.1,
             "batch_size": 5,
             "backend": "vllm",
@@ -162,6 +162,16 @@
             "temperature": 0.1,
             "batch_size": 2,
             "use_quantization": false
+        },
+        "code-llama-7b-python": {
+            "model_identifier": "meta-llama/CodeLlama-7b-Python-hf",
+            "model_type": "llama-3",
+            "backend": "vllm",
+            "max_output_tokens": 2048,
+            "context_length": 20480,
+            "temperature": 0.1,
+            "batch_size": 5,
+            "use_quantization": true
         }
     }
 }

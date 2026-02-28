@@ -129,7 +129,7 @@ def run_experiment_plan(
 
         _LOGGER.info(
             f"Experiment {experiment_count}/{total_experiments}: {experiment_config.model_name} + "
-            f"{experiment_config.dataset_name} + {experiment_config.system_prompt_template}"
+            f"{experiment_config.dataset_name} + {experiment_config.prompt_identifier}"
         )
 
         result = run_single_experiment(experiment_config)

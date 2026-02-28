@@ -233,7 +233,8 @@ class VllmLLM(ILLMInference):
         ]
 
         apply_chat_template = getattr(self.tokenizer, "apply_chat_template", None)
-        if callable(apply_chat_template):
+        has_chat_template = getattr(self.tokenizer, "chat_template", None) is not None
+        if callable(apply_chat_template) and has_chat_template:
             try:
                 if self.config.is_thinking_enabled:
                     formatted_prompt = apply_chat_template(

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "name": "CVEFixes-with-Context-Benchmark",
+    "name": "CVEFixes-with-Context-Benchmark-Extended-Context",
     "task_type": "binary",
     "total_samples": 300,
     "cwe_distribution": {

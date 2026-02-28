@@ -49,11 +49,11 @@
                 "cvefixes_python_matched_extended_context"
             ],
             "models": [
+                "code-llama-7b-python",
                 "qwen3-4b-thinking",
                 "qwen3-8b-thinking",
                 "llama3.2-3B",
-                "deepseek-r1-distill-qwen2.5-7b",
-                "code-llama-7b-python"
+                "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
                 "step_by_step"

@@ -1,8 +1,8 @@
 {
   "plan_name": "vllm_comparison",
   "description": "Full comparison between ContextAssembler and matched CVEFixes datasets across vllm models",
-  "start_time": "2026-02-28T13:50:51.338297",
-  "end_time": "2026-02-28T17:00:37.761469",
+  "start_time": "2026-03-01T17:03:55.387480",
+  "end_time": "2026-03-01T20:20:12.968090",
   "experiments": [
     {
       "benchmark_info": {
@@ -15,49 +15,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 2048,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
-        "total_samples": 200,
-        "total_time_seconds": 1228.5619378089905,
-        "avg_time_per_sample": 6.142809689044952,
-        "tokens_used_total": 702203,
-        "tokens_used_avg": 3511.015,
+        "total_samples": 296,
+        "total_time_seconds": 1524.4840457439423,
+        "avg_time_per_sample": 5.1502839383241295,
+        "tokens_used_total": 950415,
+        "tokens_used_avg": 3210.8614864864867,
         "processing_time_stats": {
-          "count": 200,
-          "min": 6.142747201919556,
-          "max": 6.142747201919556,
-          "mean": 6.142747201919556,
+          "count": 296,
+          "min": 5.150234650921178,
+          "max": 5.150234650921178,
+          "mean": 5.150234650921178,
           "variance": 0.0,
           "std": 0.0
         },
         "tokens_used_stats": {
-          "count": 200,
-          "min": 453.0,
+          "count": 296,
+          "min": 222.0,
           "max": 15980.0,
-          "mean": 3511.015,
-          "variance": 3764414.014849246,
-          "std": 1940.2097862986998
+          "mean": 3210.8614864864867,
+          "variance": 4315414.018037104,
+          "std": 2077.3574603416487
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T14:12:28.252008"
+        "timestamp": "2026-03-01T17:30:30.937789"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.485,
+        "accuracy": 0.4797297297297297,
         "summary": {
-          "accuracy": 0.485,
-          "precision": 0.423841059602649,
-          "recall": 0.8,
-          "f1_score": 0.5541125541125541,
-          "specificity": 0.275
+          "accuracy": 0.4797297297297297,
+          "precision": 0.4090909090909091,
+          "recall": 0.6864406779661016,
+          "f1_score": 0.5126582278481012,
+          "specificity": 0.34269662921348315
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 64,
-            "true_negatives": 33,
-            "false_positives": 87,
-            "false_negatives": 16
+            "true_positives": 81,
+            "true_negatives": 61,
+            "false_positives": 117,
+            "false_negatives": 37
           },
           "labels": [
             0,
@@ -78,49 +78,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 2048,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
         "total_samples": 166,
-        "total_time_seconds": 2155.2341363430023,
-        "avg_time_per_sample": 12.983338170740979,
-        "tokens_used_total": 1196964,
-        "tokens_used_avg": 7210.626506024097,
+        "total_time_seconds": 1475.6393320560455,
+        "avg_time_per_sample": 8.889393566602683,
+        "tokens_used_total": 1122444,
+        "tokens_used_avg": 6761.710843373494,
         "processing_time_stats": {
           "count": 166,
-          "min": 12.983253316706922,
-          "max": 12.983253316706922,
-          "mean": 12.98325331670692,
-          "variance": 3.174567521616678e-30,
-          "std": 1.781731607626883e-15
+          "min": 8.889330385679221,
+          "max": 8.889330385679221,
+          "mean": 8.889330385679221,
+          "variance": 0.0,
+          "std": 0.0
         },
         "tokens_used_stats": {
           "count": 166,
-          "min": 931.0,
-          "max": 15926.0,
-          "mean": 7210.626506024097,
-          "variance": 12206853.168747721,
-          "std": 3493.830729836195
+          "min": 634.0,
+          "max": 14403.0,
+          "mean": 6761.710843373494,
+          "variance": 11832137.928002922,
+          "std": 3439.787482970848
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T14:49:10.432660"
+        "timestamp": "2026-03-01T17:55:50.384073"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.536144578313253,
+        "accuracy": 0.5481927710843374,
         "summary": {
-          "accuracy": 0.536144578313253,
-          "precision": 0.4657534246575342,
-          "recall": 0.4722222222222222,
-          "f1_score": 0.4689655172413793,
-          "specificity": 0.5851063829787234
+          "accuracy": 0.5481927710843374,
+          "precision": 0.47692307692307695,
+          "recall": 0.4305555555555556,
+          "f1_score": 0.45255474452554745,
+          "specificity": 0.6382978723404256
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 34,
-            "true_negatives": 55,
-            "false_positives": 39,
-            "false_negatives": 38
+            "true_positives": 31,
+            "true_negatives": 60,
+            "false_positives": 34,
+            "false_negatives": 41
           },
           "labels": [
             0,
@@ -141,48 +141,48 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": true,
-        "total_samples": 200,
-        "total_time_seconds": 574.9480736255646,
-        "avg_time_per_sample": 2.874740368127823,
-        "tokens_used_total": 645327,
-        "tokens_used_avg": 3226.635,
+        "total_samples": 298,
+        "total_time_seconds": 731.7078368663788,
+        "avg_time_per_sample": 2.4553954257261035,
+        "tokens_used_total": 933129,
+        "tokens_used_avg": 3131.3053691275168,
         "processing_time_stats": {
-          "count": 200,
-          "min": 2.874555617570877,
-          "max": 2.874555617570877,
-          "mean": 2.874555617570877,
+          "count": 298,
+          "min": 2.4552168350091716,
+          "max": 2.4552168350091716,
+          "mean": 2.4552168350091716,
           "variance": 0.0,
           "std": 0.0
         },
         "tokens_used_stats": {
-          "count": 200,
-          "min": 659.0,
-          "max": 12767.0,
-          "mean": 3226.635,
-          "variance": 5234311.820879397,
-          "std": 2287.86184479732
+          "count": 298,
+          "min": 685.0,
+          "max": 12683.0,
+          "mean": 3131.3053691275168,
+          "variance": 3839579.7347185514,
+          "std": 1959.4845584281984
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T14:59:23.419807"
+        "timestamp": "2026-03-01T18:08:39.398390"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.395,
+        "accuracy": 0.4563758389261745,
         "summary": {
-          "accuracy": 0.395,
-          "precision": 0.33793103448275863,
-          "recall": 0.6621621621621622,
-          "f1_score": 0.4474885844748858,
-          "specificity": 0.23809523809523808
+          "accuracy": 0.4563758389261745,
+          "precision": 0.4043478260869565,
+          "recall": 0.788135593220339,
+          "f1_score": 0.5344827586206896,
+          "specificity": 0.2388888888888889
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 49,
-            "true_negatives": 30,
-            "false_positives": 96,
+            "true_positives": 93,
+            "true_negatives": 43,
+            "false_positives": 137,
             "false_negatives": 25
           },
           "labels": [
@@ -204,49 +204,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": true,
         "total_samples": 173,
-        "total_time_seconds": 706.2146203517914,
-        "avg_time_per_sample": 4.082165435559488,
-        "tokens_used_total": 1191715,
-        "tokens_used_avg": 6888.526011560693,
+        "total_time_seconds": 620.2870719432831,
+        "avg_time_per_sample": 3.585474404296434,
+        "tokens_used_total": 1148098,
+        "tokens_used_avg": 6636.404624277457,
         "processing_time_stats": {
           "count": 173,
-          "min": 4.082016831877604,
-          "max": 4.082016831877604,
-          "mean": 4.082016831877603,
-          "variance": 7.934473058327619e-31,
-          "std": 8.907565917986584e-16
+          "min": 3.585346147504156,
+          "max": 3.585346147504156,
+          "mean": 3.5853461475041546,
+          "variance": 1.7852564381237143e-30,
+          "std": 1.3361348876979877e-15
         },
         "tokens_used_stats": {
           "count": 173,
-          "min": 1383.0,
-          "max": 16985.0,
-          "mean": 6888.526011560693,
-          "variance": 9994927.983331094,
-          "std": 3161.475602203992
+          "min": 1322.0,
+          "max": 13971.0,
+          "mean": 6636.404624277457,
+          "variance": 8335581.695792445,
+          "std": 2887.1407474857274
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T15:11:51.924223"
+        "timestamp": "2026-03-01T18:19:42.441956"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5086705202312138,
+        "accuracy": 0.5317919075144508,
         "summary": {
-          "accuracy": 0.5086705202312138,
-          "precision": 0.4528301886792453,
-          "recall": 0.64,
-          "f1_score": 0.5303867403314917,
-          "specificity": 0.40816326530612246
+          "accuracy": 0.5317919075144508,
+          "precision": 0.47115384615384615,
+          "recall": 0.6533333333333333,
+          "f1_score": 0.547486033519553,
+          "specificity": 0.4387755102040816
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 48,
-            "true_negatives": 40,
-            "false_positives": 58,
-            "false_negatives": 27
+            "true_positives": 49,
+            "true_negatives": 43,
+            "false_positives": 55,
+            "false_negatives": 26
           },
           "labels": [
             0,
@@ -267,49 +267,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": true,
-        "total_samples": 200,
-        "total_time_seconds": 699.4828066825867,
-        "avg_time_per_sample": 3.4974140334129333,
-        "tokens_used_total": 656387,
-        "tokens_used_avg": 3281.935,
+        "total_samples": 298,
+        "total_time_seconds": 933.7703278064728,
+        "avg_time_per_sample": 3.133457475860647,
+        "tokens_used_total": 928687,
+        "tokens_used_avg": 3116.3993288590605,
         "processing_time_stats": {
-          "count": 200,
-          "min": 3.497297554016113,
-          "max": 3.497297554016113,
-          "mean": 3.497297554016114,
-          "variance": 7.928250303728761e-31,
-          "std": 8.904072272690043e-16
+          "count": 298,
+          "min": 3.1333580113097326,
+          "max": 3.1333580113097326,
+          "mean": 3.1333580113097317,
+          "variance": 7.915170025449884e-31,
+          "std": 8.896724130515616e-16
         },
         "tokens_used_stats": {
-          "count": 200,
-          "min": 814.0,
-          "max": 13297.0,
-          "mean": 3281.935,
-          "variance": 4605717.387713568,
-          "std": 2146.0935179328903
+          "count": 298,
+          "min": 672.0,
+          "max": 14461.0,
+          "mean": 3116.3993288590605,
+          "variance": 4188768.5235012313,
+          "std": 2046.6481191209277
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T15:24:13.665522"
+        "timestamp": "2026-03-01T18:35:58.734423"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.43,
+        "accuracy": 0.4261744966442953,
         "summary": {
-          "accuracy": 0.43,
-          "precision": 0.3935483870967742,
-          "recall": 0.7530864197530864,
-          "f1_score": 0.516949152542373,
-          "specificity": 0.21008403361344538
+          "accuracy": 0.4261744966442953,
+          "precision": 0.3872340425531915,
+          "recall": 0.7711864406779662,
+          "f1_score": 0.5155807365439092,
+          "specificity": 0.2
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 61,
-            "true_negatives": 25,
-            "false_positives": 94,
-            "false_negatives": 20
+            "true_positives": 91,
+            "true_negatives": 36,
+            "false_positives": 144,
+            "false_negatives": 27
           },
           "labels": [
             0,
@@ -330,49 +330,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": true,
         "total_samples": 173,
-        "total_time_seconds": 1298.4681479930878,
-        "avg_time_per_sample": 7.505596231173918,
-        "tokens_used_total": 1155402,
-        "tokens_used_avg": 6678.624277456647,
+        "total_time_seconds": 1182.950454711914,
+        "avg_time_per_sample": 6.837863900068867,
+        "tokens_used_total": 1136300,
+        "tokens_used_avg": 6568.208092485549,
         "processing_time_stats": {
           "count": 173,
-          "min": 7.505413252494239,
-          "max": 7.505413252494239,
-          "mean": 7.505413252494237,
-          "variance": 3.1737892233310475e-30,
-          "std": 1.781513183597317e-15
+          "min": 6.837725355445994,
+          "max": 6.837725355445994,
+          "mean": 6.837725355445994,
+          "variance": 0.0,
+          "std": 0.0
         },
         "tokens_used_stats": {
           "count": 173,
-          "min": 1246.0,
-          "max": 16992.0,
-          "mean": 6678.624277456647,
-          "variance": 10096522.410337409,
-          "std": 3177.5025429316984
+          "min": 1870.0,
+          "max": 15964.0,
+          "mean": 6568.208092485549,
+          "variance": 8754870.619236458,
+          "std": 2958.863061927074
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T15:46:47.273076"
+        "timestamp": "2026-03-01T18:56:36.108025"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5433526011560693,
+        "accuracy": 0.49710982658959535,
         "summary": {
-          "accuracy": 0.5433526011560693,
-          "precision": 0.48333333333333334,
-          "recall": 0.7733333333333333,
-          "f1_score": 0.5948717948717949,
-          "specificity": 0.3673469387755102
+          "accuracy": 0.49710982658959535,
+          "precision": 0.45161290322580644,
+          "recall": 0.7466666666666667,
+          "f1_score": 0.5628140703517588,
+          "specificity": 0.30612244897959184
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 58,
-            "true_negatives": 36,
-            "false_positives": 62,
-            "false_negatives": 17
+            "true_positives": 56,
+            "true_negatives": 30,
+            "false_positives": 68,
+            "false_negatives": 19
           },
           "labels": [
             0,
@@ -393,48 +393,48 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 2048,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
-        "total_samples": 200,
-        "total_time_seconds": 128.6951003074646,
-        "avg_time_per_sample": 0.643475501537323,
-        "tokens_used_total": 376355,
-        "tokens_used_avg": 1881.775,
+        "total_samples": 299,
+        "total_time_seconds": 165.03805565834045,
+        "avg_time_per_sample": 0.5519667413322423,
+        "tokens_used_total": 555404,
+        "tokens_used_avg": 1857.5384615384614,
         "processing_time_stats": {
-          "count": 200,
-          "min": 0.6433630394935608,
-          "max": 0.6433630394935608,
-          "mean": 0.6433630394935609,
-          "variance": 1.238789109957619e-32,
-          "std": 1.1130090340862554e-16
+          "count": 299,
+          "min": 0.5518804537412714,
+          "max": 0.5518804537412714,
+          "mean": 0.5518804537412713,
+          "variance": 1.23673138979175e-32,
+          "std": 1.1120842548079485e-16
         },
         "tokens_used_stats": {
-          "count": 200,
-          "min": 429.0,
-          "max": 14625.0,
-          "mean": 1881.775,
-          "variance": 3820531.0697236178,
-          "std": 1954.6178833019046
+          "count": 299,
+          "min": 430.0,
+          "max": 13179.0,
+          "mean": 1857.5384615384614,
+          "variance": 3289543.692307692,
+          "std": 1813.7099250728304
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T15:49:26.781963"
+        "timestamp": "2026-03-01T18:59:50.923921"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.395,
+        "accuracy": 0.42474916387959866,
         "summary": {
-          "accuracy": 0.395,
-          "precision": 0.38461538461538464,
-          "recall": 0.8860759493670886,
-          "f1_score": 0.5363984674329502,
-          "specificity": 0.0743801652892562
+          "accuracy": 0.42474916387959866,
+          "precision": 0.4007352941176471,
+          "recall": 0.923728813559322,
+          "f1_score": 0.5589743589743591,
+          "specificity": 0.09944751381215469
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 70,
-            "true_negatives": 9,
-            "false_positives": 112,
+            "true_positives": 109,
+            "true_negatives": 18,
+            "false_positives": 163,
             "false_negatives": 9
           },
           "labels": [
@@ -456,49 +456,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 2048,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
         "total_samples": 184,
-        "total_time_seconds": 248.80410718917847,
-        "avg_time_per_sample": 1.352196234723796,
-        "tokens_used_total": 1089537,
-        "tokens_used_avg": 5921.396739130435,
+        "total_time_seconds": 175.66495656967163,
+        "avg_time_per_sample": 0.9547008509221284,
+        "tokens_used_total": 1029963,
+        "tokens_used_avg": 5597.625,
         "processing_time_stats": {
           "count": 184,
-          "min": 1.3520868096662604,
-          "max": 1.3520868096662604,
-          "mean": 1.3520868096662608,
-          "variance": 1.982929051375221e-31,
-          "std": 4.453009152668812e-16
+          "min": 0.9546119583689648,
+          "max": 0.9546119583689648,
+          "mean": 0.9546119583689646,
+          "variance": 4.957322628438052e-32,
+          "std": 2.226504576334406e-16
         },
         "tokens_used_stats": {
           "count": 184,
-          "min": 848.0,
-          "max": 16139.0,
-          "mean": 5921.396739130435,
-          "variance": 13342346.295289855,
-          "std": 3652.7176588520847
+          "min": 671.0,
+          "max": 14739.0,
+          "mean": 5597.625,
+          "variance": 11987857.875,
+          "std": 3462.34860679857
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T15:54:09.392363"
+        "timestamp": "2026-03-01T19:03:19.846739"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.44565217391304346,
+        "accuracy": 0.40217391304347827,
         "summary": {
-          "accuracy": 0.44565217391304346,
-          "precision": 0.41721854304635764,
-          "recall": 0.8181818181818182,
-          "f1_score": 0.5526315789473685,
-          "specificity": 0.17757009345794392
+          "accuracy": 0.40217391304347827,
+          "precision": 0.40236686390532544,
+          "recall": 0.8831168831168831,
+          "f1_score": 0.5528455284552846,
+          "specificity": 0.056074766355140186
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 63,
-            "true_negatives": 19,
-            "false_positives": 88,
-            "false_negatives": 14
+            "true_positives": 68,
+            "true_negatives": 6,
+            "false_positives": 101,
+            "false_negatives": 9
           },
           "labels": [
             0,
@@ -519,49 +519,49 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
-        "total_samples": 200,
-        "total_time_seconds": 1853.8489203453064,
-        "avg_time_per_sample": 9.269244601726532,
-        "tokens_used_total": 1489817,
-        "tokens_used_avg": 7449.085,
+        "total_samples": 298,
+        "total_time_seconds": 2494.028769016266,
+        "avg_time_per_sample": 8.369224057101563,
+        "tokens_used_total": 2069914,
+        "tokens_used_avg": 6946.020134228188,
         "processing_time_stats": {
-          "count": 200,
-          "min": 9.268999111652374,
-          "max": 9.268999111652374,
-          "mean": 9.268999111652377,
-          "variance": 1.2685200485966018e-29,
-          "std": 3.561628909076017e-15
+          "count": 298,
+          "min": 8.369023160646426,
+          "max": 8.369023160646426,
+          "mean": 8.369023160646426,
+          "variance": 0.0,
+          "std": 0.0
         },
         "tokens_used_stats": {
-          "count": 200,
-          "min": 170.0,
-          "max": 19050.0,
-          "mean": 7449.085,
-          "variance": 13480943.002788946,
-          "std": 3671.6403694791443
+          "count": 298,
+          "min": 169.0,
+          "max": 19239.0,
+          "mean": 6946.020134228188,
+          "variance": 14860763.817775067,
+          "std": 3854.9661240761984
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T16:25:40.669994"
+        "timestamp": "2026-03-01T19:45:30.678156"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.54,
+        "accuracy": 0.6040268456375839,
         "summary": {
-          "accuracy": 0.54,
-          "precision": 0.35714285714285715,
-          "recall": 0.11904761904761904,
-          "f1_score": 0.17857142857142858,
-          "specificity": 0.8448275862068966
+          "accuracy": 0.6040268456375839,
+          "precision": 0.5,
+          "recall": 0.2627118644067797,
+          "f1_score": 0.3444444444444445,
+          "specificity": 0.8277777777777777
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 10,
-            "true_negatives": 98,
-            "false_positives": 18,
-            "false_negatives": 74
+            "true_positives": 31,
+            "true_negatives": 149,
+            "false_positives": 31,
+            "false_negatives": 87
           },
           "labels": [
             0,
@@ -582,19 +582,19 @@
         "cwe_type": null,
         "batch_size": 5,
         "max_output_tokens": 8192,
-        "temperature": 0.1,
+        "temperature": 0.6,
         "use_quantization": true,
         "is_thinking_enabled": false,
         "total_samples": 173,
-        "total_time_seconds": 2048.675268173218,
-        "avg_time_per_sample": 11.842053573255594,
-        "tokens_used_total": 1877235,
-        "tokens_used_avg": 10851.069364161849,
+        "total_time_seconds": 2034.1928102970123,
+        "avg_time_per_sample": 11.758339943913366,
+        "tokens_used_total": 1862113,
+        "tokens_used_avg": 10763.658959537572,
         "processing_time_stats": {
           "count": 173,
-          "min": 11.84182519168523,
-          "max": 11.84182519168523,
-          "mean": 11.841825191685233,
+          "min": 11.758135178185611,
+          "max": 11.758135178185611,
+          "mean": 11.758135178185608,
           "variance": 1.269515689332419e-29,
           "std": 3.563026367194634e-15
         },
@@ -602,29 +602,29 @@
           "count": 173,
           "min": 314.0,
           "max": 20263.0,
-          "mean": 10851.069364161849,
-          "variance": 23337614.0881839,
-          "std": 4830.901995299004
+          "mean": 10763.658959537572,
+          "variance": 22253141.958596587,
+          "std": 4717.323601216752
         },
         "extra_metadata": {},
-        "timestamp": "2026-02-28T17:00:37.698661"
+        "timestamp": "2026-03-01T20:20:12.901856"
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5549132947976878,
+        "accuracy": 0.5895953757225434,
         "summary": {
-          "accuracy": 0.5549132947976878,
-          "precision": 0.4666666666666667,
-          "recall": 0.18666666666666668,
-          "f1_score": 0.26666666666666666,
-          "specificity": 0.8367346938775511
+          "accuracy": 0.5895953757225434,
+          "precision": 0.55,
+          "recall": 0.29333333333333333,
+          "f1_score": 0.3826086956521739,
+          "specificity": 0.8163265306122449
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 14,
-            "true_negatives": 82,
-            "false_positives": 16,
-            "false_negatives": 61
+            "true_positives": 22,
+            "true_negatives": 80,
+            "false_positives": 18,
+            "false_negatives": 53
           },
           "labels": [
             0,

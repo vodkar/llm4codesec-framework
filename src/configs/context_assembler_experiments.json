@@ -57,8 +57,7 @@
             ],
             "prompts": [
                 "step_by_step"
-            ],
-            "sample_limit": 200
+            ]
         }
     },
     "output_settings": {

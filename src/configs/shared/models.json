@@ -172,6 +172,52 @@
             "temperature": 0.6,
             "batch_size": 5,
             "use_quantization": true
+        },
+        "qwen35-9b": {
+            "model_identifier": "Qwen/Qwen3.5-9B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens":2048,
+            "context_length": 16384,
+            "temperature": 0.6,
+            "batch_size": 2,
+            "use_quantization": true,
+            "gpu_memory_utilization": 0.90,
+            "max_num_seqs": 2
+        },
+        "qwen35-9b-thinking": {
+            "model_identifier": "Qwen/Qwen3.5-9B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens": 8192,
+            "context_length": 20480,
+            "temperature": 0.6,
+            "batch_size": 2,
+            "use_quantization": true,
+            "is_thinking_enabled": true,
+            "gpu_memory_utilization": 0.90,
+            "max_num_seqs": 2
+        },
+	"qwen35-4b-thinking": {
+            "model_identifier": "Qwen/Qwen3.5-4B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens": 2048,
+            "context_length": 16384,
+            "temperature": 0.6,
+            "batch_size": 5,
+            "use_quantization": true,
+            "is_thinking_enabled": true
+        },
+	"qwen35-4b": {
+            "model_identifier": "Qwen/Qwen3.5-4B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens": 8192,
+            "context_length": 20480,
+            "temperature": 0.6,
+            "batch_size": 5,
+            "use_quantization": true
         }
     }
 }

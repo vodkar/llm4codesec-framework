@@ -23,6 +23,8 @@ class ModelConfig(BaseModel):
     use_quantization: bool
     backend: BackendFrameworks
     is_thinking_enabled: bool = False
+    gpu_memory_utilization: float | None = None
+    max_num_seqs: int | None = None
 
 
 class DatasetConfig(BaseModel):
@@ -81,6 +83,8 @@ class ExperimentConfig(BaseModel):
     is_thinking_enabled: bool = False
     context_length: int | None = None
     cwe_type: str | None = None
+    gpu_memory_utilization: float | None = None
+    max_num_seqs: int | None = None
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -165,6 +169,8 @@ class ExperimentConfig(BaseModel):
             use_quantization=model_config.use_quantization,
             is_thinking_enabled=model_config.is_thinking_enabled,
             context_length=model_config.context_length,
+            gpu_memory_utilization=model_config.gpu_memory_utilization,
+            max_num_seqs=model_config.max_num_seqs,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,

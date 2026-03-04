@@ -27,12 +27,10 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-                "qwen3-4b",
-                "qwen3-4b-thinking",
-                "qwen3-8b",
-                "qwen3-8b-thinking",
-                "llama3.2-3B",
-                "llama4-scout-redhat"
+		"qwen35-9b-thinking",
+		"qwen35-9b",
+		"qwen35-4b-thinking",
+		"qwen35-4b"
             ],
             "prompts": [
                 "basic_security"

@@ -51,19 +51,24 @@ class VllmLLM(ILLMInference):
         quantization = "fp8" if self.config.use_quantization else None
         kv_cache_dtype = "fp8" if self.config.use_quantization else "auto"
 
-        max_num_seqs: int = int(os.getenv("MAX_NUM_SEQS", "32"))
+        max_num_seqs: int = self.config.max_num_seqs or int(
+            os.getenv("MAX_NUM_SEQS", "32")
+        )
+        gpu_memory_utilization: float = self.config.gpu_memory_utilization or 0.82
 
-        self.llm = LLM(
+        llm_kwargs: dict = dict(
             model=self.config.model_identifier,
             trust_remote_code=True,
             max_num_seqs=max_num_seqs,
-            gpu_memory_utilization=0.82,
+            gpu_memory_utilization=gpu_memory_utilization,
             max_model_len=self.config.model_context_length_tokens,
             dtype="bfloat16",
             quantization=quantization,
             kv_cache_dtype=kv_cache_dtype,
             enable_prefix_caching=True,
         )
+
+        self.llm = LLM(**llm_kwargs)
         self.tokenizer = self.llm.get_tokenizer()
 
         if self.tokenizer is None:

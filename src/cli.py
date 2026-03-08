@@ -12,6 +12,7 @@ import typer
 from benchmark.config import ExperimentConfig
 from benchmark.run_experiment import (
     create_experiment_summary,
+    rebuild_experiment_plan_results,
     run_experiment_plan,
     run_single_experiment,
 )
@@ -63,7 +64,11 @@ BENCHMARKS: dict[str, BenchmarkCliConfig] = {
     ),
 }
 
-app = typer.Typer(help="Unified benchmark CLI for experiments and plans.", pretty_exceptions_enable=False, pretty_exceptions_show_locals=False)
+app = typer.Typer(
+    help="Unified benchmark CLI for experiments and plans.",
+    pretty_exceptions_enable=False,
+    pretty_exceptions_show_locals=False,
+)
 
 
 def _configure_logging(verbose: bool, log_level: str) -> None:
@@ -331,6 +336,42 @@ def list_available_configs(
         datasets_config=datasets_config,
     )
     log_available_configurations(config_data, logger=_LOGGER)
+
+
+@app.command("rebuild-plan-results")
+def rebuild_plan_results(
+    input_path: str = typer.Argument(
+        ..., help="Path to plan output directory containing experiment subfolders."
+    ),
+    plan_name: str | None = typer.Option(
+        None, "--plan-name", help="Override rebuilt plan name."
+    ),
+    description: str | None = typer.Option(
+        None, "--description", help="Override rebuilt plan description."
+    ),
+    output_file: str | None = typer.Option(
+        None,
+        "--output-file",
+        help="Output JSON file path (default: <input_path>/experiment_plan_results.json).",
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging."
+    ),
+    log_level: str = typer.Option("INFO", "--log-level", help="Log level."),
+) -> None:
+    """Rebuild experiment_plan_results.json from existing benchmark report files."""
+    _configure_logging(verbose=verbose, log_level=log_level)
+
+    rebuilt_result = rebuild_experiment_plan_results(
+        input_path=input_path,
+        plan_name=plan_name,
+        description=description,
+        output_file=output_file,
+    )
+
+    summary: str = create_experiment_summary(rebuilt_result)
+    for line in summary.splitlines():
+        _LOGGER.info(line)
 
 
 if __name__ == "__main__":

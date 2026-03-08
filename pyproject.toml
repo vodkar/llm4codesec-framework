@@ -43,8 +43,8 @@ vllm = [
     "vllm>=0.6.6",
     "ninja>=1.11.1.4,<2",
     "fbgemm-gpu>=1.4.1",
-    "flashinfer-python>=0.6.4",
-    "flashinfer-cubin>=0.6.4",
+    "flashinfer-python==0.6.4",
+    "flashinfer-cubin==0.6.4",
     "torch-c-dlpack-ext>=0.1.5",
 ]
 llama-cpp = [

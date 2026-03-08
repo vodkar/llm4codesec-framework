@@ -49,7 +49,9 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-                "code-llama-7b-python",
+                "qwen35-4b",
+                "qwen35-4b-thinking",
+                "gemma3-4b",
                 "qwen3-4b-thinking",
                 "qwen3-8b-thinking",
                 "llama3.2-3B",

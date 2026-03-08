@@ -224,6 +224,20 @@ def _build_matched_samples(
         after_parts: list[str] = []
         for row in cve_rows:
             _, _, _, _, filename, code_before, code_after, *_ = row
+            code_after = "\n".join(
+                [
+                    line
+                    for line in code_after.split("\n")
+                    if not line.lstrip().startswith("#")
+                ]
+            )
+            code_before = "\n".join(
+                [
+                    line
+                    for line in code_before.split("\n")
+                    if not line.lstrip().startswith("#")
+                ]
+            )
             header: str = f"# {filename}"
             before_parts.append(f"{header}\n{code_before}")
             after_parts.append(f"{header}\n{code_after}")

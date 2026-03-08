@@ -27,9 +27,9 @@ WORKDIR /app
 # Disable development dependencies
 ENV UV_NO_DEV=1
 
-COPY pyproject.toml uv.lock ./
-
 RUN uv python install 3.13
+
+COPY pyproject.toml uv.lock ./
 
 RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=600 uv sync --locked --extra vllm
 

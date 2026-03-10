@@ -228,14 +228,14 @@ def _build_matched_samples(
                 [
                     line
                     for line in code_after.split("\n")
-                    if not line.lstrip().startswith("#")
+                    if line.strip() and not line.lstrip().startswith("#")
                 ]
             )
             code_before = "\n".join(
                 [
                     line
                     for line in code_before.split("\n")
-                    if not line.lstrip().startswith("#")
+                    if line.strip() and not line.lstrip().startswith("#")
                 ]
             )
             header: str = f"# {filename}"

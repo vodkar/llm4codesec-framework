@@ -1,0 +1,62 @@
+{
+  "benchmark_info": {
+    "experiment_name": "vllm_comparison",
+    "model_name": "qwen35-4b",
+    "model_type": "qwen-3",
+    "task_type": "binary_vulnerability",
+    "dataset_path": "datasets_processed/context_assembler/context_assembler_binary.json",
+    "description": "ContextAssembler: Python binary vulnerability detection with extended CVE context (1=vulnerable, 0=safe)",
+    "cwe_type": null,
+    "batch_size": 5,
+    "max_output_tokens": 4096,
+    "temperature": 0.6,
+    "use_quantization": true,
+    "is_thinking_enabled": false,
+    "total_samples": 200,
+    "total_time_seconds": 1189.808581352234,
+    "avg_time_per_sample": 5.94904290676117,
+    "tokens_used_total": 2008565,
+    "tokens_used_avg": 10042.825,
+    "processing_time_stats": {
+      "count": 200,
+      "min": 5.946684608459472,
+      "max": 5.946684608459472,
+      "mean": 5.946684608459472,
+      "variance": 0.0,
+      "std": 0.0
+    },
+    "tokens_used_stats": {
+      "count": 200,
+      "min": 750.0,
+      "max": 18768.0,
+      "mean": 10042.825,
+      "variance": 29180378.326005023,
+      "std": 5401.886552493029
+    },
+    "extra_metadata": {},
+    "timestamp": "2026-03-10T11:43:23.833126"
+  },
+  "metrics": {
+    "task_type": "binary",
+    "accuracy": 0.46,
+    "summary": {
+      "accuracy": 0.46,
+      "precision": 0.40606060606060607,
+      "recall": 0.8701298701298701,
+      "f1_score": 0.5537190082644627,
+      "specificity": 0.2032520325203252
+    },
+    "details": {
+      "confusion_matrix": {
+        "true_positives": 67,
+        "true_negatives": 25,
+        "false_positives": 98,
+        "false_negatives": 10
+      },
+      "labels": [
+        0,
+        1
+      ]
+    }
+  }
+}

@@ -8,12 +8,8 @@ from typing import Any
 from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import ExperimentConfig, ExperimentsPlanConfig
 from benchmark.result_processor import BenchmarkResultProcessor
-from benchmark.results import (
-    BenchmarkReport,
-    ExperimentPlanResult,
-    ExperimentPlanSummary,
-    ShortExperimentReport,
-)
+from benchmark.results import (BenchmarkReport, ExperimentPlanResult,
+                               ExperimentPlanSummary, ShortExperimentReport)
 from datasets.loaders.base import JsonDatasetLoader
 
 _LOGGER = logging.getLogger(__name__)
@@ -226,7 +222,7 @@ def create_experiment_summary(results: ExperimentPlanResult) -> str:
         str: Formatted summary
     """
     summary_lines = [
-        f"CASTLE Experiment Plan: {results.plan_name}",
+        f"Experiment Plan: {results.plan_name}",
         f"Description: {results.description}",
         f"Start Time: {results.start_time}",
         f"End Time: {results.end_time}",

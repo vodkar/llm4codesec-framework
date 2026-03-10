@@ -132,6 +132,7 @@
             "model_identifier": "google/gemma-3-27b-it",
             "model_type": "gemma-3",
             "max_output_tokens": 32768,
+            "context_length": 20480,
             "temperature": 0.1,
             "batch_size": 2,
             "backend": "hf",
@@ -141,16 +142,18 @@
             "model_identifier": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
             "model_type": "qwen-3",
             "backend": "llama_cpp",
-            "max_output_tokens": 32768,
+            "max_output_tokens": 4096,
+            "context_length": 18432,
             "temperature": 0.6,
-            "batch_size": 1,
+            "batch_size": 5,
             "use_quantization": false
         },
         "qwen3-8b-gguf-q8": {
             "model_identifier": "hf://Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf",
             "model_type": "qwen-3",
             "backend": "llama_cpp",
-            "max_output_tokens": 32768,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 1,
             "use_quantization": false
@@ -159,7 +162,7 @@
             "model_identifier": "RedHatAI/Llama-4-Scout-17B-16E-Instruct-quantized.w4a16",
             "model_type": "llama-4",
             "backend": "vllm",
-            "max_output_tokens": 32768,
+            "max_output_tokens": 4096,
             "temperature": 0.6,
             "batch_size": 2,
             "use_quantization": false

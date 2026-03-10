@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, cast
 
 from llama_cpp import Llama
 from llama_cpp.llama_types import (
@@ -54,20 +54,25 @@ class LlamaCppLLM(ILLMInference):
         if not model_ref:
             raise ValueError("model_identifier must be set for llama.cpp backend")
 
-        n_ctx: int = int(os.getenv("LLAMA_CPP_N_CTX", "4096"))
+        n_ctx: int = self._resolve_context_length()
         n_threads: int | None = self._get_int_env("LLAMA_CPP_N_THREADS")
         n_batch: int | None = self._get_int_env("LLAMA_CPP_N_BATCH")
         n_gpu_layers: int | None = self._get_int_env("LLAMA_CPP_N_GPU_LAYERS")
 
+        LOGGER.info(
+            "Initializing llama.cpp with context window n_ctx=%d for model %s",
+            n_ctx,
+            self.config.model_name,
+        )
+
+        raw_kwargs: dict[str, int | None] = {
+            "n_ctx": n_ctx,
+            "n_threads": n_threads,
+            "n_batch": n_batch,
+            "n_gpu_layers": n_gpu_layers,
+        }
         common_kwargs: dict[str, Any] = {
-            k: v
-            for k, v in {
-                "n_ctx": n_ctx,
-                "n_threads": n_threads,
-                "n_batch": n_batch,
-                "n_gpu_layers": n_gpu_layers,
-            }.items()
-            if v is not None
+            key: value for key, value in raw_kwargs.items() if value is not None
         }
 
         if self._is_hf_reference(model_ref):
@@ -76,6 +81,21 @@ class LlamaCppLLM(ILLMInference):
             resolved_path: str = str(Path(model_ref).expanduser())
             LOGGER.info("Loading llama.cpp model from local path: %s", resolved_path)
             self.model = Llama(model_path=resolved_path, **common_kwargs)
+
+    def _resolve_context_length(self) -> int:
+        """Resolve llama.cpp context length from env or model configuration."""
+        env_n_ctx: int | None = self._get_int_env("LLAMA_CPP_N_CTX")
+        if env_n_ctx is not None:
+            return env_n_ctx
+
+        configured_n_ctx: int = self.config.model_context_length_tokens
+        if configured_n_ctx <= 0:
+            raise ValueError(
+                f"Invalid context length configured for {self.config.model_name}: "
+                f"{configured_n_ctx}"
+            )
+
+        return configured_n_ctx
 
     @staticmethod
     def _is_hf_reference(model_ref: str) -> bool:
@@ -104,11 +124,15 @@ class LlamaCppLLM(ILLMInference):
             filename,
             model_dir,
         )
-        return Llama.from_pretrained(
-            repo_id=repo_id,
-            filename=filename,
-            local_dir=str(model_dir),
-            **kwargs,
+        from_pretrained: Any = getattr(Llama, "from_pretrained")
+        return cast(
+            Llama,
+            from_pretrained(
+                repo_id=repo_id,
+                filename=filename,
+                local_dir=str(model_dir),
+                **kwargs,
+            ),
         )
 
     @staticmethod

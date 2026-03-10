@@ -18,7 +18,7 @@ class BinaryResponseParser(IResponseParser):
 
     def parse_response(self, response: str) -> int:
         """Parse binary classification response."""
-        response = response.strip().upper()
+        response = response.strip()
 
         if "VULNERABLE" in response:
             return 1

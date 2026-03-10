@@ -3,8 +3,8 @@
         "qwen3-4b": {
             "model_identifier": "Qwen/Qwen3-4B",
             "model_type": "qwen-3",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "backend": "vllm",
@@ -24,8 +24,8 @@
         "qwen3-8b": {
             "model_identifier": "Qwen/Qwen3-8B",
             "model_type": "qwen-3",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "backend": "vllm",
@@ -93,7 +93,7 @@
         "wizard-coder-34b": {
             "model_identifier": "WizardLMTeam/WizardCoder-33B-V1.1",
             "model_type": "wizardcoder",
-            "max_output_tokens": 2048,
+            "max_output_tokens": 4096,
             "temperature": 0.1,
             "batch_size": 2,
             "backend": "hf",
@@ -102,8 +102,8 @@
         "llama3.2-3B": {
             "model_identifier": "meta-llama/Llama-3.2-3B-Instruct",
             "model_type": "llama-3",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "backend": "vllm",
@@ -121,8 +121,8 @@
         "gemma3-4b": {
             "model_identifier": "google/gemma-3-4b-it",
             "model_type": "gemma-3",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "backend": "vllm",
@@ -168,8 +168,8 @@
             "model_identifier": "codellama/CodeLlama-7b-Python-hf",
             "model_type": "llama-3",
             "backend": "vllm",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "use_quantization": true
@@ -178,8 +178,8 @@
             "model_identifier": "Qwen/Qwen3.5-9B",
             "model_type": "qwen-3",
             "backend": "vllm",
-            "max_output_tokens":2048,
-            "context_length": 16384,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 2,
             "use_quantization": true,
@@ -191,7 +191,7 @@
             "model_type": "qwen-3",
             "backend": "vllm",
             "max_output_tokens": 8192,
-            "context_length": 20480,
+            "context_length": 24576,
             "temperature": 0.6,
             "batch_size": 2,
             "use_quantization": true,
@@ -199,7 +199,7 @@
             "gpu_memory_utilization": 0.90,
             "max_num_seqs": 2
         },
-	"qwen35-4b-thinking": {
+        "qwen35-4b-thinking": {
             "model_identifier": "Qwen/Qwen3.5-4B",
             "model_type": "qwen-3",
             "backend": "vllm",
@@ -210,12 +210,12 @@
             "use_quantization": true,
             "is_thinking_enabled": true
         },
-	"qwen35-4b": {
+        "qwen35-4b": {
             "model_identifier": "Qwen/Qwen3.5-4B",
             "model_type": "qwen-3",
             "backend": "vllm",
-            "max_output_tokens": 2048,
-            "context_length": 18432,
+            "max_output_tokens": 4096,
+            "context_length": 20480,
             "temperature": 0.6,
             "batch_size": 5,
             "use_quantization": true

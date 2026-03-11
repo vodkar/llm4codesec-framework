@@ -28,6 +28,7 @@ class HuggingFaceLLM(ILLMInference):
         self.model: AutoModelForCausalLM | None = None
         self.pipeline: Pipeline | None = None
         self.pad_token_id: int = 0
+        self._warned_sampling_params: set[str] = set()
 
         self._load_model()
 
@@ -203,13 +204,7 @@ class HuggingFaceLLM(ILLMInference):
                 # Generate responses for the batch
                 batch_responses: Any = self.pipeline(
                     batch_prompts,
-                    max_new_tokens=self.config.max_output_tokens,
-                    temperature=self.config.temperature,
-                    do_sample=self.config.temperature > 0,
-                    return_full_text=False,
-                    pad_token_id=self.pad_token_id,
-                    eos_token_id=self.pad_token_id,
-                    batch_size=batch_size,
+                    **self._build_generation_kwargs(batch_size=batch_size),
                 )
                 duration = time.time() - start
 
@@ -258,6 +253,55 @@ class HuggingFaceLLM(ILLMInference):
         except Exception as e:
             logging.exception("Error generating batch responses")
             return [(f"ERROR: {str(e)}", 0, 0) for _ in prompts]
+
+    def _build_generation_kwargs(
+        self, batch_size: int
+    ) -> dict[str, int | float | bool]:
+        """Build generation kwargs for the transformers pipeline."""
+        do_sample: bool = self.config.temperature > 0
+        generation_kwargs: dict[str, int | float | bool] = {
+            "max_new_tokens": self.config.max_output_tokens,
+            "temperature": self.config.temperature,
+            "do_sample": do_sample,
+            "return_full_text": False,
+            "pad_token_id": self.pad_token_id,
+            "eos_token_id": self.pad_token_id,
+            "batch_size": batch_size,
+        }
+
+        optional_generation_values: dict[str, int | float | None] = {
+            "top_p": self.config.top_p,
+            "top_k": self.config.top_k,
+            "repetition_penalty": self.config.repetition_penalty,
+        }
+        for key, value in optional_generation_values.items():
+            if value is not None:
+                generation_kwargs[key] = value
+
+        if self.config.min_p is not None:
+            self._warn_unsupported_sampling_param(
+                "min_p",
+                "transformers pipeline does not expose min_p for this backend",
+            )
+        if self.config.presence_penalty is not None:
+            self._warn_unsupported_sampling_param(
+                "presence_penalty",
+                "transformers pipeline does not expose presence_penalty",
+            )
+
+        return generation_kwargs
+
+    def _warn_unsupported_sampling_param(self, param_name: str, reason: str) -> None:
+        """Warn once when a configured sampling parameter is unsupported."""
+        if param_name in self._warned_sampling_params:
+            return
+
+        logging.warning(
+            "Ignoring sampling parameter '%s' for Hugging Face backend: %s",
+            param_name,
+            reason,
+        )
+        self._warned_sampling_params.add(param_name)
 
     def _format_prompt(self, system_prompt: str, user_prompt: str) -> str:
         """Format prompt using tokenizer's chat template."""

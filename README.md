@@ -160,7 +160,38 @@ PYTHONPATH=src python -m cli run-plan jitvul \
 PYTHONPATH=src python -m cli run-plan vulbench \
   --plan quick_test \
   --output-dir results/vulbench_test
+
+# Dedicated sampling-parameter sweep configs
+python -m cli run-plan castle \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_quick
+
+python -m cli run-plan cvefixes \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_binary
+
+# Run all sampling sweep plans in sequence through Docker
+bash scripts/run_parameter_sweeps.sh
 ```
+
+### Sampling Parameter Sweeps
+
+The benchmark config schema now supports these model-level generation settings:
+
+- `temperature`
+- `top_p`
+- `top_k`
+- `min_p`
+- `presence_penalty`
+- `repetition_penalty`
+
+Use the dedicated sweep configs in `src/configs/parameter_sweeps` to study one parameter at a time on existing datasets without changing the default shared model catalog.
+
+Backend notes:
+
+- `vllm` applies all of the parameters above.
+- `hf` currently applies `temperature`, `top_p`, `top_k`, and `repetition_penalty`.
+- `llama_cpp` applies supported parameters exposed by the installed binding and logs a warning for unsupported ones.
 
 ## Metrics
 

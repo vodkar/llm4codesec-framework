@@ -1,0 +1,62 @@
+{
+    "experiment_metadata": {
+        "name": "CVEFixes Sampling Parameter Sweeps",
+        "description": "One-factor sampling-parameter study for CVEFixes binary detection",
+        "version": "1.0",
+        "created_date": "2026-03-10"
+    },
+    "experiment_plans": {
+        "sampling_sweep_quick": {
+            "description": "Quick validation of one-factor sampling sweeps on CVEFixes binary datasets",
+            "datasets": [
+                "binary_c_file",
+                "binary_c_method"
+            ],
+            "models": [
+                "qwen35-4b-base",
+                "qwen35-4b-temp-00",
+                "qwen35-4b-top-p-090",
+                "qwen35-4b-top-k-040",
+                "qwen35-4b-min-p-005",
+                "qwen35-4b-presence-050",
+                "qwen35-4b-repeat-110"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 20
+        },
+        "sampling_sweep_binary": {
+            "description": "Full one-factor sampling sweep on CVEFixes binary datasets",
+            "datasets": [
+                "binary_c_file",
+                "binary_c_method"
+            ],
+            "models": [
+                "qwen35-4b-base",
+                "qwen35-4b-temp-00",
+                "qwen35-4b-temp-03",
+                "qwen35-4b-temp-09",
+                "qwen35-4b-top-p-080",
+                "qwen35-4b-top-p-090",
+                "qwen35-4b-top-p-095",
+                "qwen35-4b-top-k-020",
+                "qwen35-4b-top-k-040",
+                "qwen35-4b-top-k-080",
+                "qwen35-4b-min-p-002",
+                "qwen35-4b-min-p-005",
+                "qwen35-4b-min-p-010",
+                "qwen35-4b-presence-025",
+                "qwen35-4b-presence-050",
+                "qwen35-4b-presence-100",
+                "qwen35-4b-repeat-105",
+                "qwen35-4b-repeat-110",
+                "qwen35-4b-repeat-120"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 50
+        }
+    }
+}

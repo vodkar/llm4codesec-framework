@@ -44,7 +44,7 @@ class VllmLLM(ILLMInference):
                 "Install with `pip install vllm`."
             ) from exc
 
-        LOGGER.info("Loading vLLM model: %s", self.config.model_config)
+        LOGGER.info("Loading vLLM model: %s", self.config.model_identifier)
 
         os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
@@ -56,7 +56,7 @@ class VllmLLM(ILLMInference):
         )
         gpu_memory_utilization: float = self.config.gpu_memory_utilization or 0.82
 
-        llm_kwargs: dict = dict(
+        llm_kwargs: dict[str, object] = dict(
             model=self.config.model_identifier,
             trust_remote_code=True,
             max_num_seqs=max_num_seqs,
@@ -163,10 +163,23 @@ class VllmLLM(ILLMInference):
         Returns:
             SamplingParams: Configured sampling parameters.
         """
-        return sampling_params_cls(
-            max_tokens=self.config.max_output_tokens,
-            temperature=self.config.temperature,
-        )
+        sampling_kwargs: dict[str, int | float] = {
+            "max_tokens": self.config.max_output_tokens,
+            "temperature": self.config.temperature,
+        }
+
+        optional_sampling_values: dict[str, int | float | None] = {
+            "top_p": self.config.top_p,
+            "top_k": self.config.top_k,
+            "min_p": self.config.min_p,
+            "presence_penalty": self.config.presence_penalty,
+            "repetition_penalty": self.config.repetition_penalty,
+        }
+        for key, value in optional_sampling_values.items():
+            if value is not None:
+                sampling_kwargs[key] = value
+
+        return sampling_params_cls(**sampling_kwargs)
 
     def _collect_batch_results(
         self, batch_outputs: list[RequestOutput], duration: float, batch_size: int

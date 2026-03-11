@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 import shutil
@@ -41,6 +42,7 @@ class LlamaCppLLM(ILLMInference):
         """
         self.config: ExperimentConfig = config
         self.model: Llama | None = None
+        self._warned_sampling_params: set[str] = set()
 
         self._load_model()
 
@@ -368,10 +370,12 @@ class LlamaCppLLM(ILLMInference):
         results: list[tuple[str, int, float]] = []
         for prompt in prompts:
             start_time: float = time.time()
+            completion_kwargs: dict[str, int | float] = self._build_generation_kwargs(
+                self.model.__call__
+            )
             output: CreateCompletionResponse = self.model(  # type: ignore[assignment]
                 prompt,
-                max_tokens=self.config.max_output_tokens,
-                temperature=self.config.temperature,
+                **completion_kwargs,
             )
             duration: float = time.time() - start_time
 
@@ -390,10 +394,12 @@ class LlamaCppLLM(ILLMInference):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
+        generation_kwargs: dict[str, int | float] = self._build_generation_kwargs(
+            self.model.create_chat_completion
+        )
         response: CreateChatCompletionResponse = self.model.create_chat_completion(  # type: ignore[assignment]
             messages=messages,
-            max_tokens=self.config.max_output_tokens,
-            temperature=self.config.temperature,
+            **generation_kwargs,
         )
 
         choices = response.get("choices", [])
@@ -414,14 +420,78 @@ class LlamaCppLLM(ILLMInference):
             raise RuntimeError("llama.cpp model not loaded")
 
         prompt: str = self._format_prompt(system_prompt, user_prompt)
+        generation_kwargs: dict[str, int | float] = self._build_generation_kwargs(
+            self.model.__call__
+        )
         response: CreateCompletionResponse = self.model(  # type: ignore[assignment]
             prompt,
-            max_tokens=self.config.max_output_tokens,
-            temperature=self.config.temperature,
+            **generation_kwargs,
         )
         response_text: str = self._extract_completion_text(response)
         token_count: int = self._extract_usage_tokens(response)
         return response_text, token_count
+
+    def _build_generation_kwargs(self, target: Any) -> dict[str, int | float]:
+        """Build llama.cpp generation kwargs supported by the installed binding."""
+        generation_kwargs: dict[str, int | float] = {
+            "max_tokens": self.config.max_output_tokens,
+            "temperature": self.config.temperature,
+        }
+
+        supported_parameters: set[str] = self._get_supported_parameter_names(target)
+        raw_optional_parameters: tuple[tuple[str, str, int | float | None], ...] = (
+            ("top_p", "top_p", self.config.top_p),
+            ("top_k", "top_k", self.config.top_k),
+            (
+                "repetition_penalty",
+                "repeat_penalty",
+                self.config.repetition_penalty,
+            ),
+        )
+
+        for config_name, backend_name, value in raw_optional_parameters:
+            if value is None:
+                continue
+            if not supported_parameters or backend_name not in supported_parameters:
+                self._warn_unsupported_sampling_param(
+                    config_name,
+                    "installed llama.cpp binding does not expose this parameter",
+                )
+                continue
+            generation_kwargs[backend_name] = value
+
+        if self.config.min_p is not None:
+            self._warn_unsupported_sampling_param(
+                "min_p",
+                "llama.cpp backend does not expose min_p",
+            )
+        if self.config.presence_penalty is not None:
+            self._warn_unsupported_sampling_param(
+                "presence_penalty",
+                "llama.cpp backend does not expose presence_penalty",
+            )
+
+        return generation_kwargs
+
+    @staticmethod
+    def _get_supported_parameter_names(target: Any) -> set[str]:
+        """Return supported parameter names for a callable when introspection works."""
+        try:
+            return set(inspect.signature(target).parameters.keys())
+        except (TypeError, ValueError):
+            return set()
+
+    def _warn_unsupported_sampling_param(self, param_name: str, reason: str) -> None:
+        """Warn once when a configured sampling parameter is unsupported."""
+        if param_name in self._warned_sampling_params:
+            return
+
+        LOGGER.warning(
+            "Ignoring sampling parameter '%s' for llama.cpp backend: %s",
+            param_name,
+            reason,
+        )
+        self._warned_sampling_params.add(param_name)
 
     @staticmethod
     def _extract_completion_text(response: CreateCompletionResponse) -> str:

@@ -20,6 +20,11 @@ class ModelConfig(BaseModel):
     max_output_tokens: int
     context_length: int | None = None
     temperature: float
+    top_p: float | None = None
+    top_k: int | None = None
+    min_p: float | None = None
+    presence_penalty: float | None = None
+    repetition_penalty: float | None = None
     use_quantization: bool
     backend: BackendFrameworks
     is_thinking_enabled: bool = False
@@ -79,6 +84,11 @@ class ExperimentConfig(BaseModel):
     batch_size: int
     max_output_tokens: int
     temperature: float
+    top_p: float | None = None
+    top_k: int | None = None
+    min_p: float | None = None
+    presence_penalty: float | None = None
+    repetition_penalty: float | None = None
     use_quantization: bool = True
     is_thinking_enabled: bool = False
     context_length: int | None = None
@@ -166,6 +176,11 @@ class ExperimentConfig(BaseModel):
             batch_size=model_config.batch_size,
             max_output_tokens=model_config.max_output_tokens,
             temperature=model_config.temperature,
+            top_p=model_config.top_p,
+            top_k=model_config.top_k,
+            min_p=model_config.min_p,
+            presence_penalty=model_config.presence_penalty,
+            repetition_penalty=model_config.repetition_penalty,
             use_quantization=model_config.use_quantization,
             is_thinking_enabled=model_config.is_thinking_enabled,
             context_length=model_config.context_length,

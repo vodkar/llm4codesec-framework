@@ -86,6 +86,24 @@ PYTHONPATH=src python -m cli run castle \
   --dataset binary_all \
   --prompt basic_security \
   --sample-limit 5
+
+PYTHONPATH=src python -m cli run-plan castle \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_quick
+
+PYTHONPATH=src python -m cli run-plan jitvul \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_binary
+
+PYTHONPATH=src python -m cli run-plan cvefixes \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_binary
+
+PYTHONPATH=src python -m cli run-plan vulbench \
+  --config-dir src/configs/parameter_sweeps \
+  --plan sampling_sweep_binary
+
+bash scripts/run_parameter_sweeps.sh
 ```
 
 ## Troubleshooting

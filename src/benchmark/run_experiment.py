@@ -8,8 +8,12 @@ from typing import Any
 from benchmark.benchmark_runner import BenchmarkRunner
 from benchmark.config import ExperimentConfig, ExperimentsPlanConfig
 from benchmark.result_processor import BenchmarkResultProcessor
-from benchmark.results import (BenchmarkReport, ExperimentPlanResult,
-                               ExperimentPlanSummary, ShortExperimentReport)
+from benchmark.results import (
+    BenchmarkReport,
+    ExperimentPlanResult,
+    ExperimentPlanSummary,
+    ShortExperimentReport,
+)
 from datasets.loaders.base import JsonDatasetLoader
 
 _LOGGER = logging.getLogger(__name__)
@@ -183,16 +187,19 @@ def rebuild_experiment_plan_results(
     return plan_result
 
 
-def run_single_experiment(config: ExperimentConfig) -> BenchmarkReport:
+def run_single_experiment(
+    config: ExperimentConfig, runner: BenchmarkRunner | None = None
+) -> BenchmarkReport:
     """
     Run a single benchmark experiment.
     """
 
     # Initialize and run benchmark
-    runner = BenchmarkRunner(
-        config=config,
-        dataset_loader=JsonDatasetLoader(),
-    )
+    if not runner:
+        runner = BenchmarkRunner(
+            config=config,
+            dataset_loader=JsonDatasetLoader(),
+        )
 
     result = runner.run()
 
@@ -288,6 +295,8 @@ def run_experiment_plan(
     successful_experiments = 0
     failed_experiments = 0
 
+    dataset_loader = JsonDatasetLoader()
+
     # Run all experiments
     experiments: list[ShortExperimentReport] = []
     for experiment_config in plan.experiments:
@@ -298,7 +307,10 @@ def run_experiment_plan(
             f"{experiment_config.dataset_name} + {experiment_config.prompt_identifier}"
         )
 
-        result = run_single_experiment(experiment_config)
+        result = run_single_experiment(
+            experiment_config,
+            BenchmarkRunner(config=experiment_config, dataset_loader=dataset_loader),
+        )
 
         experiments.append(result.short_summary)
 

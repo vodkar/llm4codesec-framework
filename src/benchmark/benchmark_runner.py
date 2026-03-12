@@ -34,7 +34,9 @@ class BenchmarkRunner(BaseModel):
         _LOGGER.info(
             f"Loading {self.config.dataset_name} dataset from: {self.config.dataset_path}"
         )
-        samples = self.dataset_loader.load_dataset(self.config.dataset_path, None)
+        samples = self.dataset_loader.load_dataset(
+            self.config.dataset_path, self.config.sample_limit
+        )
         _LOGGER.info(f"Loaded {len(samples)} samples")
 
         llm = create_llm_inference(self.config)
@@ -46,7 +48,9 @@ class BenchmarkRunner(BaseModel):
                 else {},
             )
 
-            samples = self._filter_samples_by_token_limit(samples, llm, prompt_generator)
+            samples = self._filter_samples_by_token_limit(
+                samples, llm, prompt_generator
+            )
             samples = self._apply_sample_limit(samples)
 
             if len(samples) == 0:

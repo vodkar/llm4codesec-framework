@@ -35,7 +35,7 @@ class BenchmarkRunner(BaseModel):
             f"Loading {self.config.dataset_name} dataset from: {self.config.dataset_path}"
         )
         samples = self.dataset_loader.load_dataset(
-            self.config.dataset_path, self.config.sample_limit
+            self.config.dataset_path, self.config.sample_limit * 3 if self.config.sample_limit else None
         )
         _LOGGER.info(f"Loaded {len(samples)} samples")
 
@@ -48,9 +48,7 @@ class BenchmarkRunner(BaseModel):
                 else {},
             )
 
-            samples = self._filter_samples_by_token_limit(
-                samples, llm, prompt_generator
-            )
+            samples = self._filter_samples_by_token_limit(samples, llm, prompt_generator)
             samples = self._apply_sample_limit(samples)
 
             if len(samples) == 0:
@@ -133,12 +131,10 @@ class BenchmarkRunner(BaseModel):
         return SampleCollection(filtered_samples)
 
     def _apply_sample_limit(self, samples: SampleCollection) -> SampleCollection:
-        """Apply randomized sample limit after token filtering."""
+        """Apply sample limit after token filtering."""
         sample_limit = self.config.sample_limit
         if sample_limit and sample_limit < len(samples):
-            shuffled_samples = list(samples)
-            random.shuffle(shuffled_samples)
-            limited_samples = shuffled_samples[:sample_limit]
+            limited_samples = list(samples)[:sample_limit]
             _LOGGER.info(f"Limited to {sample_limit} samples")
             return SampleCollection(limited_samples)
 

@@ -10,53 +10,53 @@
             "description": "Quick validation of one-factor sampling sweeps on CVEFixes binary datasets",
             "datasets": [
                 "binary_c_file",
-                "binary_c_method"
+                "binary_python_file"
             ],
             "models": [
-                "qwen35-4b-base",
-                "qwen35-4b-temp-00",
-                "qwen35-4b-top-p-090",
-                "qwen35-4b-top-k-040",
-                "qwen35-4b-min-p-005",
-                "qwen35-4b-presence-050",
-                "qwen35-4b-repeat-110"
+                "qwen3-4b-base",
+                "qwen3-4b-temp-00",
+                "qwen3-4b-top-p-090",
+                "qwen3-4b-top-k-040",
+                "qwen3-4b-min-p-005",
+                "qwen3-4b-presence-050",
+                "qwen3-4b-repeat-110"
             ],
             "prompts": [
-                "basic_security"
+                "step_by_step"
             ],
-            "sample_limit": 20
+            "sample_limit": 5
         },
         "sampling_sweep_binary": {
             "description": "Full one-factor sampling sweep on CVEFixes binary datasets",
             "datasets": [
                 "binary_c_file",
-                "binary_c_method"
+                "binary_python_file"
             ],
             "models": [
-                "qwen35-4b-base",
-                "qwen35-4b-temp-00",
-                "qwen35-4b-temp-03",
-                "qwen35-4b-temp-09",
-                "qwen35-4b-top-p-080",
-                "qwen35-4b-top-p-090",
-                "qwen35-4b-top-p-095",
-                "qwen35-4b-top-k-020",
-                "qwen35-4b-top-k-040",
-                "qwen35-4b-top-k-080",
-                "qwen35-4b-min-p-002",
-                "qwen35-4b-min-p-005",
-                "qwen35-4b-min-p-010",
-                "qwen35-4b-presence-025",
-                "qwen35-4b-presence-050",
-                "qwen35-4b-presence-100",
-                "qwen35-4b-repeat-105",
-                "qwen35-4b-repeat-110",
-                "qwen35-4b-repeat-120"
+                "qwen3-4b-base",
+                "qwen3-4b-temp-00",
+                "qwen3-4b-temp-03",
+                "qwen3-4b-temp-09",
+                "qwen3-4b-top-p-080",
+                "qwen3-4b-top-p-090",
+                "qwen3-4b-top-p-095",
+                "qwen3-4b-top-k-020",
+                "qwen3-4b-top-k-040",
+                "qwen3-4b-top-k-080",
+                "qwen3-4b-min-p-002",
+                "qwen3-4b-min-p-005",
+                "qwen3-4b-min-p-010",
+                "qwen3-4b-presence-025",
+                "qwen3-4b-presence-050",
+                "qwen3-4b-presence-100",
+                "qwen3-4b-repeat-105",
+                "qwen3-4b-repeat-110",
+                "qwen3-4b-repeat-120"
             ],
             "prompts": [
-                "basic_security"
+                "step_by_step"
             ],
-            "sample_limit": 50
+            "sample_limit": 100
         }
     }
 }

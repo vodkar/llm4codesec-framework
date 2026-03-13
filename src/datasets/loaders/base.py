@@ -10,8 +10,9 @@ from pydantic import BaseModel, ConfigDict
 
 from benchmark.enums import TaskType
 from benchmark.models import BenchmarkSample, SampleCollection
+from logging_tools import get_logger
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = get_logger(__name__)
 
 
 class DatasetLoadParams(TypedDict, total=False):

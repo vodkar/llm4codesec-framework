@@ -1,0 +1,62 @@
+{
+  "benchmark_info": {
+    "experiment_name": "sampling_sweep_binary",
+    "model_name": "qwen3-4b-min-p-002",
+    "model_type": "qwen-3",
+    "task_type": "binary_vulnerability",
+    "dataset_path": "datasets_processed/cvefixes/cvefixes_binary_c_file.json",
+    "description": "Binary classification: C file-level vulnerability detection",
+    "cwe_type": null,
+    "batch_size": 16,
+    "max_output_tokens": 8192,
+    "temperature": 0.6,
+    "use_quantization": true,
+    "is_thinking_enabled": true,
+    "total_samples": 100,
+    "total_time_seconds": 401.4631748199463,
+    "avg_time_per_sample": 4.014631748199463,
+    "tokens_used_total": 855893,
+    "tokens_used_avg": 8558.93,
+    "processing_time_stats": {
+      "count": 100,
+      "min": 4.014482305049897,
+      "max": 4.014482305049897,
+      "mean": 4.014482305049897,
+      "variance": 0.0,
+      "std": 0.0
+    },
+    "tokens_used_stats": {
+      "count": 100,
+      "min": 1371.0,
+      "max": 17963.0,
+      "mean": 8558.93,
+      "variance": 22251022.934444442,
+      "std": 4717.098995616315
+    },
+    "extra_metadata": {},
+    "timestamp": "2026-03-12T22:36:22.295959"
+  },
+  "metrics": {
+    "task_type": "binary",
+    "accuracy": 0.31,
+    "summary": {
+      "accuracy": 0.31,
+      "precision": 1.0,
+      "recall": 0.31,
+      "f1_score": 0.47328244274809156,
+      "specificity": 0.0
+    },
+    "details": {
+      "confusion_matrix": {
+        "true_positives": 31,
+        "true_negatives": 0,
+        "false_positives": 0,
+        "false_negatives": 69
+      },
+      "labels": [
+        0,
+        1
+      ]
+    }
+  }
+}

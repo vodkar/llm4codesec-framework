@@ -83,8 +83,6 @@ class ResultArtifacts(BaseModel):
 
     report_json: str
     metrics_json: str
-    predictions_csv: str
-    predictions_json: str
 
 
 class BenchmarkRunResult(BaseModel):

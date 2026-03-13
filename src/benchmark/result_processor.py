@@ -95,8 +95,6 @@ class BenchmarkResultProcessor(BaseModel):
 
         report_path: Path = output_dir / f"benchmark_report_{timestamp}.json"
         metrics_path: Path = output_dir / f"metrics_summary_{timestamp}.json"
-        predictions_csv_path: Path = output_dir / f"predictions_{timestamp}.csv"
-        predictions_json_path: Path = output_dir / f"predictions_{timestamp}.json"
 
         # SECTION: Serialize report payload
         report_payload: dict[str, Any] = report.model_dump()
@@ -117,25 +115,9 @@ class BenchmarkResultProcessor(BaseModel):
         with open(metrics_path, "w", encoding="utf-8") as metrics_file:
             json.dump(metrics_summary, metrics_file, indent=2, ensure_ascii=False)
 
-        # SECTION: Persist predictions as CSV and JSON
-        predictions_payload: list[dict[str, Any]] = [
-            prediction.model_dump() for prediction in report.predictions
-        ]
-        predictions_df: pd.DataFrame = pd.DataFrame(predictions_payload)
-        predictions_df.to_csv(predictions_csv_path, index=False)
-        with open(predictions_json_path, "w", encoding="utf-8") as predictions_file:
-            json.dump(
-                predictions_payload,
-                predictions_file,
-                indent=2,
-                ensure_ascii=False,
-            )
-
         artifacts: ResultArtifacts = ResultArtifacts(
             report_json=str(report_path),
             metrics_json=str(metrics_path),
-            predictions_csv=str(predictions_csv_path),
-            predictions_json=str(predictions_json_path),
         )
 
         _LOGGER.info("Saved benchmark report to %s", report_path)

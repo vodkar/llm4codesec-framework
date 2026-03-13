@@ -10,21 +10,18 @@ from typing import Any
 import typer
 
 from benchmark.config import ExperimentConfig
-from benchmark.run_experiment import (
-    create_experiment_summary,
-    rebuild_experiment_plan_results,
-    run_experiment_plan,
-    run_single_experiment,
-)
+from benchmark.run_experiment import (create_experiment_summary,
+                                      rebuild_experiment_plan_results,
+                                      run_experiment_plan,
+                                      run_single_experiment)
 from consts import CONFIG_DIRECTORY
-from entrypoints.utils import (
-    compose_benchmark_config,
-    log_available_configurations,
-)
+from entrypoints.utils import compose_benchmark_config
 from entrypoints.utils import list_plans as log_plans
+from entrypoints.utils import log_available_configurations
 from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
+BASE_RESULTS_DIR = Path("results")
 
 
 @dataclass(frozen=True)
@@ -33,34 +30,34 @@ class BenchmarkCliConfig:
 
     name: str
     config_file: Path
-    output_dir: str
+    output_dir: Path
 
 
 BENCHMARKS: dict[str, BenchmarkCliConfig] = {
     "castle": BenchmarkCliConfig(
         name="castle",
         config_file=CONFIG_DIRECTORY / "castle_experiments.json",
-        output_dir="results/castle_experiments",
+        output_dir=BASE_RESULTS_DIR / "castle_experiments",
     ),
     "cvefixes": BenchmarkCliConfig(
         name="cvefixes",
         config_file=CONFIG_DIRECTORY / "cvefixes_experiments.json",
-        output_dir="results/cvefixes_experiments",
+        output_dir=BASE_RESULTS_DIR / "cvefixes_experiments",
     ),
     "jitvul": BenchmarkCliConfig(
         name="jitvul",
         config_file=CONFIG_DIRECTORY / "jitvul_experiments.json",
-        output_dir="results/jitvul_experiments",
+        output_dir=BASE_RESULTS_DIR / "jitvul_experiments",
     ),
     "vulbench": BenchmarkCliConfig(
         name="vulbench",
         config_file=CONFIG_DIRECTORY / "vulbench_experiments.json",
-        output_dir="results/vulbench_experiments",
+        output_dir=BASE_RESULTS_DIR / "vulbench_experiments",
     ),
     "context_assembler": BenchmarkCliConfig(
         name="context_assembler",
         config_file=CONFIG_DIRECTORY / "context_assembler_experiments.json",
-        output_dir="results/context_assembler_experiments",
+        output_dir=BASE_RESULTS_DIR / "context_assembler_experiments",
     ),
 }
 
@@ -232,7 +229,7 @@ def run_plan(
         experiments_config=experiments_config,
         datasets_config=datasets_config,
     )
-    selected_output_dir: str = output_dir or benchmark_config.output_dir
+    selected_output_dir: Path = (Path(output_dir) if output_dir else Path(benchmark_config.output_dir))
 
     _LOGGER.info("Running plan '%s' for benchmark '%s'", plan, benchmark)
     results = run_experiment_plan(

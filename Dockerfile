@@ -27,7 +27,7 @@ WORKDIR /app
 # Disable development dependencies
 ENV UV_NO_DEV=1
 
-RUN uv python install 3.13
+RUN uv python install 3.13 --default
 
 COPY pyproject.toml uv.lock ./
 
@@ -38,9 +38,6 @@ RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=600 uv sync --lock
 #     MAX_JOBS=2 uv pip install flash-attn --no-build-isolation
 
 COPY src/ .
-
-# Disable development dependencies
-ENV UV_NO_DEV=1
 
 # Create a Docker healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
@@ -54,5 +51,5 @@ CMD []
 LABEL maintainer="llm4codesec-benchmark"
 LABEL description="LLM4CodeSec Benchmark with NVIDIA CUDA support for vulnerability detection"
 LABEL version="0.1.0"
-LABEL cuda.version="12.8.0"
-LABEL python.version="3.12"
+LABEL cuda.version="12.9.1"
+LABEL python.version="3.13"

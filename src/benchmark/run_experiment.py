@@ -262,7 +262,8 @@ def create_experiment_summary(results: ExperimentPlanResult) -> str:
 def run_experiment_plan(
     plan_name: str,
     config: Path | str | dict[str, Any],
-    output_base_dir: str,
+    output_base_dir: Path,
+    skip_existing: bool = False,
 ) -> ExperimentPlanResult:
     """
     Run a complete experiment plan with multiple configurations.
@@ -282,7 +283,7 @@ def run_experiment_plan(
     _LOGGER.info(f"Description: {plan.description}")
 
     # Create plan-specific output directory
-    plan_output_dir = Path(output_base_dir) / plan_name
+    plan_output_dir = output_base_dir / plan_name
     plan_output_dir.mkdir(parents=True, exist_ok=True)
 
     start_time = datetime.now()
@@ -307,10 +308,32 @@ def run_experiment_plan(
             f"{experiment_config.dataset_name} + {experiment_config.prompt_identifier}"
         )
 
-        result = run_single_experiment(
-            experiment_config,
-            BenchmarkRunner(config=experiment_config, dataset_loader=dataset_loader),
-        )
+        if skip_existing and any(experiment_config.output_dir.glob("benchmark_report_*.json")):
+            _LOGGER.info(
+                "Skipping experiment %d/%d (results already exist): %s",
+                experiment_count,
+                total_experiments,
+                experiment_config.output_dir,
+            )
+            # Count as successful since a report exists
+            successful_experiments += 1
+            continue
+
+        try:
+            result = run_single_experiment(
+                experiment_config,
+                BenchmarkRunner(config=experiment_config, dataset_loader=dataset_loader),
+            )
+        except Exception as exc:
+            failed_experiments += 1
+            _LOGGER.error(
+                "✗ Experiment %d/%d failed with unhandled exception: %s",
+                experiment_count,
+                total_experiments,
+                exc,
+                exc_info=True,
+            )
+            continue
 
         experiments.append(result.short_summary)
 

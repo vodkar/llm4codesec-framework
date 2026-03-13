@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import logging
 import os
 import time
@@ -342,7 +343,10 @@ class VllmLLM(ILLMInference):
         """Clean up vLLM model resources."""
         if self.llm:
             del self.llm
+            self.llm = None
         if self.tokenizer:
             del self.tokenizer
+            self.tokenizer = None
+        gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()

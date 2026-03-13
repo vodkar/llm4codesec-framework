@@ -94,9 +94,9 @@ url = "https://download.pytorch.org/whl/cu129"
 explicit = true
 
 [tool.uv.sources]
-vllm = [
-  { index = "vllm-nightly" }
-]
+#vllm = [
+#  { index = "vllm-nightly" }
+#]
 torch = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]

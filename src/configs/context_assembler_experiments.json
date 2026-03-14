@@ -17,13 +17,13 @@
             "task_type": "binary_vulnerability",
             "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)"
         },
-        "context_assembler_binary_extended_context": {
-            "dataset_path": "datasets_processed/context_assembler/context_assembler_binary_extended_context.json",
+        "context_assembler_binary_v2": {
+            "dataset_path": "datasets_processed/context_assembler/context_assembler_binary_v2.json",
             "task_type": "binary_vulnerability",
-            "description": "ContextAssembler: Python binary vulnerability detection with extended CVE context (1=vulnerable, 0=safe)"
+            "description": "ContextAssembler v2: Python binary vulnerability detection with extended CVE context (1=vulnerable, 0=safe)"
         },
-        "cvefixes_python_matched_extended_context": {
-            "dataset_path": "datasets_processed/context_assembler/cvefixes_python_matched_extended_context.json",
+        "cvefixes_python_matched_v2": {
+            "dataset_path": "datasets_processed/context_assembler/cvefixes_python_matched_v2.json",
             "task_type": "binary_vulnerability",
             "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)"
         }
@@ -47,6 +47,24 @@
             "datasets": [
                 "context_assembler_binary",
                 "cvefixes_python_matched"
+            ],
+            "models": [
+                "qwen35-4b",
+                "qwen35-4b-thinking",
+                "gemma3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b-thinking",
+                "llama3.2-3B"
+            ],
+            "prompts": [
+                "step_by_step"
+            ]
+        },
+        "v2_comparison": {
+            "description": "Full comparison between ContextAssembler v2 and matched CVEFixes datasets across vllm models",
+            "datasets": [
+                "context_assembler_binary_v2",
+                "cvefixes_python_matched_v2"
             ],
             "models": [
                 "qwen35-4b",

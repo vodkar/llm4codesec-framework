@@ -89,9 +89,10 @@ def rebuild_experiment_plan_results(
             f"No benchmark report files found under {base_dir}. Expected benchmark_report_*.json files."
         )
 
-    selected_report_paths: list[Path] = _select_latest_reports_by_experiment_dir(
-        all_report_paths
-    )
+    # selected_report_paths: list[Path] = _select_latest_reports_by_experiment_dir(
+    #     all_report_paths
+    # )
+    selected_report_paths: list[Path] = all_report_paths
     _LOGGER.info(
         "Found %d report files across %d experiment directories",
         len(all_report_paths),
@@ -308,7 +309,9 @@ def run_experiment_plan(
             f"{experiment_config.dataset_name} + {experiment_config.prompt_identifier}"
         )
 
-        if skip_existing and any(experiment_config.output_dir.glob("benchmark_report_*.json")):
+        if skip_existing and any(
+            experiment_config.output_dir.glob("benchmark_report_*.json")
+        ):
             _LOGGER.info(
                 "Skipping experiment %d/%d (results already exist): %s",
                 experiment_count,
@@ -322,7 +325,9 @@ def run_experiment_plan(
         try:
             result = run_single_experiment(
                 experiment_config,
-                BenchmarkRunner(config=experiment_config, dataset_loader=dataset_loader),
+                BenchmarkRunner(
+                    config=experiment_config, dataset_loader=dataset_loader
+                ),
             )
         except Exception as exc:
             failed_experiments += 1

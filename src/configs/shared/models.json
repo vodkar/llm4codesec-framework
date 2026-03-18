@@ -5,7 +5,7 @@
             "model_type": "qwen-3",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
@@ -15,7 +15,7 @@
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
             "context_length": 24576,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": true,
             "backend": "vllm",
@@ -26,7 +26,7 @@
             "model_type": "qwen-3",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
@@ -36,7 +36,7 @@
             "model_type": "qwen-3",
             "max_output_tokens": 8192,
             "context_length": 24576,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": true,
             "backend": "vllm",
@@ -47,7 +47,7 @@
             "model_type": "qwen-3",
             "batch_size": 2,
             "max_output_tokens": 32768,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "use_quantization": true,
             "backend": "hf",
             "is_thinking_enabled": false
@@ -57,7 +57,7 @@
             "model_type": "qwen-3",
             "batch_size": 2,
             "max_output_tokens": 32768,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "use_quantization": true,
             "backend": "hf",
             "is_thinking_enabled": true
@@ -76,7 +76,7 @@
             "model_type": "deepseek-r1",
             "max_output_tokens": 8192,
             "context_length": 24576,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
@@ -104,7 +104,7 @@
             "model_type": "llama-3",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
@@ -123,7 +123,7 @@
             "model_type": "gemma-3",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "backend": "vllm",
             "use_quantization": true
@@ -144,7 +144,7 @@
             "backend": "llama_cpp",
             "max_output_tokens": 4096,
             "context_length": 18432,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": false
         },
@@ -154,7 +154,7 @@
             "backend": "llama_cpp",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 1,
             "use_quantization": false
         },
@@ -163,7 +163,7 @@
             "model_type": "llama-4",
             "backend": "vllm",
             "max_output_tokens": 4096,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 2,
             "use_quantization": false
         },
@@ -173,7 +173,7 @@
             "backend": "vllm",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": true
         },
@@ -183,7 +183,7 @@
             "backend": "vllm",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 2,
             "use_quantization": true,
             "gpu_memory_utilization": 0.90,
@@ -195,7 +195,7 @@
             "backend": "vllm",
             "max_output_tokens": 8192,
             "context_length": 24576,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 2,
             "use_quantization": true,
             "is_thinking_enabled": true,
@@ -208,7 +208,7 @@
             "backend": "vllm",
             "max_output_tokens": 8192,
             "context_length": 24576,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": true,
             "is_thinking_enabled": true
@@ -219,7 +219,7 @@
             "backend": "vllm",
             "max_output_tokens": 4096,
             "context_length": 20480,
-            "temperature": 0.6,
+            "temperature": 0.9,
             "batch_size": 5,
             "use_quantization": true
         }

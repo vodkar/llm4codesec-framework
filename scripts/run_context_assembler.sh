@@ -6,4 +6,4 @@ set -e
 # Define the benchmark runner alias
 run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 
-$run_benchmark cli.py run-plan context_assembler v2_comparison --config src/configs/context_assembler_experiments.json
+$run_benchmark cli.py run-plan context_assembler vllm_comparison --config src/configs/context_assembler_experiments.json

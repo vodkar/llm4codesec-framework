@@ -1,0 +1,62 @@
+{
+  "benchmark_info": {
+    "experiment_name": "vllm_comparison",
+    "model_name": "qwen35-4b",
+    "model_type": "qwen-3",
+    "task_type": "binary_vulnerability",
+    "dataset_path": "datasets_processed/context_assembler/cvefixes_python_matched.json",
+    "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)",
+    "cwe_type": null,
+    "batch_size": 5,
+    "max_output_tokens": 4096,
+    "temperature": 0.9,
+    "use_quantization": true,
+    "is_thinking_enabled": false,
+    "total_samples": 235,
+    "total_time_seconds": 825.5640575885773,
+    "avg_time_per_sample": 3.513038542930116,
+    "tokens_used_total": 2092982,
+    "tokens_used_avg": 8906.306382978724,
+    "processing_time_stats": {
+      "count": 235,
+      "min": 3.512860335694983,
+      "max": 3.512860335694983,
+      "mean": 3.5128603356949815,
+      "variance": 1.782522237759017e-30,
+      "std": 1.3351113203620951e-15
+    },
+    "tokens_used_stats": {
+      "count": 235,
+      "min": 579.0,
+      "max": 20105.0,
+      "mean": 8906.306382978724,
+      "variance": 22842206.170685582,
+      "std": 4779.352065990282
+    },
+    "extra_metadata": {},
+    "timestamp": "2026-03-17T18:28:24.991442"
+  },
+  "metrics": {
+    "task_type": "binary",
+    "accuracy": 0.502127659574468,
+    "summary": {
+      "accuracy": 0.502127659574468,
+      "precision": 0.42771084337349397,
+      "recall": 0.7634408602150538,
+      "f1_score": 0.5482625482625483,
+      "specificity": 0.33098591549295775
+    },
+    "details": {
+      "confusion_matrix": {
+        "true_positives": 71,
+        "true_negatives": 47,
+        "false_positives": 95,
+        "false_negatives": 22
+      },
+      "labels": [
+        0,
+        1
+      ]
+    }
+  }
+}

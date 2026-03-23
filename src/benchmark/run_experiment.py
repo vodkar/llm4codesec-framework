@@ -15,8 +15,40 @@ from benchmark.results import (
     ShortExperimentReport,
 )
 from datasets.loaders.base import JsonDatasetLoader
+from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def resolve_plan_output_base_dir(
+    config: Path | str | dict[str, Any],
+    output_base_dir: Path | None,
+) -> Path:
+    """Resolve the base output directory for an experiment plan.
+
+    Args:
+        config: Experiment configuration source.
+        output_base_dir: Explicit override from caller, if any.
+
+    Returns:
+        Resolved base output directory.
+
+    Raises:
+        ValueError: If neither an explicit output directory nor
+            ``output_settings.base_output_dir`` is available.
+    """
+    if output_base_dir is not None:
+        return output_base_dir
+
+    config_data: dict[str, Any] = normalize_config_schema(load_config_dict(config))
+    output_settings: dict[str, Any] = config_data.get("output_settings", {})
+    configured_output_dir: str | None = output_settings.get("base_output_dir")
+    if configured_output_dir is None:
+        raise ValueError(
+            "Missing output_settings.base_output_dir and no explicit output directory was provided"
+        )
+
+    return Path(configured_output_dir)
 
 
 def _select_latest_reports_by_experiment_dir(
@@ -263,7 +295,7 @@ def create_experiment_summary(results: ExperimentPlanResult) -> str:
 def run_experiment_plan(
     plan_name: str,
     config: Path | str | dict[str, Any],
-    output_base_dir: Path,
+    output_base_dir: Path | None,
     skip_existing: bool = False,
 ) -> ExperimentPlanResult:
     """
@@ -272,19 +304,23 @@ def run_experiment_plan(
     Args:
         plan_name: Name of the experiment plan to run
         config: Path to the experiment configuration file
-        output_base_dir: Base output directory
+        output_base_dir: Optional base output directory override
         sample_limit: Limit samples for testing
 
     Returns:
         dict containing all experiment results
     """
 
+    resolved_output_base_dir: Path = resolve_plan_output_base_dir(
+        config=config,
+        output_base_dir=output_base_dir,
+    )
     plan = ExperimentsPlanConfig.from_file(config, plan_name)
     _LOGGER.info(f"Starting experiment plan: {plan_name}")
     _LOGGER.info(f"Description: {plan.description}")
 
     # Create plan-specific output directory
-    plan_output_dir = output_base_dir / plan_name
+    plan_output_dir = resolved_output_base_dir / plan_name
     plan_output_dir.mkdir(parents=True, exist_ok=True)
 
     start_time = datetime.now()

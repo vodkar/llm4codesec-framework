@@ -172,6 +172,30 @@ python -m cli run-plan cvefixes \
 
 # Run all sampling sweep plans in sequence through Docker
 bash scripts/run_parameter_sweeps.sh
+
+# Build processed datasets for the ContextAssembler compare-rankings study
+bash scripts/run_context_assembler_compare_rankings.sh
+
+# Quick validation of the compare-rankings configs with shared models/prompts
+PYTHONPATH=src python -m cli run-plan context_assembler \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/context_assembler_compare_rankings/experiments.json \
+  --datasets-config src/configs/context_assembler_compare_rankings/datasets.json \
+  quick_smoke_test
+
+# Full compare-rankings evaluation across requested vLLM models
+PYTHONPATH=src python -m cli run-plan context_assembler \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/context_assembler_compare_rankings/experiments.json \
+  --datasets-config src/configs/context_assembler_compare_rankings/datasets.json \
+  vllm_compare_rankings
+
+# Apple Silicon smoke test with llama.cpp and a smaller Qwen3 4B GGUF quant
+PYTHONPATH=src python -m cli run-plan context_assembler \
+  --config-dir src/configs/shared \
+  --experiments-config src/configs/context_assembler_compare_rankings/experiments.json \
+  --datasets-config src/configs/context_assembler_compare_rankings/datasets.json \
+  llama_cpp_m1_smoke_test
 ```
 
 ### Sampling Parameter Sweeps

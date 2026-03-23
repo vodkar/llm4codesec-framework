@@ -1,0 +1,34 @@
+{
+    "datasets": {
+        "context_assembler_compare_current": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings baseline dataset using the current ranking strategy"
+        },
+        "context_assembler_compare_depth_repeats_context": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the depth-repeats-context strategy"
+        },
+        "context_assembler_compare_dummy": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the dummy ranking strategy"
+        },
+        "context_assembler_compare_random_picking": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the random-picking strategy"
+        },
+        "context_assembler_compare_security_score_only": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_score_only.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the security-score-only strategy"
+        },
+        "context_assembler_compare_smoke_test": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+            "task_type": "binary_vulnerability",
+            "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation"
+        }
+    }
+}

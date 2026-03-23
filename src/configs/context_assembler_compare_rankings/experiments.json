@@ -1,0 +1,67 @@
+{
+    "experiment_metadata": {
+        "name": "ContextAssembler Compare Rankings",
+        "description": "Evaluate multiple context-assembly ranking strategies on the ContextAssembler comparison datasets",
+        "version": "1.0",
+        "dataset": "ContextAssembler Compare Rankings v1.0",
+        "created_date": "2026-03-23"
+    },
+    "experiment_plans": {
+        "quick_smoke_test": {
+            "description": "Quick validation of the compare-rankings pipeline on one dataset across the selected vLLM models",
+            "datasets": [
+                "context_assembler_compare_current"
+            ],
+            "models": [
+                "qwen35-4b-thinking",
+                "gemma3-4b",
+                "llama3.2-3B",
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 3
+        },
+        "vllm_compare_rankings": {
+            "description": "Full compare-rankings evaluation across all ranking strategies and requested vLLM models",
+            "datasets": [
+                "context_assembler_compare_current",
+                "context_assembler_compare_depth_repeats_context",
+                "context_assembler_compare_dummy",
+                "context_assembler_compare_random_picking",
+                "context_assembler_compare_security_score_only"
+            ],
+            "models": [
+                "qwen35-4b-thinking",
+                "gemma3-4b",
+                "llama3.2-3B",
+                "qwen3-4b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": null
+        },
+        "llama_cpp_m1_smoke_test": {
+            "description": "Small llama.cpp smoke test for Apple Silicon using the existing Qwen3 8B GGUF model in the workspace",
+            "datasets": [
+                "context_assembler_compare_smoke_test"
+            ],
+            "models": [
+                "qwen3-8b-gguf"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 2
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/context_assembler_compare_rankings_experiments",
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    }
+}

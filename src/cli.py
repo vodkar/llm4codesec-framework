@@ -10,14 +10,15 @@ from typing import Any
 import typer
 
 from benchmark.config import ExperimentConfig
-from benchmark.run_experiment import (create_experiment_summary,
-                                      rebuild_experiment_plan_results,
-                                      run_experiment_plan,
-                                      run_single_experiment)
+from benchmark.run_experiment import (
+    create_experiment_summary,
+    rebuild_experiment_plan_results,
+    run_experiment_plan,
+    run_single_experiment,
+)
 from consts import CONFIG_DIRECTORY
-from entrypoints.utils import compose_benchmark_config
+from entrypoints.utils import compose_benchmark_config, log_available_configurations
 from entrypoints.utils import list_plans as log_plans
-from entrypoints.utils import log_available_configurations
 from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -229,7 +230,7 @@ def run_plan(
         experiments_config=experiments_config,
         datasets_config=datasets_config,
     )
-    selected_output_dir: Path = (Path(output_dir) if output_dir else Path(benchmark_config.output_dir))
+    selected_output_dir: Path | None = Path(output_dir) if output_dir else None
 
     _LOGGER.info("Running plan '%s' for benchmark '%s'", plan, benchmark)
     results = run_experiment_plan(

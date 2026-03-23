@@ -6,7 +6,7 @@ Creates two processed datasets for the ContextAssembler comparison experiment:
 
 1. ``context_assembler_binary.json``
    Normalised version of the ContextAssembler benchmark
-   (benchmarks/ContextAssembler/cvefixes_context_benchmark.json).
+   (benchmarks/context-assembler-dataset/cvefixes_context_benchmark.json).
    Contains Python code samples with binary labels (1 = vulnerable, 0 = safe).
 
 2. ``cvefixes_python_matched.json``  (requires --database-path)
@@ -34,7 +34,9 @@ from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 
-_DEFAULT_SOURCE: str = "benchmarks/ContextAssembler/cvefixes_context_benchmark.json"
+_DEFAULT_SOURCE: str = (
+    "benchmarks/context-assembler-dataset/cvefixes_context_benchmark.json"
+)
 _DEFAULT_OUTPUT_DIR: str = "datasets_processed/context_assembler"
 
 
@@ -353,7 +355,7 @@ Examples:
 
   # Custom paths and sample limit (for quick testing)
   python src/entrypoints/loaders/run_setup_context_assembler_datasets.py \\
-      --source benchmarks/ContextAssembler/cvefixes_context_benchmark.json \\
+      --source benchmarks/context-assembler-dataset/cvefixes_context_benchmark.json \\
       --output-dir datasets_processed/context_assembler \\
       --sample-limit 20 \\
       --verbose

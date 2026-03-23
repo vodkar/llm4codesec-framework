@@ -13,3 +13,6 @@
 [submodule "benchmarks/CVEfixes"]
 	path = benchmarks/CVEfixes
 	url = git@github.com:secureIT-project/CVEfixes.git
+[submodule "benchmarks/context-assembler-dataset"]
+	path = benchmarks/context-assembler-dataset
+	url = git@github.com:vodkar/context-assembler-dataset.git

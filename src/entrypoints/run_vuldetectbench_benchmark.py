@@ -21,7 +21,8 @@ from benchmark.metrics_calculator import (
     MulticlassMetricsCalculator,
 )
 from benchmark.models import BenchmarkSample, PredictionResult
-from benchmark.prompt_generator import DefaultPromptGenerator
+from benchmark.prompt_generator import get_prompt_generator
+from benchmark.response_parser import VulDetectBenchResponseParser
 from benchmark.result_processor import BenchmarkResultProcessor
 from benchmark.results import (
     BenchmarkReport,
@@ -71,11 +72,7 @@ class VulDetectBenchBenchmarkRunner:
 
             # Initialize components
             llm = create_llm_inference(self.config)
-            prompt_generator = DefaultPromptGenerator(
-                system_prompt_template=self.config.system_prompt_template,
-                user_prompt_template=self.config.user_prompt_template,
-                template_values={},
-            )
+            prompt_generator = get_prompt_generator(self.config, template_values={})
 
             # Determine task type from first sample
             task_type = (

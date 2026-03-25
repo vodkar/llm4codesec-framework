@@ -39,7 +39,7 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "basic_security"
+                "step_by_step"
             ],
             "sample_limit": null
         },
@@ -52,7 +52,7 @@
                 "qwen3-8b-gguf"
             ],
             "prompts": [
-                "basic_security"
+                "step_by_step"
             ],
             "sample_limit": 2
         }

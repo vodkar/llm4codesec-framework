@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for LLM4CodeSec Benchmark with NVIDIA CUDA support
-FROM nvcr.io/nvidia/cuda:12.9.1-devel-ubuntu24.04
+FROM nvcr.io/nvidia/cuda:13.0.2-devel-ubuntu24.04
 
 # Set environment variables for non-interactive builds
 ENV DEBIAN_FRONTEND=noninteractive
@@ -31,7 +31,7 @@ RUN uv python install 3.13 --default
 
 COPY pyproject.toml uv.lock ./
 
-RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=600 uv sync --locked --extra vllm
+RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=3600 uv sync --locked --extra vllm
 
 # Install flash attention
 # RUN uv pip install ninja setuptools && \
@@ -51,5 +51,5 @@ CMD []
 LABEL maintainer="llm4codesec-benchmark"
 LABEL description="LLM4CodeSec Benchmark with NVIDIA CUDA support for vulnerability detection"
 LABEL version="0.1.0"
-LABEL cuda.version="12.9.1"
+LABEL cuda.version="13.0.2"
 LABEL python.version="3.13"

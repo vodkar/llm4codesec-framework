@@ -17,7 +17,7 @@ dependencies = [
     "tqdm>=4.65.0",
     "psutil>=5.9.0",
     "packaging>=25.0,<26",
-    "tiktoken>=0.9.0,<0.10",
+    "tiktoken>=0.9.0",
     "protobuf>=6.31.1,<7",
     "ipykernel>=6.29.5,<7",
     "pydantic>=2.12.5",
@@ -41,11 +41,11 @@ vllm = [
     "torch>=2.0.0",
     "torchvision>=0.15.0",
     "torchaudio>=2.0.0",
-    "vllm>=0.6.6",
+    "vllm>=0.18.0",
     "ninja>=1.11.1.4,<2",
     "fbgemm-gpu>=1.4.1",
-    "flashinfer-python==0.6.4",
-    "flashinfer-cubin==0.6.4",
+    "flashinfer-python>=0.6.4",
+    "flashinfer-cubin>=0.6.4",
     "torch-c-dlpack-ext>=0.1.5",
 ]
 llama-cpp = [
@@ -85,18 +85,18 @@ default-groups = [
 
 [[tool.uv.index]]
 name = "vllm-nightly"
-url = "https://wheels.vllm.ai/nightly"
+url = "https://wheels.vllm.ai/nightly/cu130"
 explicit = true
 
 [[tool.uv.index]]
 name = "pytorch"
-url = "https://download.pytorch.org/whl/cu129"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.uv.sources]
-#vllm = [
-#  { index = "vllm-nightly" }
-#]
+vllm = [
+  { index = "vllm-nightly" }
+]
 torch = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]

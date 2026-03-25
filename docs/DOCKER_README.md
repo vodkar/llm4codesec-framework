@@ -43,7 +43,7 @@ sudo systemctl restart docker
 ### Verify GPU Support
 ```bash
 # Test NVIDIA Docker support
-docker run --rm --gpus all nvidia/cuda:12.1-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvcr.io/nvidia/cuda:13.0.2-base-ubuntu24.04 nvidia-smi
 ```
 
 ## Building the Docker Image
@@ -63,8 +63,8 @@ docker-compose build
 docker build -t llm4codesec-benchmark:latest .
 
 # Build with specific CUDA version
-docker build -t llm4codesec-benchmark:cuda12.1 \
-  --build-arg CUDA_VERSION=12.1 .
+docker build -t llm4codesec-benchmark:cuda13.0.2 \
+  --build-arg CUDA_VERSION=13.0.2 .
 ```
 
 ## Running Benchmarks
@@ -213,7 +213,7 @@ docker run --gpus all \
 nvidia-smi
 
 # Check Docker GPU support
-docker run --rm --gpus all nvidia/cuda:12.1-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvcr.io/nvidia/cuda:13.0.2-devel-ubuntu24.04 nvidia-smi
 
 # Check container GPU access
 docker run --gpus all llm4codesec-benchmark:latest \
@@ -319,7 +319,7 @@ done
 ## Support
 
 For issues specific to the Docker setup:
-1. Check GPU driver compatibility with CUDA 12.1
+1. Check GPU driver compatibility with CUDA 13.0.2
 2. Verify NVIDIA Container Toolkit installation
 3. Ensure sufficient GPU memory for chosen models
 4. Check Docker daemon configuration for GPU support

@@ -128,7 +128,7 @@ if not exist "Dockerfile" (
 REM Check NVIDIA Docker support if testing GPU
 if "%TEST_GPU%"=="true" (
     call :print_status "Checking NVIDIA Docker support..."
-    docker run --rm --gpus all nvidia/cuda:12.1-base-ubuntu22.04 nvidia-smi >nul 2>&1
+    docker run --rm --gpus all nvcr.io/nvidia/cuda:13.0.2-devel-ubuntu24.04 nvidia-smi >nul 2>&1
     if !errorlevel! neq 0 (
         call :print_warning "GPU test failed. NVIDIA Docker support might not be available."
         call :print_warning "Continuing with build, but GPU functionality may not work."

@@ -49,8 +49,22 @@ class VllmLLM(ILLMInference):
 
         os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
-        quantization = "fp8" if self.config.use_quantization else None
-        kv_cache_dtype = "fp8" if self.config.use_quantization else "auto"
+        configured_quantization = self.config.vllm_quantization
+        quantization: str | None
+        if configured_quantization == "none":
+            quantization = None
+        elif configured_quantization:
+            quantization = configured_quantization
+        else:
+            quantization = "fp8" if self.config.use_quantization else None
+
+        configured_kv_cache_dtype = self.config.kv_cache_dtype
+        if configured_kv_cache_dtype == "none":
+            kv_cache_dtype = None
+        elif configured_kv_cache_dtype:
+            kv_cache_dtype = configured_kv_cache_dtype
+        else:
+            kv_cache_dtype = "fp8" if quantization == "fp8" else "auto"
 
         max_num_seqs: int = self.config.max_num_seqs or int(
             os.getenv("MAX_NUM_SEQS", "32")
@@ -64,10 +78,20 @@ class VllmLLM(ILLMInference):
             gpu_memory_utilization=gpu_memory_utilization,
             max_model_len=self.config.model_context_length_tokens,
             dtype="bfloat16",
-            quantization=quantization,
-            kv_cache_dtype=kv_cache_dtype,
             enable_prefix_caching=True,
         )
+
+        if quantization is not None:
+            llm_kwargs["quantization"] = quantization
+
+        if kv_cache_dtype is not None:
+            llm_kwargs["kv_cache_dtype"] = kv_cache_dtype
+
+        if self.config.tokenizer_identifier:
+            llm_kwargs["tokenizer"] = self.config.tokenizer_identifier
+
+        if self.config.hf_config_path:
+            llm_kwargs["hf_config_path"] = self.config.hf_config_path
 
         self.llm = LLM(**llm_kwargs)
         self.tokenizer = self.llm.get_tokenizer()

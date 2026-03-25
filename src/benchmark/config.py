@@ -15,6 +15,8 @@ class ModelConfig(BaseModel):
 
     model_name: str
     model_identifier: str
+    tokenizer_identifier: str | None = None
+    hf_config_path: str | None = None
     model_type: ModelType
     batch_size: int
     max_output_tokens: int
@@ -28,6 +30,8 @@ class ModelConfig(BaseModel):
     use_quantization: bool
     backend: BackendFrameworks
     is_thinking_enabled: bool = False
+    vllm_quantization: str | None = None
+    kv_cache_dtype: str | None = None
     gpu_memory_utilization: float | None = None
     max_num_seqs: int | None = None
 
@@ -93,6 +97,10 @@ class ExperimentConfig(BaseModel):
     is_thinking_enabled: bool = False
     context_length: int | None = None
     cwe_type: str | None = None
+    tokenizer_identifier: str | None = None
+    hf_config_path: str | None = None
+    vllm_quantization: str | None = None
+    kv_cache_dtype: str | None = None
     gpu_memory_utilization: float | None = None
     max_num_seqs: int | None = None
     system_prompt_template: str
@@ -184,6 +192,10 @@ class ExperimentConfig(BaseModel):
             use_quantization=model_config.use_quantization,
             is_thinking_enabled=model_config.is_thinking_enabled,
             context_length=model_config.context_length,
+            tokenizer_identifier=model_config.tokenizer_identifier,
+            hf_config_path=model_config.hf_config_path,
+            vllm_quantization=model_config.vllm_quantization,
+            kv_cache_dtype=model_config.kv_cache_dtype,
             gpu_memory_utilization=model_config.gpu_memory_utilization,
             max_num_seqs=model_config.max_num_seqs,
             cwe_type=dataset_config.cwe_type,

@@ -27,10 +27,24 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-		"qwen35-9b-thinking",
-		"qwen35-9b",
-		"qwen35-4b-thinking",
-		"qwen35-4b"
+                "qwen35-9b-thinking",
+                "qwen35-9b",
+                "qwen35-4b-thinking",
+                "qwen35-4b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": null
+        },
+        "vllm_qwen3_30b_a3b_2507_gguf_comparison": {
+            "description": "ContextAssembler vs matched CVEFixes comparison using Qwen3-30B-A3B-Instruct-2507 GGUF on vLLM, tuned for a single 16 GB GPU",
+            "datasets": [
+                "context_assembler_binary",
+                "cvefixes_python_matched"
+            ],
+            "models": [
+                "qwen3-30b-a3b-instruct-2507-gguf"
             ],
             "prompts": [
                 "basic_security"

@@ -77,6 +77,37 @@
             "prompts": [
                 "step_by_step"
             ]
+        },
+        "vllm_big_models_comparison": {
+            "description": "ContextAssembler vs matched CVEFixes comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
+            "datasets": [
+                "context_assembler_binary",
+                "cvefixes_python_matched"
+            ],
+            "models": [
+                "nemotron-nano-v2-12b-gguf",
+                "gemma3-12b-it-gguf",
+                "qwen3-14b-gguf"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "vllm_problematic_big_models": {
+            "description": "ContextAssembler vs matched CVEFixes comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
+            "datasets": [
+                "context_assembler_binary",
+                "cvefixes_python_matched"
+            ],
+            "models": [
+                "nemotron-nano-v2-12b-gguf",
+                "qwen35-27b-distilled-gguf"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 3
         }
     },
     "output_settings": {

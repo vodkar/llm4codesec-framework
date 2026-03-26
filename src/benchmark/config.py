@@ -34,6 +34,8 @@ class ModelConfig(BaseModel):
     kv_cache_dtype: str | None = None
     gpu_memory_utilization: float | None = None
     max_num_seqs: int | None = None
+    enforce_eager: bool | None = None
+    max_num_batched_tokens: int | None = None
 
 
 class DatasetConfig(BaseModel):
@@ -103,6 +105,8 @@ class ExperimentConfig(BaseModel):
     kv_cache_dtype: str | None = None
     gpu_memory_utilization: float | None = None
     max_num_seqs: int | None = None
+    enforce_eager: bool | None = None
+    max_num_batched_tokens: int | None = None
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -198,6 +202,8 @@ class ExperimentConfig(BaseModel):
             kv_cache_dtype=model_config.kv_cache_dtype,
             gpu_memory_utilization=model_config.gpu_memory_utilization,
             max_num_seqs=model_config.max_num_seqs,
+            enforce_eager=model_config.enforce_eager,
+            max_num_batched_tokens=model_config.max_num_batched_tokens,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,

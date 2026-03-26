@@ -17,6 +17,7 @@ class ModelType(Enum):
 
     # Qwen models
     QWEN_3 = "qwen-3"
+    QWEN_3_5 = "qwen-3.5"
 
     # DeepSeek models
     DEEPSEEK_CODER_V2 = "deepseek-coder-v2"
@@ -31,6 +32,9 @@ class ModelType(Enum):
 
     # Gemma models
     GEMMA_3 = "gemma-3"
+    
+    # nemotron
+    NEMOTRON_NANO_V2= "nemotron-nano-v2"
 
 
 class BackendFrameworks(StrEnum):

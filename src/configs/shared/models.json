@@ -289,7 +289,7 @@
             "model_type": "qwen-3.5",
             "backend": "vllm",
             "max_output_tokens": 4096,
-            "context_length": 20480,
+            "context_length": 4096,
             "temperature": 1.0,
             "top_p": 0.95,
             "top_k": 64,
@@ -300,19 +300,20 @@
             "use_quantization": false,
             "vllm_quantization": "none",
             "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.94,
+            "gpu_memory_utilization": 0.77,
             "max_num_seqs": 1,
             "enforce_eager": true,
-            "max_num_batched_tokens": 2048
+            "max_num_batched_tokens": 2048,
+            "enable_prefix_caching": false
         },
         "nemotron-nano-v2-12b-gguf": {
-            "model_identifier": "hf://bartowski/nvidia_NVIDIA-Nemotron-Nano-12B-v2-GGUF/nvidia_NVIDIA-Nemotron-Nano-12B-v2-Q6_K_L.gguf",
+            "model_identifier": "hf://bartowski/nvidia_NVIDIA-Nemotron-Nano-12B-v2-GGUF/nvidia_NVIDIA-Nemotron-Nano-12B-v2-Q4_K_M.gguf",
             "tokenizer_identifier": "nvidia/NVIDIA-Nemotron-Nano-12B-v2",
             "hf_config_path": "nvidia/NVIDIA-Nemotron-Nano-12B-v2",
             "model_type": "nemotron-nano-v2",
             "backend": "vllm",
             "max_output_tokens": 4096,
-            "context_length": 20480,
+            "context_length": 4096,
             "temperature": 1.0,
             "top_p": 0.95,
             "top_k": 64,
@@ -323,10 +324,11 @@
             "use_quantization": false,
             "vllm_quantization": "none",
             "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.94,
-            "max_num_seqs": 2,
+            "gpu_memory_utilization": 0.75,
+            "max_num_seqs": 1,
             "enforce_eager": true,
-            "max_num_batched_tokens": 2048
+            "max_num_batched_tokens": 2048,
+            "enable_prefix_caching": false
         }
     }
 }

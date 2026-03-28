@@ -5233,7 +5233,7 @@ wheels = [
 
 [[package]]
 name = "vllm"
-version = "0.18.1rc1.dev65+gb2dd75eb4.cu130"
+version = "0.18.1rc1.dev208+g148a5c122.cu130"
 source = { registry = "https://wheels.vllm.ai/nightly/cu130" }
 dependencies = [
     { name = "aiohttp" },
@@ -5248,6 +5248,7 @@ dependencies = [
     { name = "einops" },
     { name = "fastapi", extra = ["standard"] },
     { name = "filelock" },
+    { name = "flashinfer-cubin" },
     { name = "flashinfer-python" },
     { name = "gguf" },
     { name = "ijson" },
@@ -5305,8 +5306,8 @@ dependencies = [
     { name = "xgrammar", marker = "platform_machine == 'aarch64' or platform_machine == 'arm64' or platform_machine == 'ppc64le' or platform_machine == 's390x' or platform_machine == 'x86_64'" },
 ]
 wheels = [
-    { url = "https://wheels.vllm.ai/b2dd75eb481f6d45f6ac902292559026765a1433/vllm-0.18.1rc1.dev65%2Bgb2dd75eb4.cu130-cp38-abi3-manylinux_2_35_aarch64.whl" },
-    { url = "https://wheels.vllm.ai/b2dd75eb481f6d45f6ac902292559026765a1433/vllm-0.18.1rc1.dev65%2Bgb2dd75eb4.cu130-cp38-abi3-manylinux_2_35_x86_64.whl" },
+    { url = "https://wheels.vllm.ai/148a5c1226f8668cb52c4900b5ff2c80344e78f2/vllm-0.18.1rc1.dev208%2Bg148a5c122.cu130-cp38-abi3-manylinux_2_35_aarch64.whl" },
+    { url = "https://wheels.vllm.ai/148a5c1226f8668cb52c4900b5ff2c80344e78f2/vllm-0.18.1rc1.dev208%2Bg148a5c122.cu130-cp38-abi3-manylinux_2_35_x86_64.whl" },
 ]
 
 [[package]]

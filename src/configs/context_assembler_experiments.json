@@ -85,9 +85,7 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-                "nemotron-nano-v2-12b-gguf",
-                "gemma3-12b-it-gguf",
-                "qwen3-14b-gguf"
+                "gemma3-12b-it-gguf"
             ],
             "prompts": [
                 "step_by_step"

@@ -40,6 +40,8 @@ class VllmLLM(ILLMInference):
 
     def _load_model(self) -> None:
         """Load the vLLM model and tokenizer."""
+        os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
+
         try:
             from vllm import LLM
         except ImportError as exc:
@@ -50,8 +52,6 @@ class VllmLLM(ILLMInference):
             ) from exc
 
         LOGGER.info("Loading vLLM model: %s", self.config.model_identifier)
-
-        os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
         model_identifier, inferred_hf_config_path = self._resolve_model_identifier()
         model_dtype: str = self._resolve_model_dtype(model_identifier)
@@ -95,7 +95,7 @@ class VllmLLM(ILLMInference):
             gpu_memory_utilization=gpu_memory_utilization,
             max_model_len=self.config.model_context_length_tokens,
             dtype=model_dtype,
-            enable_prefix_caching=True,
+            enable_prefix_caching=True if self.config.enable_prefix_caching is None else self.config.enable_prefix_caching,
             enforce_eager=enforce_eager,
         )
 

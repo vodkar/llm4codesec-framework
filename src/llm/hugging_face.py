@@ -32,9 +32,26 @@ class HuggingFaceLLM(ILLMInference):
 
         self._load_model()
 
+    def _parse_gguf_identifier(self, model_identifier: str) -> tuple[str, str] | None:
+        """Parse hf:// GGUF URI into (repo_id, filename). Returns None if not GGUF."""
+        if not model_identifier.startswith("hf://"):
+            return None
+        path = model_identifier[len("hf://"):]
+        parts = path.split("/")
+        if len(parts) < 3:
+            return None
+        repo_id = "/".join(parts[:2])
+        filename = "/".join(parts[2:])
+        return repo_id, filename
+
     def _load_model(self) -> None:
         """Load the model and tokenizer."""
         logging.info(f"Loading model: {self.config.model_identifier}")
+
+        # Detect GGUF format and resolve identifiers
+        gguf_info = self._parse_gguf_identifier(self.config.model_identifier)
+        is_gguf = gguf_info is not None
+        tokenizer_id = self.config.tokenizer_identifier or self.config.model_identifier
 
         # Configure quantization if requested
         quantization_config: BitsAndBytesConfig | None = None
@@ -49,7 +66,12 @@ class HuggingFaceLLM(ILLMInference):
             gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
             logging.info(f"Detected GPU memory: {gpu_memory:.1f}GB")
 
-            if self.config.use_quantization:
+            if is_gguf:
+                # GGUF models are already quantized — skip BitsAndBytes
+                torch_dtype = torch.float16
+                attn_implementation = None
+                logging.info("GGUF model detected: skipping BitsAndBytes quantization")
+            elif self.config.use_quantization:
                 # Determine quantization type based on model size and GPU memory
                 quantization_type = getattr(self.config, "quantization_type", "8bit")
 
@@ -73,7 +95,7 @@ class HuggingFaceLLM(ILLMInference):
                 torch_dtype = torch.bfloat16 if gpu_memory >= 35 else torch.float16
                 logging.info(f"No quantization, using {torch_dtype}")
 
-            if "gemma-3" in self.config.model_identifier:
+            if not is_gguf and "gemma-3" in self.config.model_identifier:
                 torch_dtype = torch.bfloat16
                 quantization_config = BitsAndBytesConfig(
                     load_in_4bit=True,
@@ -84,7 +106,7 @@ class HuggingFaceLLM(ILLMInference):
 
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.config.model_identifier,
+                tokenizer_id,
                 trust_remote_code=True,
                 padding_side="left",
                 token=os.getenv("HF_TOKEN", None),
@@ -96,15 +118,27 @@ class HuggingFaceLLM(ILLMInference):
             if not self.tokenizer.pad_token:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
 
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.config.model_identifier,
-                quantization_config=quantization_config,
-                device_map="auto",
-                torch_dtype=torch_dtype,
-                trust_remote_code=True,
-                token=os.getenv("HF_TOKEN", None),
-                attn_implementation=attn_implementation,
-            )
+            if is_gguf:
+                repo_id, gguf_file = gguf_info
+                logging.info(f"Loading GGUF model from repo={repo_id}, file={gguf_file}")
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    repo_id,
+                    gguf_file=gguf_file,
+                    device_map="auto",
+                    torch_dtype=torch_dtype,
+                    trust_remote_code=True,
+                    token=os.getenv("HF_TOKEN", None),
+                )
+            else:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.config.model_identifier,
+                    quantization_config=quantization_config,
+                    device_map="auto",
+                    torch_dtype=torch_dtype,
+                    trust_remote_code=True,
+                    token=os.getenv("HF_TOKEN", None),
+                    attn_implementation=attn_implementation,
+                )
 
             if self.model is None:
                 raise RuntimeError("Model failed to load")

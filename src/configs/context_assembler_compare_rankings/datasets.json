@@ -15,10 +15,20 @@
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the dummy ranking strategy"
         },
+        "context_assembler_compare_multiplicative_boost": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the multiplicative-boost strategy"
+        },
         "context_assembler_compare_random_picking": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the random-picking strategy"
+        },
+        "context_assembler_compare_security_first": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_first.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the security-first strategy"
         },
         "context_assembler_compare_security_score_only": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_score_only.json",

@@ -45,9 +45,17 @@ DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
         "context_assembler_compare_dummy.json",
         "ContextAssembler Compare Rankings - Dummy",
     ),
+    "cvefixes_context_benchmark_multiplicative_boost.json": (
+        "context_assembler_compare_multiplicative_boost.json",
+        "ContextAssembler Compare Rankings - Multiplicative Boost",
+    ),
     "cvefixes_context_benchmark_random_picking.json": (
         "context_assembler_compare_random_picking.json",
         "ContextAssembler Compare Rankings - Random Picking",
+    ),
+    "cvefixes_context_benchmark_security_first.json": (
+        "context_assembler_compare_security_first.json",
+        "ContextAssembler Compare Rankings - Security First",
     ),
     "cvefixes_context_benchmark_security_score_only.json": (
         "context_assembler_compare_security_score_only.json",

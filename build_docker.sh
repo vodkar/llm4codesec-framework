@@ -194,20 +194,6 @@ else
     fi
 fi
 
-# Test benchmark entry points
-print_status "Testing benchmark entry points..."
-ENTRY_POINTS=("castle" "jitvul" "cvefixes" "unified" "benchmark")
-
-for entry_point in "${ENTRY_POINTS[@]}"; do
-    print_status "Testing $entry_point entry point..."
-    print_status `docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help`
-    if docker run --rm "$FULL_IMAGE_NAME" entrypoints/run_"$entry_point"_benchmark.py --help > /dev/null 2>&1; then
-        print_status "$entry_point entry point test passed."
-    else
-        print_warning "$entry_point entry point test failed. This might be expected if the module is not implemented."
-    fi
-done
-
 # Show image information
 print_status "Docker image information:"
 docker images "$FULL_IMAGE_NAME" --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}"

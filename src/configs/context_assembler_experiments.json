@@ -85,7 +85,8 @@
                 "cvefixes_python_matched"
             ],
             "models": [
-                "gemma3-12b-it-gguf"
+                "nemotron-nano-v2-12b-gguf",
+                "qwen35-27b-gguf"
             ],
             "prompts": [
                 "step_by_step"
@@ -100,7 +101,7 @@
             ],
             "models": [
                 "nemotron-nano-v2-12b-gguf",
-                "qwen35-27b-distilled-gguf"
+                "qwen35-27b-gguf"
             ],
             "prompts": [
                 "step_by_step"

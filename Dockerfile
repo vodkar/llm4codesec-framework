@@ -31,7 +31,10 @@ RUN uv python install 3.13 --default
 
 COPY pyproject.toml uv.lock ./
 
-RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=3600 uv sync --locked --extra vllm
+# Build llama-cpp-python with CUDA (GPU) support
+ENV CMAKE_ARGS="-DGGML_CUDA=on"
+
+RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=3600 uv sync --locked --extra vllm --extra llama-cpp
 
 # Install flash attention
 # RUN uv pip install ninja setuptools && \

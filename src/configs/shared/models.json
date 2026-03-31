@@ -282,14 +282,12 @@
             "enforce_eager": true,
             "max_num_batched_tokens": 2048
         },
-        "qwen35-27b-distilled-gguf": {
-            "model_identifier": "hf://Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-GGUF/Qwen3.5-27B.Q3_K_S.gguf",
-            "tokenizer_identifier": "Qwen/Qwen3.5-27B",
-            "hf_config_path": "Qwen/Qwen3.5-27B",
+        "qwen35-27b-gguf": {
+            "model_identifier": "hf://unsloth/Qwen3.5-27B-GGUF/Qwen3.5-27B-Q3_K_M.gguf",
             "model_type": "qwen-3.5",
-            "backend": "vllm",
+            "backend": "llama_cpp",
             "max_output_tokens": 4096,
-            "context_length": 4096,
+            "context_length": 20480,
             "temperature": 1.0,
             "top_p": 0.95,
             "top_k": 64,
@@ -297,23 +295,14 @@
             "repetition_penalty": 1.2,
             "presence_penalty": 0.5,
             "batch_size": 1,
-            "use_quantization": false,
-            "vllm_quantization": "none",
-            "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.77,
-            "max_num_seqs": 1,
-            "enforce_eager": true,
-            "max_num_batched_tokens": 2048,
-            "enable_prefix_caching": false
+            "use_quantization": false
         },
         "nemotron-nano-v2-12b-gguf": {
-            "model_identifier": "hf://bartowski/nvidia_NVIDIA-Nemotron-Nano-12B-v2-GGUF/nvidia_NVIDIA-Nemotron-Nano-12B-v2-Q4_K_M.gguf",
-            "tokenizer_identifier": "nvidia/NVIDIA-Nemotron-Nano-12B-v2",
-            "hf_config_path": "nvidia/NVIDIA-Nemotron-Nano-12B-v2",
+            "model_identifier": "hf://bartowski/nvidia_NVIDIA-Nemotron-Nano-12B-v2-GGUF/nvidia_NVIDIA-Nemotron-Nano-12B-v2-Q8_0.gguf",
             "model_type": "nemotron-nano-v2",
-            "backend": "vllm",
+            "backend": "llama_cpp",
             "max_output_tokens": 4096,
-            "context_length": 4096,
+            "context_length": 20480,
             "temperature": 1.0,
             "top_p": 0.95,
             "top_k": 64,
@@ -321,14 +310,7 @@
             "repetition_penalty": 1.2,
             "presence_penalty": 0.5,
             "batch_size": 1,
-            "use_quantization": false,
-            "vllm_quantization": "none",
-            "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.75,
-            "max_num_seqs": 1,
-            "enforce_eager": true,
-            "max_num_batched_tokens": 2048,
-            "enable_prefix_caching": false
+            "use_quantization": false
         }
     }
 }

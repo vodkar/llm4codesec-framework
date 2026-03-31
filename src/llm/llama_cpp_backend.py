@@ -82,7 +82,7 @@ class LlamaCppLLM(ILLMInference):
         else:
             resolved_path: str = str(Path(model_ref).expanduser())
             LOGGER.info("Loading llama.cpp model from local path: %s", resolved_path)
-            self.model = Llama(model_path=resolved_path, **common_kwargs)
+            self.model = Llama(model_path=resolved_path, verbose=False, **common_kwargs)
 
     def _resolve_context_length(self) -> int:
         """Resolve llama.cpp context length from env or model configuration."""
@@ -133,6 +133,7 @@ class LlamaCppLLM(ILLMInference):
                 repo_id=repo_id,
                 filename=filename,
                 local_dir=str(model_dir),
+                verbose=False,
                 **kwargs,
             ),
         )

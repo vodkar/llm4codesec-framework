@@ -15,3 +15,8 @@ $run_benchmark cli.py run-plan context_assembler vllm_compare_rankings \
     --config-dir configs/shared \
     --experiments-config configs/context_assembler_compare_rankings/experiments.json \
     --datasets-config configs/context_assembler_compare_rankings/datasets.json
+
+# $run_benchmark cli.py run-plan context_assembler big_models_compare_rankings \
+#     --config-dir configs/shared \
+#     --experiments-config configs/context_assembler_compare_rankings/experiments.json \
+#     --datasets-config configs/context_assembler_compare_rankings/datasets.json

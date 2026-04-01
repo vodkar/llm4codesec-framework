@@ -1,4 +1,3 @@
-import random
 import time
 
 from pydantic import BaseModel, ConfigDict
@@ -11,13 +10,27 @@ from benchmark.response_parser import IResponseParser, ResponseParserFactory
 from benchmark.results import BenchmarkRunResult
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
-from llm.llm import ILLMInference
+from llm.llm import ILLMInference, InferenceResult
 from logging_tools import get_logger
 
 _LOGGER = get_logger(__name__)
 
 _ERRORS_THRESHOLD = 0.2  # If more than 20% of samples fail, fail the experiment
 _CHAT_TEMPLATE_TOKEN_OVERHEAD = 200  # Safety margin for chat-template special tokens
+
+
+def _majority_vote(labels: list[int | str]) -> int | str:
+    """Return the most frequent label, breaking ties by first occurrence."""
+    if not labels:
+        raise ValueError("Cannot vote on empty label list")
+    counts: dict[int | str, int] = {}
+    for label in labels:
+        counts[label] = counts.get(label, 0) + 1
+    max_count = max(counts.values())
+    for label in labels:
+        if counts[label] == max_count:
+            return label
+    return labels[0]  # unreachable
 
 
 class BenchmarkRunner(BaseModel):
@@ -150,44 +163,53 @@ class BenchmarkRunner(BaseModel):
         """
         Process samples with batch optimization for better GPU utilization.
 
-        This method can be used by benchmark runners to replace their sequential
-        processing loops with efficient batch processing.
-
-        Args:
-            samples: List of benchmark samples to process
-
-        Returns:
-            List of prediction results
+        When self_consistency_samples > 1, each sample's prompt is submitted N times.
+        The final predicted label is chosen by majority vote across the N responses.
         """
-        _LOGGER.info(f"Processing {len(samples)} samples with batch optimization")
-
-        user_prompts: list[str] = []
-        system_prompts: list[str] = []
-
-        errors_count = 0
-
-        for sample in samples:
-            system_prompt, user_prompt = (
-                prompt_generator.get_system_prompt(),
-                prompt_generator.get_user_prompt({"code": sample.code}),
-            )
-            user_prompts.append(user_prompt)
-            system_prompts.append(system_prompt)
-
-        batch_responses: list[tuple[str, int, float]] = (
-            llm.generate_responses_batch_optimized(system_prompts, user_prompts)
+        n: int = self.config.self_consistency_samples
+        _LOGGER.info(
+            "Processing %d samples (self_consistency_samples=%d, effective batch size=%d)",
+            len(samples), n, len(samples) * n,
         )
 
-        # Process results
-        predictions: list[PredictionResult] = []
-        for i, (sample, (response_text, tokens_used, processing_duration)) in enumerate(
-            zip(samples, batch_responses)
-        ):
-            try:
-                # Parse response
-                predicted_label = response_parser.parse_response(response_text)
+        # Build expanded prompt lists: each sample repeated N times consecutively
+        expanded_system_prompts: list[str] = []
+        expanded_user_prompts: list[str] = []
+        for sample in samples:
+            sys_p = prompt_generator.get_system_prompt()
+            usr_p = prompt_generator.get_user_prompt({"code": sample.code})
+            for _ in range(n):
+                expanded_system_prompts.append(sys_p)
+                expanded_user_prompts.append(usr_p)
 
-                # Handle true label - might be int or string depending on dataset
+        batch_results: list[InferenceResult] = llm.generate_responses_batch_optimized(
+            expanded_system_prompts, expanded_user_prompts
+        )
+
+        predictions: list[PredictionResult] = []
+        errors_count = 0
+
+        for i, sample in enumerate(samples):
+            # Slice the N InferenceResults that belong to this sample
+            group: list[InferenceResult] = batch_results[i * n : (i + 1) * n]
+            all_texts: list[str] = [r.response_text for r in group]
+            total_tokens: int = sum(r.tokens_used for r in group)
+            avg_time: float = sum(r.duration for r in group) / max(n, 1)
+            raw_confidences = [r.confidence for r in group if r.confidence is not None]
+            confidence: float | None = (
+                sum(raw_confidences) / len(raw_confidences) if raw_confidences else None
+            )
+
+            try:
+                parsed_labels: list[int | str] = [
+                    response_parser.parse_response(t) for t in all_texts
+                ]
+                predicted_label: int | str = _majority_vote(parsed_labels)
+                vote_counts: dict[str, int] = {}
+                for lbl in parsed_labels:
+                    key = str(lbl)
+                    vote_counts[key] = vote_counts.get(key, 0) + 1
+
                 true_label: int | str
                 if isinstance(sample.label, int):
                     true_label = sample.label
@@ -198,31 +220,34 @@ class BenchmarkRunner(BaseModel):
                     sample_id=sample.id,
                     predicted_label=predicted_label,
                     true_label=true_label,
-                    confidence=None,
-                    response_text=response_text,
-                    processing_time=processing_duration,
-                    tokens_used=tokens_used,
+                    confidence=confidence,
+                    response_text=all_texts[0],
+                    processing_time=avg_time,
+                    tokens_used=total_tokens,
                     is_success=True,
                     error_message=None,
+                    all_responses=all_texts,
+                    vote_counts=vote_counts,
                 )
 
-                # Log progress
                 if (i + 1) % 50 == 0:
                     _LOGGER.info(f"Processed {i + 1}/{len(samples)} predictions")
             except Exception as e:
                 _LOGGER.error(
-                    f"Error processing sample ID {sample.id}: {e}\nResponse text: {response_text}"
+                    f"Error processing sample ID {sample.id}: {e}\nResponse text: {all_texts[0] if all_texts else ''}"
                 )
                 prediction = PredictionResult(
                     sample_id=sample.id,
                     predicted_label="",
                     true_label=sample.label,
-                    confidence=None,
-                    response_text=response_text,
-                    processing_time=processing_duration,
-                    tokens_used=tokens_used,
+                    confidence=confidence,
+                    response_text=all_texts[0] if all_texts else "",
+                    processing_time=avg_time,
+                    tokens_used=total_tokens,
                     error_message=str(e),
                     is_success=False,
+                    all_responses=all_texts,
+                    vote_counts={},
                 )
                 errors_count += 1
                 if errors_count / len(samples) > _ERRORS_THRESHOLD:

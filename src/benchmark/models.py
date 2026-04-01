@@ -39,6 +39,10 @@ class PredictionResult(BaseModel):
     tokens_used: int | None = None
     is_success: bool
     error_message: str | None
+    all_responses: list[str] = Field(default_factory=list)
+    """All N raw response texts from self-consistency draws."""
+    vote_counts: dict[str, int] = Field(default_factory=dict)
+    """Maps label string to vote count; empty when self_consistency_samples=1."""
 
 
 class SampleCollection(RootModel[list[BenchmarkSample]]):

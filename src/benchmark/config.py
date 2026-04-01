@@ -37,6 +37,8 @@ class ModelConfig(BaseModel):
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
     enable_prefix_caching: bool | None = None
+    self_consistency_samples: int = 1
+    enable_logprobs: bool = False
 
 
 class DatasetConfig(BaseModel):
@@ -109,6 +111,8 @@ class ExperimentConfig(BaseModel):
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
     enable_prefix_caching: bool | None = None
+    self_consistency_samples: int = 1
+    enable_logprobs: bool = False
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -207,6 +211,8 @@ class ExperimentConfig(BaseModel):
             enforce_eager=model_config.enforce_eager,
             max_num_batched_tokens=model_config.max_num_batched_tokens,
             enable_prefix_caching=model_config.enable_prefix_caching,
+            self_consistency_samples=model_config.self_consistency_samples,
+            enable_logprobs=model_config.enable_logprobs,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,

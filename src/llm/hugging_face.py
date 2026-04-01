@@ -1,9 +1,11 @@
 import logging
+import math
 import os
 import time
 from typing import Any
 
 import torch
+import torch.nn.functional as F
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
@@ -15,7 +17,7 @@ from transformers.pipelines import Pipeline
 
 from benchmark.config import ExperimentConfig
 from flash_attention import is_flash_attention_available, is_flash_attention_supported
-from llm.llm import ILLMInference
+from llm.llm import ILLMInference, InferenceResult
 
 
 class HuggingFaceLLM(ILLMInference):
@@ -169,7 +171,7 @@ class HuggingFaceLLM(ILLMInference):
 
     def generate_response(
         self, system_prompt: str, user_prompt: str
-    ) -> tuple[str, int, float]:
+    ) -> InferenceResult:
         """
         Generate response using the loaded model.
 
@@ -179,35 +181,25 @@ class HuggingFaceLLM(ILLMInference):
         if not self.pipeline:
             raise RuntimeError("Model not loaded")
 
-        # Format the prompt based on model type
         formatted_prompt = self._format_prompt(system_prompt, user_prompt)
 
         try:
-            # Use batch processing even for single requests for consistency
             batch_results = self.generate_batch_responses([formatted_prompt])
             return batch_results[0]
 
         except Exception as e:
             logging.exception("Error generating response")
-            return f"ERROR: {str(e)}", 0, 0.0
+            return InferenceResult(response_text=f"ERROR: {str(e)}", tokens_used=0, duration=0.0)
 
     def generate_responses_batch_optimized(
         self, system_prompts: list[str], user_prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs with batch optimization.
-
-        Args:
-            system_prompts: List of system prompts
-            user_prompts: List of user prompts (must be same length as system_prompts)
-
-        Returns:
-            List of (response_text, token_count) tuples
         """
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 
-        # Format all prompts
         formatted_prompts = [
             self._format_prompt(sys_prompt, user_prompt)
             for sys_prompt, user_prompt in zip(system_prompts, user_prompts)
@@ -217,7 +209,7 @@ class HuggingFaceLLM(ILLMInference):
 
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """Generate responses for a batch of prompts."""
         if not self.pipeline:
             raise RuntimeError("Model not loaded")
@@ -225,27 +217,26 @@ class HuggingFaceLLM(ILLMInference):
             raise RuntimeError("Tokenizer not loaded")
 
         try:
-            # Process in batches to manage memory
             batch_size = min(
                 int(os.getenv("HARD_BATCH_SIZE", self.config.batch_size)), len(prompts)
             )
-            results: list[tuple[str, int, float]] = []
+
+            if self.config.enable_logprobs:
+                return self._generate_with_logprobs(prompts)
+
+            results: list[InferenceResult] = []
 
             for i in range(0, len(prompts), batch_size):
                 batch_prompts = prompts[i : i + batch_size]
 
                 start = time.time()
-                # Generate responses for the batch
                 batch_responses: Any = self.pipeline(
                     batch_prompts,
                     **self._build_generation_kwargs(batch_size=batch_size),
                 )
                 duration = time.time() - start
 
-                # Process each response in the batch
-                # Handle different response formats from Hugging Face pipeline
                 if isinstance(batch_responses[0], list):
-                    # If pipeline returns list of lists (batch processing)
                     for j, response_list in enumerate(batch_responses):
                         if response_list and isinstance(response_list[0], dict):
                             response_text = response_list[0]["generated_text"].strip()
@@ -253,31 +244,25 @@ class HuggingFaceLLM(ILLMInference):
                             response_text = (
                                 str(response_list[0]).strip() if response_list else ""
                             )
-
-                        # Estimate token count
-                        tokens = self.tokenizer.encode(batch_prompts[j] + response_text)
-                        token_count = len(tokens)
-
-                        results.append(
-                            (response_text, token_count, duration / batch_size)
-                        )
+                        token_count = len(self.tokenizer.encode(batch_prompts[j] + response_text))
+                        results.append(InferenceResult(
+                            response_text=response_text,
+                            tokens_used=token_count,
+                            duration=duration / batch_size,
+                        ))
                 else:
-                    # If pipeline returns list of dicts (single responses)
                     for j, response in enumerate(batch_responses):
                         if isinstance(response, dict):
                             response_text = response["generated_text"].strip()
                         else:
                             response_text = str(response).strip()
+                        token_count = len(self.tokenizer.encode(batch_prompts[j] + response_text))
+                        results.append(InferenceResult(
+                            response_text=response_text,
+                            tokens_used=token_count,
+                            duration=duration / batch_size,
+                        ))
 
-                        # Estimate token count
-                        tokens = self.tokenizer.encode(batch_prompts[j] + response_text)
-                        token_count = len(tokens)
-
-                        results.append(
-                            (response_text, token_count, duration / batch_size)
-                        )
-
-                # Log progress
                 logging.info(
                     f"Processed batch {i // batch_size + 1}/{(len(prompts) - 1) // batch_size + 1}"
                 )
@@ -286,7 +271,66 @@ class HuggingFaceLLM(ILLMInference):
 
         except Exception as e:
             logging.exception("Error generating batch responses")
-            return [(f"ERROR: {str(e)}", 0, 0) for _ in prompts]
+            return [InferenceResult(response_text=f"ERROR: {str(e)}", tokens_used=0, duration=0.0) for _ in prompts]
+
+    def _generate_with_logprobs(self, prompts: list[str]) -> list[InferenceResult]:
+        """Generate responses using model.generate() directly to capture logprobs.
+
+        Processes one prompt at a time to avoid padding complexity when extracting
+        per-token log-probabilities from a batch.
+        """
+        if not self.model or not self.tokenizer:
+            raise RuntimeError("Model or tokenizer not loaded")
+
+        do_sample: bool = self.config.temperature > 0
+        results: list[InferenceResult] = []
+
+        for prompt in prompts:
+            inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+            input_len: int = inputs["input_ids"].shape[1]
+
+            generate_kwargs: dict[str, Any] = {
+                "max_new_tokens": self.config.max_output_tokens,
+                "temperature": self.config.temperature,
+                "do_sample": do_sample,
+                "pad_token_id": self.pad_token_id,
+                "eos_token_id": self.pad_token_id,
+                "output_scores": True,
+                "return_dict_in_generate": True,
+            }
+            if self.config.top_p is not None:
+                generate_kwargs["top_p"] = self.config.top_p
+            if self.config.top_k is not None:
+                generate_kwargs["top_k"] = self.config.top_k
+            if self.config.repetition_penalty is not None:
+                generate_kwargs["repetition_penalty"] = self.config.repetition_penalty
+
+            start = time.time()
+            with torch.no_grad():
+                outputs = self.model.generate(**inputs, **generate_kwargs)
+            duration = time.time() - start
+
+            # Decode generated tokens (excluding the input)
+            generated_ids = outputs.sequences[0, input_len:]
+            response_text = self.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+            token_count = input_len + len(generated_ids)
+
+            # Compute confidence: exp(mean(max_log_prob per generated token))
+            # outputs.scores: tuple of (1, vocab_size) logit tensors, one per generated token
+            max_lps: list[float] = [
+                F.log_softmax(score[0], dim=-1).max().item()
+                for score in outputs.scores
+            ]
+            confidence: float | None = math.exp(sum(max_lps) / len(max_lps)) if max_lps else None
+
+            results.append(InferenceResult(
+                response_text=response_text,
+                tokens_used=token_count,
+                duration=duration,
+                confidence=confidence,
+            ))
+
+        return results
 
     def _build_generation_kwargs(
         self, batch_size: int

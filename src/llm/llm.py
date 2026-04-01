@@ -1,4 +1,17 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+
+
+@dataclass
+class InferenceResult:
+    """Result from a single LLM inference call."""
+
+    response_text: str
+    tokens_used: int
+    duration: float
+    confidence: float | None = field(default=None)
+    """Geometric-mean per-token probability (exp of mean log-prob).
+    None when logprobs are not enabled or not supported."""
 
 
 class ILLMInference(ABC):
@@ -7,7 +20,7 @@ class ILLMInference(ABC):
     @abstractmethod
     def generate_response(
         self, system_prompt: str, user_prompt: str
-    ) -> tuple[str, int, float]:
+    ) -> InferenceResult:
         """
         Generate response from the model.
 
@@ -16,14 +29,14 @@ class ILLMInference(ABC):
             user_prompt (str): User prompt
 
         Returns:
-            tuple[str, int, float]: Response text, token count, and duration
+            InferenceResult with response text, token count, duration, and optional confidence.
         """
         pass
 
     @abstractmethod
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for a batch of prompts.
 
@@ -31,13 +44,13 @@ class ILLMInference(ABC):
             prompts (list[str]): List of formatted prompts
 
         Returns:
-            list[tuple[str, int, float]]: List of (response_text, token_count, duration) tuples
+            list[InferenceResult]: One result per prompt.
         """
         pass
 
     def generate_responses_batch_optimized(
         self, system_prompts: list[str], user_prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs with batch optimization.
 
@@ -46,13 +59,13 @@ class ILLMInference(ABC):
             user_prompts: List of user prompts (must be same length as system_prompts)
 
         Returns:
-            List of (response_text, token_count, duration) tuples
+            List of InferenceResult objects, one per prompt pair.
         """
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 
-        # This is a default implementation - can be overridden by subclasses
-        results: list[tuple[str, int, float]] = []
+        # Default implementation — subclasses should override for GPU-backed batching
+        results: list[InferenceResult] = []
         for sys_prompt, user_prompt in zip(system_prompts, user_prompts):
             result = self.generate_response(sys_prompt, user_prompt)
             results.append(result)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import gc
 import fnmatch
 import logging
+import math
 import os
 import time
 from pathlib import Path
@@ -13,7 +14,7 @@ from huggingface_hub import hf_hub_download, list_repo_files
 from transformers import PreTrainedTokenizerBase
 
 from benchmark.config import ExperimentConfig
-from llm.llm import ILLMInference
+from llm.llm import ILLMInference, InferenceResult
 
 if TYPE_CHECKING:
     from vllm import LLM, RequestOutput, SamplingParams
@@ -309,7 +310,7 @@ class VllmLLM(ILLMInference):
 
     def generate_response(
         self, system_prompt: str, user_prompt: str
-    ) -> tuple[str, int, float]:
+    ) -> InferenceResult:
         """
         Generate a single response using vLLM.
 
@@ -318,7 +319,7 @@ class VllmLLM(ILLMInference):
             user_prompt: User prompt content.
 
         Returns:
-            tuple[str, int, float]: Response text, token count, and duration.
+            InferenceResult with response text, token count, duration, and optional confidence.
         """
         formatted_prompt: str = self._format_prompt(system_prompt, user_prompt)
         batch_results = self.generate_batch_responses([formatted_prompt])
@@ -326,7 +327,7 @@ class VllmLLM(ILLMInference):
 
     def generate_responses_batch_optimized(
         self, system_prompts: list[str], user_prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs with batch optimization.
 
@@ -335,7 +336,7 @@ class VllmLLM(ILLMInference):
             user_prompts: List of user prompts.
 
         Returns:
-            List of (response_text, token_count, duration) tuples.
+            List of InferenceResult objects.
         """
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
@@ -349,7 +350,7 @@ class VllmLLM(ILLMInference):
 
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for a batch of prompts.
 
@@ -357,7 +358,7 @@ class VllmLLM(ILLMInference):
             prompts: List of formatted prompts.
 
         Returns:
-            List of (response_text, token_count, duration) tuples.
+            List of InferenceResult objects.
         """
         if not self.llm:
             raise RuntimeError("vLLM model not loaded")
@@ -412,11 +413,16 @@ class VllmLLM(ILLMInference):
             if value is not None:
                 sampling_kwargs[key] = value
 
+        if self.config.enable_logprobs:
+            # logprobs=1 returns top-1 log-probability per generated token position.
+            # Note: requires temperature > 0 in most vLLM configurations.
+            sampling_kwargs["logprobs"] = 1
+
         return sampling_params_cls(**sampling_kwargs)
 
     def _collect_batch_results(
         self, batch_outputs: list[RequestOutput], duration: float, batch_size: int
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Collect generation results for a batch.
 
@@ -426,22 +432,49 @@ class VllmLLM(ILLMInference):
             batch_size: Number of prompts in this batch.
 
         Returns:
-            List of (response_text, token_count, duration) tuples.
+            List of InferenceResult objects.
         """
-        results: list[tuple[str, int, float]] = []
+        results: list[InferenceResult] = []
         per_item_duration: float = duration / max(batch_size, 1)
 
         for output in batch_outputs:
             response_text: str = ""
             token_count: int = 0
+            confidence: float | None = None
 
             if output.outputs:
                 response_text = output.outputs[0].text.strip()
                 token_count = self._count_tokens(output)
+                if self.config.enable_logprobs:
+                    confidence = self._compute_confidence(output)
 
-            results.append((response_text, token_count, per_item_duration))
+            results.append(InferenceResult(
+                response_text=response_text,
+                tokens_used=token_count,
+                duration=per_item_duration,
+                confidence=confidence,
+            ))
 
         return results
+
+    @staticmethod
+    def _compute_confidence(output: RequestOutput) -> float | None:
+        """Compute geometric-mean per-token probability from vLLM logprobs.
+
+        Returns exp(mean(max_logprob_per_position)), i.e. the average per-token
+        probability under the model, or None when logprobs are unavailable.
+        """
+        logprobs_list = output.outputs[0].logprobs  # list[dict[int, Logprob]] | None
+        if not logprobs_list:
+            return None
+        max_lps: list[float] = [
+            max(lp.logprob for lp in pos.values())
+            for pos in logprobs_list
+            if pos
+        ]
+        if not max_lps:
+            return None
+        return math.exp(sum(max_lps) / len(max_lps))
 
     @staticmethod
     def _count_tokens(output: RequestOutput) -> int:

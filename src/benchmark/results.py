@@ -17,33 +17,49 @@ class MetricsResult(BaseModel):
     details: dict[str, Any]
 
 
+class SampleInferenceData(BaseModel):
+    """Raw inference data for a benchmark sample across all self-consistency draws."""
+
+    responses: list[str]
+    """All N raw response texts. Single-element list when self_consistency_samples=1."""
+    vote_counts: dict[str, int]
+    """Maps label string to number of votes; empty when self_consistency_samples=1."""
+    tokens_used: int
+    """Total token count across all N draws (prompt + generated)."""
+    processing_time: float
+    """Mean inference duration across all N draws in seconds."""
+    confidence: float | None
+    """Geometric-mean per-token probability averaged over N draws; None if not enabled."""
+
+
 class PredictionRecord(BaseModel):
     """Serializable prediction record for reporting."""
 
     sample_id: str
     predicted_label: int | str
     true_label: int | str
-    confidence: float | None
-    response_text: str
-    processing_time: float
-    tokens_used: int
+    is_success: bool
+    error_message: str | None
+    inference_data: SampleInferenceData
 
 
-class BenchmarkInfo(BaseModel):
-    """Standardized benchmark metadata for reports."""
+class ModelRunConfig(BaseModel):
+    """Model configuration metadata captured at run time."""
 
-    experiment_name: str | None
     model_name: str
     model_type: str
-    task_type: str
-    dataset_path: str
-    description: str
-    cwe_type: str | None
-    batch_size: int
+    backend: str
     max_output_tokens: int
     temperature: float
     use_quantization: bool
     is_thinking_enabled: bool
+    self_consistency_samples: int
+    enable_logprobs: bool
+
+
+class RunStats(BaseModel):
+    """Runtime and resource statistics for a benchmark run."""
+
     total_samples: int
     total_time_seconds: float
     avg_time_per_sample: float
@@ -51,8 +67,23 @@ class BenchmarkInfo(BaseModel):
     tokens_used_avg: float
     processing_time_stats: dict[str, float | int]
     tokens_used_stats: dict[str, float | int]
-    extra_metadata: dict[str, Any]
+    confidence_stats: dict[str, float] | None
+    """Per-run confidence summary; None when enable_logprobs=False."""
+
+
+class BenchmarkInfo(BaseModel):
+    """Standardized benchmark metadata for reports."""
+
+    experiment_name: str | None
+    task_type: str
+    dataset_path: str
+    description: str
+    cwe_type: str | None
+    batch_size: int
     timestamp: str
+    model: ModelRunConfig
+    stats: RunStats
+    extra_metadata: dict[str, Any]
 
 
 class ShortExperimentReport(BaseModel):

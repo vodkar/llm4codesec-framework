@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pandas as pd
 from numpy.typing import NDArray
 from pydantic import BaseModel
 from scipy import stats
@@ -17,8 +16,11 @@ from benchmark.results import (
     BenchmarkReport,
     DescribeResult,
     MetricsResult,
+    ModelRunConfig,
     PredictionRecord,
     ResultArtifacts,
+    RunStats,
+    SampleInferenceData,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,26 +40,18 @@ class BenchmarkResultProcessor(BaseModel):
     ) -> BenchmarkReport:
         """
         Build a standardized report with metadata, metrics, and predictions.
-
-        Args:
-            metrics: Calculated metrics result
-            predictions: Raw prediction results
-            total_time: Total benchmark time in seconds
-            total_samples: Number of evaluated samples
-
-        Returns:
-            BenchmarkReport: Standardized report payload
         """
-        # SECTION: Prepare prediction records
         prediction_records: list[PredictionRecord] = [
             self._to_prediction_record(prediction) for prediction in predictions
         ]
 
-        # SECTION: Aggregate runtime and token statistics
         processing_stats: dict[str, float | int] = self._describe_processing_times(
             prediction_records
         )
-        token_stats: dict[str, float | int] | None = self._describe_token_usage(
+        token_stats: dict[str, float | int] = self._describe_token_usage(
+            prediction_records
+        )
+        confidence_stats: dict[str, float] | None = self._describe_confidence_scores(
             prediction_records
         )
 
@@ -66,13 +60,13 @@ class BenchmarkResultProcessor(BaseModel):
             total_samples=total_samples,
             processing_stats=processing_stats,
             token_stats=token_stats,
+            confidence_stats=confidence_stats,
         )
 
         report: BenchmarkReport = BenchmarkReport(
             benchmark_info=benchmark_info,
             metrics=metrics,
             predictions=prediction_records,
-            # Only If all predictions are marked as success, we consider the overall benchmark a success
             is_success=all(prediction.is_success for prediction in predictions),
         )
 
@@ -81,14 +75,7 @@ class BenchmarkResultProcessor(BaseModel):
     def save_report(self, report: BenchmarkReport) -> ResultArtifacts:
         """
         Persist report, metrics, and predictions to the output directory.
-
-        Args:
-            report: Standardized benchmark report payload
-
-        Returns:
-            ResultArtifacts: Paths of saved artifacts
         """
-        # SECTION: Resolve output directory and filenames
         output_dir: Path = Path(self.config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         timestamp: str = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -96,7 +83,6 @@ class BenchmarkResultProcessor(BaseModel):
         report_path: Path = output_dir / f"benchmark_report_{timestamp}.json"
         metrics_path: Path = output_dir / f"metrics_summary_{timestamp}.json"
 
-        # SECTION: Serialize report payload
         report_payload: dict[str, Any] = report.model_dump()
         with open(report_path, "w", encoding="utf-8") as report_file:
             json.dump(
@@ -107,7 +93,6 @@ class BenchmarkResultProcessor(BaseModel):
                 default=str,
             )
 
-        # SECTION: Persist metrics summary
         metrics_summary: dict[str, Any] = {
             "benchmark_info": report.benchmark_info.model_dump(),
             "metrics": report.metrics.model_dump(),
@@ -130,18 +115,7 @@ class BenchmarkResultProcessor(BaseModel):
         total_time: float,
         total_samples: int,
     ) -> tuple[BenchmarkReport, ResultArtifacts]:
-        """
-        Build a standardized report and persist it to disk.
-
-        Args:
-            metrics: Calculated metrics result
-            predictions: Raw prediction results
-            total_time: Total benchmark time in seconds
-            total_samples: Number of evaluated samples
-
-        Returns:
-            tuple: Report payload and saved artifact paths
-        """
+        """Build a standardized report and persist it to disk."""
         report: BenchmarkReport = self.build_report(
             metrics=metrics,
             predictions=predictions,
@@ -152,49 +126,40 @@ class BenchmarkResultProcessor(BaseModel):
         return report, artifacts
 
     def _to_prediction_record(self, prediction: PredictionResult) -> PredictionRecord:
-        """Convert PredictionResult to a serializable prediction record."""
-        prediction_dict: dict[str, Any] = prediction.model_dump()
-        predicted_label_raw: Any = prediction_dict.get("predicted_label")
-        true_label_raw: Any = prediction_dict.get("true_label")
+        """Convert PredictionResult to a serializable PredictionRecord."""
         predicted_label: int | str = (
-            predicted_label_raw
-            if isinstance(predicted_label_raw, (int, str))
-            else str(predicted_label_raw)
-            if predicted_label_raw is not None
-            else "UNKNOWN"
+            prediction.predicted_label
+            if isinstance(prediction.predicted_label, (int, str))
+            else str(prediction.predicted_label)
         )
         true_label: int | str = (
-            true_label_raw
-            if isinstance(true_label_raw, (int, str))
-            else str(true_label_raw)
-            if true_label_raw is not None
-            else "UNKNOWN"
+            prediction.true_label
+            if isinstance(prediction.true_label, (int, str))
+            else str(prediction.true_label)
         )
-        record: PredictionRecord = PredictionRecord(
-            sample_id=str(prediction_dict.get("sample_id", "")),
+        inference_data = SampleInferenceData(
+            responses=prediction.all_responses if prediction.all_responses else [prediction.response_text],
+            vote_counts=prediction.vote_counts,
+            tokens_used=prediction.tokens_used or 0,
+            processing_time=prediction.processing_time,
+            confidence=prediction.confidence,
+        )
+        return PredictionRecord(
+            sample_id=str(prediction.sample_id),
             predicted_label=predicted_label,
             true_label=true_label,
-            confidence=prediction_dict.get("confidence"),
-            response_text=str(prediction_dict.get("response_text", "")),
-            processing_time=float(prediction_dict.get("processing_time", 0.0)),
-            tokens_used=prediction_dict.get("tokens_used"),
+            is_success=prediction.is_success,
+            error_message=prediction.error_message,
+            inference_data=inference_data,
         )
-        return record
 
     def _describe_processing_times(
         self, predictions: list[PredictionRecord]
     ) -> dict[str, float | int]:
         """Compute descriptive statistics for processing times."""
-        times: list[float] = [prediction.processing_time for prediction in predictions]
+        times: list[float] = [p.inference_data.processing_time for p in predictions]
         if not times:
-            return {
-                "count": 0,
-                "min": 0.0,
-                "max": 0.0,
-                "mean": 0.0,
-                "variance": 0.0,
-                "std": 0.0,
-            }
+            return {"count": 0, "min": 0.0, "max": 0.0, "mean": 0.0, "variance": 0.0, "std": 0.0}
 
         time_array: NDArray[np.float64] = np.array(times, dtype=float)
         summary: DescribeResult = stats.describe(time_array)
@@ -210,15 +175,11 @@ class BenchmarkResultProcessor(BaseModel):
 
     def _describe_token_usage(
         self, predictions: list[PredictionRecord]
-    ) -> dict[str, float | int] | None:
-        """Compute descriptive statistics for token usage when available."""
-        tokens: list[int] = [
-            int(prediction.tokens_used)
-            for prediction in predictions
-            if prediction.tokens_used is not None
-        ]
+    ) -> dict[str, float | int]:
+        """Compute descriptive statistics for token usage."""
+        tokens: list[int] = [p.inference_data.tokens_used for p in predictions]
         if not tokens:
-            return None
+            return {"count": 0, "min": 0.0, "max": 0.0, "mean": 0.0, "variance": 0.0, "std": 0.0}
 
         token_array: NDArray[np.float64] = np.array(tokens, dtype=float)
         summary: DescribeResult = stats.describe(token_array)
@@ -232,42 +193,58 @@ class BenchmarkResultProcessor(BaseModel):
             "std": float(np.sqrt(summary.variance)),
         }
 
+    def _describe_confidence_scores(
+        self, predictions: list[PredictionRecord]
+    ) -> dict[str, float] | None:
+        """Compute descriptive statistics for confidence scores when available."""
+        scores: list[float] = [
+            p.inference_data.confidence
+            for p in predictions
+            if p.inference_data.confidence is not None
+        ]
+        if not scores:
+            return None
+        return {
+            "mean": sum(scores) / len(scores),
+            "min": min(scores),
+            "max": max(scores),
+            "count": float(len(scores)),
+        }
+
     def _build_benchmark_info(
         self,
         total_time: float,
         total_samples: int,
         processing_stats: dict[str, float | int],
-        token_stats: dict[str, float | int] | None,
+        token_stats: dict[str, float | int],
+        confidence_stats: dict[str, float] | None,
     ) -> BenchmarkInfo:
         """Construct benchmark metadata for the report."""
         avg_time_per_sample: float = (
             total_time / total_samples if total_samples > 0 else 0.0
         )
-        tokens_used_total: int | None = (
-            int(token_stats["count"] * token_stats["mean"]) if token_stats else None
-        )
-        tokens_used_avg: float | None = (
-            float(token_stats["mean"]) if token_stats else None
-        )
+        tokens_used_total: int = int(token_stats.get("count", 0) * token_stats.get("mean", 0.0))
+        tokens_used_avg: float = float(token_stats.get("mean", 0.0))
+
         extra_metadata: dict[str, Any] = {}
         if hasattr(self.config, "vulnerability_type"):
             extra_metadata["vulnerability_type"] = getattr(
                 self.config, "vulnerability_type"
             )
 
-        return BenchmarkInfo(
-            experiment_name=self.config.experiment_name,
+        model_run_config = ModelRunConfig(
             model_name=self.config.model_name,
             model_type=self.config.model_type.value,
-            task_type=self.config.task_type.value,
-            dataset_path=str(self.config.dataset_path),
-            description=self.config.description,
-            cwe_type=self.config.cwe_type,
-            batch_size=int(self.config.batch_size),
+            backend=self.config.backend.value,
             max_output_tokens=int(self.config.max_output_tokens),
             temperature=float(self.config.temperature),
             use_quantization=bool(self.config.use_quantization),
             is_thinking_enabled=bool(self.config.is_thinking_enabled),
+            self_consistency_samples=int(self.config.self_consistency_samples),
+            enable_logprobs=bool(self.config.enable_logprobs),
+        )
+
+        run_stats = RunStats(
             total_samples=int(total_samples),
             total_time_seconds=float(total_time),
             avg_time_per_sample=float(avg_time_per_sample),
@@ -275,6 +252,18 @@ class BenchmarkResultProcessor(BaseModel):
             tokens_used_avg=tokens_used_avg,
             processing_time_stats=processing_stats,
             tokens_used_stats=token_stats,
-            extra_metadata=extra_metadata,
+            confidence_stats=confidence_stats,
+        )
+
+        return BenchmarkInfo(
+            experiment_name=self.config.experiment_name,
+            task_type=self.config.task_type.value,
+            dataset_path=str(self.config.dataset_path),
+            description=self.config.description,
+            cwe_type=self.config.cwe_type,
+            batch_size=int(self.config.batch_size),
             timestamp=datetime.now().isoformat(),
+            model=model_run_config,
+            stats=run_stats,
+            extra_metadata=extra_metadata,
         )

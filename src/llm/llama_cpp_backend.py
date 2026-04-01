@@ -1,5 +1,6 @@
 import inspect
 import logging
+import math
 import os
 import shutil
 import subprocess
@@ -15,7 +16,7 @@ from llama_cpp.llama_types import (
 )
 
 from benchmark.config import ExperimentConfig
-from llm.llm import ILLMInference
+from llm.llm import ILLMInference, InferenceResult
 
 LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 
@@ -300,16 +301,9 @@ class LlamaCppLLM(ILLMInference):
 
     def generate_response(
         self, system_prompt: str, user_prompt: str
-    ) -> tuple[str, int, float]:
+    ) -> InferenceResult:
         """
         Generate a single response using llama.cpp.
-
-        Args:
-            system_prompt: System prompt content.
-            user_prompt: User prompt content.
-
-        Returns:
-            tuple[str, int, float]: Response text, token count, and duration.
         """
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
@@ -317,63 +311,58 @@ class LlamaCppLLM(ILLMInference):
         start_time: float = time.time()
         response_text: str
         token_count: int
+        confidence: float | None
 
         try:
-            response_text, token_count = self._generate_chat(system_prompt, user_prompt)
+            response_text, token_count, confidence = self._generate_chat(system_prompt, user_prompt)
         except (ValueError, TypeError, KeyError, AttributeError) as exc:
             LOGGER.warning(
                 "Chat completion failed (%s); falling back to text prompt",
                 type(exc).__name__,
             )
-            response_text, token_count = self._generate_completion(
+            response_text, token_count, confidence = self._generate_completion(
                 system_prompt, user_prompt
             )
 
         duration: float = time.time() - start_time
-        return response_text, token_count, duration
+        return InferenceResult(
+            response_text=response_text,
+            tokens_used=token_count,
+            duration=duration,
+            confidence=confidence,
+        )
 
     def generate_responses_batch_optimized(
         self, system_prompts: list[str], user_prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs.
-
-        Args:
-            system_prompts: List of system prompts.
-            user_prompts: List of user prompts.
-
-        Returns:
-            List of (response_text, token_count, duration) tuples.
         """
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 
-        results: list[tuple[str, int, float]] = []
+        results: list[InferenceResult] = []
         for system_prompt, user_prompt in zip(system_prompts, user_prompts):
             results.append(self.generate_response(system_prompt, user_prompt))
         return results
 
     def generate_batch_responses(
         self, prompts: list[str]
-    ) -> list[tuple[str, int, float]]:
+    ) -> list[InferenceResult]:
         """
         Generate responses for a batch of formatted prompts.
-
-        Args:
-            prompts: List of formatted prompts.
-
-        Returns:
-            List of (response_text, token_count, duration) tuples.
         """
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
 
-        results: list[tuple[str, int, float]] = []
+        results: list[InferenceResult] = []
         for prompt in prompts:
             start_time: float = time.time()
             completion_kwargs: dict[str, int | float] = self._build_generation_kwargs(
                 self.model.__call__
             )
+            if self.config.enable_logprobs:
+                completion_kwargs["logprobs"] = 1
             output: CreateCompletionResponse = self.model(  # type: ignore[assignment]
                 prompt,
                 **completion_kwargs,
@@ -382,11 +371,17 @@ class LlamaCppLLM(ILLMInference):
 
             response_text: str = self._extract_completion_text(output)
             token_count: int = self._extract_usage_tokens(output)
-            results.append((response_text, token_count, duration))
+            confidence: float | None = self._extract_completion_logprobs(output) if self.config.enable_logprobs else None
+            results.append(InferenceResult(
+                response_text=response_text,
+                tokens_used=token_count,
+                duration=duration,
+                confidence=confidence,
+            ))
 
         return results
 
-    def _generate_chat(self, system_prompt: str, user_prompt: str) -> tuple[str, int]:
+    def _generate_chat(self, system_prompt: str, user_prompt: str) -> tuple[str, int, float | None]:
         """Generate response using chat completion if supported."""
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
@@ -398,6 +393,8 @@ class LlamaCppLLM(ILLMInference):
         generation_kwargs: dict[str, int | float] = self._build_generation_kwargs(
             self.model.create_chat_completion
         )
+        if self.config.enable_logprobs:
+            generation_kwargs["logprobs"] = True  # type: ignore[assignment]
         response: CreateChatCompletionResponse = self.model.create_chat_completion(  # type: ignore[assignment]
             messages=messages,
             **generation_kwargs,
@@ -411,11 +408,12 @@ class LlamaCppLLM(ILLMInference):
                 content = message.get("content")
         response_text: str = (content or "").strip()
         token_count: int = self._extract_usage_tokens(response)
-        return response_text.strip(), token_count
+        confidence: float | None = self._extract_chat_logprobs(response) if self.config.enable_logprobs else None
+        return response_text, token_count, confidence
 
     def _generate_completion(
         self, system_prompt: str, user_prompt: str
-    ) -> tuple[str, int]:
+    ) -> tuple[str, int, float | None]:
         """Generate response using a formatted text prompt."""
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
@@ -424,13 +422,16 @@ class LlamaCppLLM(ILLMInference):
         generation_kwargs: dict[str, int | float] = self._build_generation_kwargs(
             self.model.__call__
         )
+        if self.config.enable_logprobs:
+            generation_kwargs["logprobs"] = 1  # type: ignore[assignment]
         response: CreateCompletionResponse = self.model(  # type: ignore[assignment]
             prompt,
             **generation_kwargs,
         )
         response_text: str = self._extract_completion_text(response)
         token_count: int = self._extract_usage_tokens(response)
-        return response_text, token_count
+        confidence: float | None = self._extract_completion_logprobs(response) if self.config.enable_logprobs else None
+        return response_text, token_count, confidence
 
     def _build_generation_kwargs(self, target: Any) -> dict[str, int | float]:
         """Build llama.cpp generation kwargs supported by the installed binding."""
@@ -517,6 +518,38 @@ class LlamaCppLLM(ILLMInference):
         if usage is not None:
             return int(usage.get("total_tokens", 0))
         return 0
+
+    @staticmethod
+    def _extract_chat_logprobs(response: CreateChatCompletionResponse) -> float | None:
+        """Compute geometric-mean per-token probability from chat completion logprobs.
+
+        llama_cpp returns response["choices"][0]["logprobs"]["content"] as a list of
+        {"token": str, "logprob": float, ...} dicts when logprobs=True.
+        """
+        try:
+            lp_content: list[dict[str, Any]] = (
+                response["choices"][0].get("logprobs") or {}  # type: ignore[index]
+            ).get("content") or []
+            lps = [entry["logprob"] for entry in lp_content if "logprob" in entry]
+            return math.exp(sum(lps) / len(lps)) if lps else None
+        except (KeyError, IndexError, TypeError):
+            return None
+
+    @staticmethod
+    def _extract_completion_logprobs(response: CreateCompletionResponse) -> float | None:
+        """Compute geometric-mean per-token probability from text completion logprobs.
+
+        llama_cpp returns response["choices"][0]["logprobs"]["token_logprobs"] as a list
+        of floats when logprobs=N.
+        """
+        try:
+            token_logprobs: list[float] = (
+                response["choices"][0].get("logprobs") or {}  # type: ignore[index]
+            ).get("token_logprobs") or []
+            lps = [lp for lp in token_logprobs if lp is not None]
+            return math.exp(sum(lps) / len(lps)) if lps else None
+        except (KeyError, IndexError, TypeError):
+            return None
 
     @staticmethod
     def _format_prompt(system_prompt: str, user_prompt: str) -> str:

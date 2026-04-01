@@ -84,6 +84,15 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             "labels": [0, 1],
         }
 
+        confidences = [p.confidence for p in predictions if p.confidence is not None]
+        if confidences:
+            details["confidence_stats"] = {
+                "mean": sum(confidences) / len(confidences),
+                "min": min(confidences),
+                "max": max(confidences),
+                "count": len(confidences),
+            }
+
         return MetricsResult(
             task_type="binary",
             accuracy=accuracy,
@@ -118,6 +127,15 @@ class MulticlassMetricsCalculator(IMetricsCalculator):
             "classification_report": report,
             "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
         }
+
+        confidences = [p.confidence for p in predictions if p.confidence is not None]
+        if confidences:
+            details["confidence_stats"] = {
+                "mean": sum(confidences) / len(confidences),
+                "min": min(confidences),
+                "max": max(confidences),
+                "count": len(confidences),
+            }
 
         return MetricsResult(
             task_type="multiclass",

@@ -23,6 +23,20 @@
             ],
             "sample_limit": 3
         },
+        "sc_logprobs_smoke_test": {
+            "description": "Smoke test for self-consistency (N=3) and logprobs features on qwen3-4b",
+            "datasets": [
+                "context_assembler_compare_current"
+            ],
+            "models": [
+                "qwen3-4b-sc3",
+                "qwen3-4b-logprobs"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 5
+        },
         "vllm_compare_rankings": {
             "description": "Full compare-rankings evaluation across all ranking strategies and requested vLLM models",
             "datasets": [
@@ -35,8 +49,6 @@
                 "context_assembler_compare_security_score_only"
             ],
             "models": [
-                "gemma3-4b",
-                "llama3.2-3B",
                 "qwen3-8b-thinking"
             ],
             "prompts": [

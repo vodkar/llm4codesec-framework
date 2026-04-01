@@ -10,6 +10,28 @@
             "backend": "vllm",
             "use_quantization": true
         },
+        "qwen3-4b-sc3": {
+            "model_identifier": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "max_output_tokens": 4096,
+            "context_length": 20480,
+            "temperature": 0.9,
+            "batch_size": 5,
+            "backend": "vllm",
+            "use_quantization": true,
+            "self_consistency_samples": 3
+        },
+        "qwen3-4b-logprobs": {
+            "model_identifier": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "max_output_tokens": 4096,
+            "context_length": 20480,
+            "temperature": 0.9,
+            "batch_size": 5,
+            "backend": "vllm",
+            "use_quantization": true,
+            "enable_logprobs": true
+        },
         "qwen3-4b-thinking": {
             "model_identifier": "Qwen/Qwen3-4B",
             "model_type": "qwen-3",
@@ -38,6 +60,9 @@
             "context_length": 24576,
             "temperature": 0.9,
             "batch_size": 5,
+            "repetition_penalty": 1.2,
+            "min_p": 0.02,
+            "presence_penalty": 0.5,
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true

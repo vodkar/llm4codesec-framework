@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-PLAN_NAME=sampling_sweep_binary
-#PLAN_NAME=sampling_sweep_quick
+#PLAN_SUFFIX=quick
+PLAN_SUFFIX=binary
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -18,9 +18,12 @@ benchmarks=(
 )
 
 for benchmark in "${benchmarks[@]}"; do
-  echo "Running ${benchmark} with plan ${PLAN_NAME}"
-  $run_benchmark cli.py run-plan "$benchmark" "$PLAN_NAME" \
-    --config-dir configs/parameter_sweeps \
-    --datasets-config configs/"$benchmark"/datasets.json \
-    --output-dir results_parameter_sweeps
+  for thinking in "" "_thinking"; do
+    plan_name="sampling_sweep_${PLAN_SUFFIX}${thinking}"
+    echo "Running ${benchmark} with plan ${plan_name}"
+    $run_benchmark cli.py run-plan "$benchmark" "$plan_name" \
+      --config-dir configs/parameter_sweeps \
+      --datasets-config configs/"$benchmark"/datasets.json \
+      --output-dir results_parameter_sweeps
+  done
 done

@@ -253,6 +253,7 @@ class CVEFixesDatasetLoader(IDatasetLoader):
             str | None,
         ],
         index: int,
+        use_fixed: bool = False,
     ) -> BenchmarkSample:
         """Create a BenchmarkSample from file-level data."""
         (
@@ -272,10 +273,11 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         ) = data
 
         # Create sample ID
-        sample_id = f"{cve_id}_file_{index}"
+        suffix = "_fixed" if use_fixed else ""
+        sample_id = f"{cve_id}_file_{index}{suffix}"
 
-        # Use vulnerable code (before fix) as the code to analyze
-        code = code_before
+        # Use fixed (non-vulnerable) or vulnerable code
+        code = code_after if use_fixed else code_before
 
         # Create metadata
         metadata: dict[str, Any] = {
@@ -291,12 +293,13 @@ class CVEFixesDatasetLoader(IDatasetLoader):
             "lines_added": lines_added,
             "lines_deleted": lines_deleted,
             "change_type": "file",
-            "code_after": code_after,  # Keep for reference
+            "is_fixed": use_fixed,
+            "paired_code": code_before if use_fixed else code_after,
         }
 
         # Determine labels
         cwe_type: str = self._normalize_cwe_type(cwe_id)
-        binary_label = 1  # All samples from CVEFixes are vulnerable by definition
+        binary_label = 0 if use_fixed else 1
 
         return BenchmarkSample(
             id=sample_id,
@@ -329,6 +332,7 @@ class CVEFixesDatasetLoader(IDatasetLoader):
             str | None,
         ],
         index: int,
+        use_fixed: bool = False,
     ) -> BenchmarkSample:
         """Create a BenchmarkSample from method-level data."""
         (
@@ -350,10 +354,11 @@ class CVEFixesDatasetLoader(IDatasetLoader):
         ) = data
 
         # Create sample ID
-        sample_id = f"{cve_id}_method_{index}"
+        suffix = "_fixed" if use_fixed else ""
+        sample_id = f"{cve_id}_method_{index}{suffix}"
 
-        # Use vulnerable code (before change) as the code to analyze
-        code_to_analyze = before_change
+        # Use fixed (non-vulnerable) or vulnerable code
+        code_to_analyze = code if use_fixed else before_change
 
         # Create metadata
         metadata: dict[str, Any] = {
@@ -371,12 +376,13 @@ class CVEFixesDatasetLoader(IDatasetLoader):
             "commit_hash": commit_hash,
             "repo_url": repo_url,
             "change_type": "method",
-            "code_after": code,  # Keep for reference
+            "is_fixed": use_fixed,
+            "paired_code": before_change if use_fixed else code,
         }
 
         # Determine labels
         cwe_type: str = self._normalize_cwe_type(cwe_id)
-        binary_label = 1  # All samples from CVEFixes are vulnerable by definition
+        binary_label = 0 if use_fixed else 1
 
         return BenchmarkSample(
             id=sample_id,
@@ -434,73 +440,86 @@ class CVEFixesDatasetLoader(IDatasetLoader):
                     programming_language, limit, target_cve_ids
                 )
                 for i, file_row in enumerate(file_data_rows):
-                    try:
-                        sample = self._create_sample_from_file_data(file_row, i)
+                    for use_fixed in (False, True):
+                        try:
+                            sample = self._create_sample_from_file_data(file_row, i, use_fixed=use_fixed)
+                            is_fixed: bool = sample.metadata.get("is_fixed", False)
 
-                        # Apply task-specific label adjustments
-                        if task_type == TaskType.BINARY_VULNERABILITY:
-                            sample.label = 1  # All CVEFixes samples are vulnerable
-                        elif task_type == TaskType.MULTICLASS_VULNERABILITY:
-                            if sample.cwe_types:
-                                sample.label = sample.cwe_types[0]
-                            else:
-                                sample.label = "UNKNOWN"
-                        elif task_type == TaskType.BINARY_CWE_SPECIFIC:
-                            if not target_cwe:
-                                raise ValueError(
-                                    "target_cwe must be specified for CWE-specific tasks"
-                                )
+                            # Apply task-specific label adjustments
+                            if task_type == TaskType.BINARY_VULNERABILITY:
+                                pass  # label already set: 1 for vulnerable, 0 for fixed
+                            elif task_type == TaskType.MULTICLASS_VULNERABILITY:
+                                if is_fixed:
+                                    sample.label = "NONE"
+                                elif sample.cwe_types:
+                                    sample.label = sample.cwe_types[0]
+                                else:
+                                    sample.label = "UNKNOWN"
+                            elif task_type == TaskType.BINARY_CWE_SPECIFIC:
+                                if not target_cwe:
+                                    raise ValueError(
+                                        "target_cwe must be specified for CWE-specific tasks"
+                                    )
+                                if is_fixed:
+                                    sample.label = 0
+                                elif sample.cwe_types:
+                                    sample.label = (
+                                        1 if target_cwe in sample.cwe_types else 0
+                                    )
+                                else:
+                                    sample.label = 0
 
-                            if sample.cwe_types:
-                                sample.label = (
-                                    1 if target_cwe in sample.cwe_types else 0
-                                )
-                            else:
-                                sample.label = 0
+                            samples.append(sample)
 
-                        samples.append(sample)
-
-                    except Exception as e:
-                        self.__logger.exception(
-                            f"Error processing file sample {i}: {e}"
-                        )
-                        continue
+                        except Exception as e:
+                            variant = "fixed" if use_fixed else "vulnerable"
+                            self.__logger.exception(
+                                f"Error processing file sample {i} ({variant}): {e}"
+                            )
+                            continue
 
             elif change_level == "method":
                 method_data_rows = self._extract_method_level_data(
                     programming_language, limit, target_cve_ids
                 )
                 for i, method_row in enumerate(method_data_rows):
-                    try:
-                        sample = self._create_sample_from_method_data(method_row, i)
+                    for use_fixed in (False, True):
+                        try:
+                            sample = self._create_sample_from_method_data(method_row, i, use_fixed=use_fixed)
+                            is_fixed = sample.metadata.get("is_fixed", False)
 
-                        # Apply task-specific label adjustments
-                        if task_type == TaskType.BINARY_VULNERABILITY:
-                            sample.label = 1  # All CVEFixes samples are vulnerable
-                        elif task_type == TaskType.MULTICLASS_VULNERABILITY:
-                            if sample.cwe_types:
-                                sample.label = sample.cwe_types[0]
-                            else:
-                                sample.label = "UNKNOWN"
-                        elif task_type == TaskType.BINARY_CWE_SPECIFIC:
-                            if not target_cwe:
-                                raise ValueError(
-                                    "target_cwe must be specified for CWE-specific tasks"
-                                )
-                            if sample.cwe_types:
-                                sample.label = (
-                                    1 if target_cwe in sample.cwe_types else 0
-                                )
-                            else:
-                                sample.label = 0
+                            # Apply task-specific label adjustments
+                            if task_type == TaskType.BINARY_VULNERABILITY:
+                                pass  # label already set: 1 for vulnerable, 0 for fixed
+                            elif task_type == TaskType.MULTICLASS_VULNERABILITY:
+                                if is_fixed:
+                                    sample.label = "NONE"
+                                elif sample.cwe_types:
+                                    sample.label = sample.cwe_types[0]
+                                else:
+                                    sample.label = "UNKNOWN"
+                            elif task_type == TaskType.BINARY_CWE_SPECIFIC:
+                                if not target_cwe:
+                                    raise ValueError(
+                                        "target_cwe must be specified for CWE-specific tasks"
+                                    )
+                                if is_fixed:
+                                    sample.label = 0
+                                elif sample.cwe_types:
+                                    sample.label = (
+                                        1 if target_cwe in sample.cwe_types else 0
+                                    )
+                                else:
+                                    sample.label = 0
 
-                        samples.append(sample)
+                            samples.append(sample)
 
-                    except Exception as e:
-                        self.__logger.exception(
-                            f"Error processing method sample {i}: {e}"
-                        )
-                        continue
+                        except Exception as e:
+                            variant = "fixed" if use_fixed else "vulnerable"
+                            self.__logger.exception(
+                                f"Error processing method sample {i} ({variant}): {e}"
+                            )
+                            continue
             else:
                 raise ValueError(f"Unsupported change_level: {change_level}")
 

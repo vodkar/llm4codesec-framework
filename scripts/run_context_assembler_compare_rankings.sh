@@ -7,7 +7,7 @@ cd "$ROOT_DIR"
 
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}src"
 
-python src/entrypoints/loaders/run_setup_context_assembler_compare_rankings.py "$@"
+uv run python src/entrypoints/loaders/run_setup_context_assembler_compare_rankings.py "$@"
 
 run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 

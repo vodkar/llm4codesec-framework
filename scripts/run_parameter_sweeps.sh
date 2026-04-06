@@ -12,8 +12,8 @@ run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 cd "$REPO_ROOT"
 
 benchmarks=(
- castle
- cvefixes
+#  castle
+#  cvefixes
  jitvul
 )
 

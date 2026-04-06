@@ -5,6 +5,7 @@ import fnmatch
 import logging
 import math
 import os
+import random
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
@@ -372,11 +373,15 @@ class VllmLLM(ILLMInference):
             LOGGER.exception("vLLM SamplingParams import failed")
             raise RuntimeError("vLLM is not installed") from exc
 
-        sampling_params = self._create_sampling_params(SamplingParams)
+        # One SamplingParams per prompt — each gets a unique random seed so that
+        # duplicate prompts (self-consistency copies) produce different outputs.
+        sampling_params_list = [
+            self._create_sampling_params(SamplingParams) for _ in prompts
+        ]
 
         LOGGER.info("Submitting %d prompts to vLLM scheduler", len(prompts))
         start_time: float = time.time()
-        all_outputs: list[RequestOutput] = self.llm.generate(prompts, sampling_params)
+        all_outputs: list[RequestOutput] = self.llm.generate(prompts, sampling_params_list)
         duration: float = time.time() - start_time
 
         return self._collect_batch_results(
@@ -400,6 +405,10 @@ class VllmLLM(ILLMInference):
         sampling_kwargs: dict[str, int | float] = {
             "max_tokens": self.config.max_output_tokens,
             "temperature": self.config.temperature,
+            # Without an explicit seed vLLM defaults to seed=0 internally,
+            # making every run produce identical outputs even with temperature > 0.
+            # Use a fresh random seed per call so repeated runs are truly stochastic.
+            "seed": random.randint(0, 2**31 - 1),
         }
 
         optional_sampling_values: dict[str, int | float | None] = {

@@ -799,6 +799,19 @@ wheels = [
 ]
 
 [[package]]
+name = "cuda-tile"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f0/1c/2039585d2cef99ce9e863fcf5dc96847b4c193e3c6962cfb25385c9edcfe/cuda_tile-1.2.0-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:11eda902e27a6763fc35d69937c237cf88848f91f360b0b420c4ff4e9bddf9fb", size = 207845, upload-time = "2026-03-09T19:05:54.085Z" },
+    { url = "https://files.pythonhosted.org/packages/06/df/e87db07ed37e9931e5ebfb7f95496a5cc17b7f94ea16f13ad0f97ed107b5/cuda_tile-1.2.0-cp313-cp313-manylinux2014_x86_64.whl", hash = "sha256:1fe9efd6567062b10b89dd5611c524bdd2bcf57ac97d0f4c1aabd981eddc5dff", size = 209151, upload-time = "2026-03-09T19:05:37.084Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/f8/7ba62912cfd0d072c6bb0fdff2e87b14d62c18a48d3c222ad0d4641e5c43/cuda_tile-1.2.0-cp313-cp313-win_amd64.whl", hash = "sha256:1fa83534190b4c8f6d7f94cad886dba2b3f10151bbd5f6773df5b0b16b05f666", size = 203408, upload-time = "2026-03-09T19:06:10.696Z" },
+]
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1133,19 +1146,20 @@ wheels = [
 
 [[package]]
 name = "flashinfer-cubin"
-version = "0.6.6"
+version = "0.6.7"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/e8/826f9452bc5f76b94d7eb025f03dcaf1b51b9ed7790386c0285191e69be4/flashinfer_cubin-0.6.6-py3-none-any.whl", hash = "sha256:36508dfc792eb5ecfb15d2c140a7702812e1fa1ab0fb03929b2ed55e3e8191f3", size = 267661457, upload-time = "2026-03-11T01:36:36.538Z" },
+    { url = "https://files.pythonhosted.org/packages/78/23/e0f69fdc2515cbdca805de2ac688ed937abc264ea51830b8c0d7490f7e75/flashinfer_cubin-0.6.7-py3-none-any.whl", hash = "sha256:0590c7b70bed825ca7ac3cf14e3a64ff6017d256501909d700b850ca4162f7dc", size = 295106285, upload-time = "2026-03-25T04:41:36.997Z" },
 ]
 
 [[package]]
 name = "flashinfer-python"
-version = "0.6.6"
+version = "0.6.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "apache-tvm-ffi" },
     { name = "click" },
+    { name = "cuda-tile" },
     { name = "einops" },
     { name = "ninja" },
     { name = "numpy" },
@@ -1159,9 +1173,9 @@ dependencies = [
     { name = "torch", version = "2.10.0+cu130", source = { registry = "https://download.pytorch.org/whl/cu130" }, marker = "platform_machine != 'arm64' or sys_platform != 'darwin'" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/70/c5a235297351021f5d3d3233523a85f5a6468495587489ad2f257e8eafe2/flashinfer_python-0.6.6.tar.gz", hash = "sha256:0730ba7c7aad332961933bcebc5119762797161ede57d955f6fd199818ed1d92", size = 5344156, upload-time = "2026-03-11T01:36:21.434Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/2d/aa36fa1fee744c46fef99436baea5cda4a34244846c1df0fea97eaa9a856/flashinfer_python-0.6.7.tar.gz", hash = "sha256:348d51a6db0c184819a06a4462380256cf989eb1d2dfc261d9b64ada133a27f1", size = 6502817, upload-time = "2026-03-25T04:41:29.173Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/61/385d06755f3ab66333018285657adf0daf8a90a129448231fd09e315bd2e/flashinfer_python-0.6.6-py3-none-any.whl", hash = "sha256:078f158636969eec1a0d3dea19c3ca90b426b66df89bbf7b7b8276ce2ec08148", size = 7817047, upload-time = "2026-03-11T01:36:19.198Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/e8/91361a5f07667f36181cfd08e2d7d28be4cae2aa5a24016339174b308c38/flashinfer_python-0.6.7-py3-none-any.whl", hash = "sha256:51f39b354da48cc93400c83663f1413dbdf32eacdbba6805a35be69b01642eb8", size = 9184769, upload-time = "2026-03-25T04:41:27.15Z" },
 ]
 
 [[package]]
@@ -2096,7 +2110,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "huggingface-hub", extra = ["hf-xet"] },
-    { name = "ipykernel" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "pandas" },
@@ -2156,8 +2169,10 @@ dev = [
     { name = "scipy-stubs" },
 ]
 notebooks = [
+    { name = "ipykernel" },
     { name = "ipython" },
     { name = "ipywidgets" },
+    { name = "jinja2" },
     { name = "jupyter-client" },
     { name = "jupyter-core" },
     { name = "nbformat" },
@@ -2175,7 +2190,6 @@ requires-dist = [
     { name = "flashinfer-python", marker = "extra == 'vllm'", specifier = ">=0.6.4" },
     { name = "huggingface-hub", extras = ["hf-xet"], specifier = ">=0.34.0,<1.0" },
     { name = "huggingface-hub", extras = ["hf-xet"], marker = "extra == 'hf'", specifier = ">=0.34.0,<1.0" },
-    { name = "ipykernel", specifier = ">=6.29.5,<7" },
     { name = "llama-cpp-python", marker = "extra == 'llama-cpp'", specifier = ">=0.3.1" },
     { name = "ninja", marker = "extra == 'vllm'", specifier = ">=1.11.1.4,<2" },
     { name = "numpy", specifier = ">=1.24.0" },
@@ -2220,8 +2234,10 @@ dev = [
     { name = "scipy-stubs", specifier = ">=1.16.1.0" },
 ]
 notebooks = [
+    { name = "ipykernel", specifier = ">=6.29.5,<7" },
     { name = "ipython", specifier = ">=8.31.0,<9" },
     { name = "ipywidgets", specifier = ">=8.1.0,<9" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "jupyter-client", specifier = ">=8.6.3,<9" },
     { name = "jupyter-core", specifier = ">=5.7.2,<6" },
     { name = "nbformat", specifier = ">=5.10.0,<6" },
@@ -5233,7 +5249,7 @@ wheels = [
 
 [[package]]
 name = "vllm"
-version = "0.18.1rc1.dev208+g148a5c122.cu130"
+version = "0.19.1rc1.dev29+g93726b2a1.cu130"
 source = { registry = "https://wheels.vllm.ai/nightly/cu130" }
 dependencies = [
     { name = "aiohttp" },
@@ -5306,8 +5322,8 @@ dependencies = [
     { name = "xgrammar", marker = "platform_machine == 'aarch64' or platform_machine == 'arm64' or platform_machine == 'ppc64le' or platform_machine == 's390x' or platform_machine == 'x86_64'" },
 ]
 wheels = [
-    { url = "https://wheels.vllm.ai/148a5c1226f8668cb52c4900b5ff2c80344e78f2/vllm-0.18.1rc1.dev208%2Bg148a5c122.cu130-cp38-abi3-manylinux_2_35_aarch64.whl" },
-    { url = "https://wheels.vllm.ai/148a5c1226f8668cb52c4900b5ff2c80344e78f2/vllm-0.18.1rc1.dev208%2Bg148a5c122.cu130-cp38-abi3-manylinux_2_35_x86_64.whl" },
+    { url = "https://wheels.vllm.ai/93726b2a1c766a27f10ad7c3f709ffbacb94bcf9/vllm-0.19.1rc1.dev29%2Bg93726b2a1.cu130-cp38-abi3-manylinux_2_35_aarch64.whl" },
+    { url = "https://wheels.vllm.ai/93726b2a1c766a27f10ad7c3f709ffbacb94bcf9/vllm-0.19.1rc1.dev29%2Bg93726b2a1.cu130-cp38-abi3-manylinux_2_35_x86_64.whl" },
 ]
 
 [[package]]

@@ -49,7 +49,7 @@
                 "context_assembler_compare_security_score_only"
             ],
             "models": [
-                "qwen3-8b-thinking"
+                "qwen3-8b-thinking-sc5"
             ],
             "prompts": [
                 "step_by_step"

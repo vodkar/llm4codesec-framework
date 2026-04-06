@@ -6,9 +6,10 @@
             "max_output_tokens": 4096,
             "context_length": 20480,
             "temperature": 0.9,
-            "batch_size": 5,
+            "batch_size": 20,
             "backend": "vllm",
-            "use_quantization": true
+            "use_quantization": true,
+            "gpu_memory_utilization": 0.93
         },
         "qwen3-4b-sc3": {
             "model_identifier": "Qwen/Qwen3-4B",
@@ -16,10 +17,11 @@
             "max_output_tokens": 4096,
             "context_length": 20480,
             "temperature": 0.9,
-            "batch_size": 5,
+            "batch_size": 20,
             "backend": "vllm",
             "use_quantization": true,
-            "self_consistency_samples": 3
+            "self_consistency_samples": 3,
+            "gpu_memory_utilization": 0.93
         },
         "qwen3-4b-logprobs": {
             "model_identifier": "Qwen/Qwen3-4B",
@@ -27,10 +29,11 @@
             "max_output_tokens": 4096,
             "context_length": 20480,
             "temperature": 0.9,
-            "batch_size": 5,
+            "batch_size": 20,
             "backend": "vllm",
             "use_quantization": true,
-            "enable_logprobs": true
+            "enable_logprobs": true,
+            "gpu_memory_utilization": 0.93
         },
         "qwen3-4b-thinking": {
             "model_identifier": "Qwen/Qwen3-4B",
@@ -38,10 +41,24 @@
             "max_output_tokens": 8192,
             "context_length": 24576,
             "temperature": 0.9,
-            "batch_size": 5,
+            "batch_size": 20,
             "use_quantization": true,
             "backend": "vllm",
-            "is_thinking_enabled": true
+            "is_thinking_enabled": true,
+            "gpu_memory_utilization": 0.93
+        },
+        "qwen3-4b-thinking-sc5": {
+            "model_identifier": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "max_output_tokens": 8192,
+            "context_length": 24576,
+            "temperature": 0.9,
+            "batch_size": 20,
+            "use_quantization": true,
+            "backend": "vllm",
+            "is_thinking_enabled": true,
+            "self_consistency_samples": 5,
+            "gpu_memory_utilization": 0.93
         },
         "qwen3-8b": {
             "model_identifier": "Qwen/Qwen3-8B",
@@ -66,6 +83,21 @@
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true
+        },
+        "qwen3-8b-thinking-sc5": {
+            "model_identifier": "Qwen/Qwen3-8B",
+            "model_type": "qwen-3",
+            "max_output_tokens": 8192,
+            "context_length": 24576,
+            "temperature": 0.9,
+            "batch_size": 10,
+            "repetition_penalty": 1.2,
+            "presence_penalty": 0.5,
+            "use_quantization": true,
+            "backend": "vllm",
+            "is_thinking_enabled": true,
+            "gpu_memory_utilization": 0.93,
+            "self_consistency_samples": 5
         },
         "qwen3-30b": {
             "model_identifier": "Qwen/Qwen3-30B-A3B",
@@ -224,7 +256,7 @@
             "temperature": 0.9,
             "batch_size": 2,
             "use_quantization": true,
-            "gpu_memory_utilization": 0.90,
+            "gpu_memory_utilization": 0.930,
             "max_num_seqs": 2
         },
         "qwen35-9b-thinking": {
@@ -237,7 +269,7 @@
             "batch_size": 2,
             "use_quantization": true,
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.90,
+            "gpu_memory_utilization": 0.930,
             "max_num_seqs": 2
         },
         "qwen35-4b-thinking": {
@@ -279,7 +311,7 @@
             "use_quantization": false,
             "vllm_quantization": "none",
             "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.9,
+            "gpu_memory_utilization": 0.93,
             "max_num_seqs": 2,
             "enforce_eager": true,
             "max_num_batched_tokens": 2048
@@ -302,7 +334,7 @@
             "use_quantization": false,
             "vllm_quantization": "none",
             "kv_cache_dtype": "fp8",
-            "gpu_memory_utilization": 0.96,
+            "gpu_memory_utilization": 0.936,
             "max_num_seqs": 2,
             "enforce_eager": true,
             "max_num_batched_tokens": 2048

@@ -1,9 +1,9 @@
 {
     "experiment_metadata": {
-        "name": "ContextAssembler vs CVEFixes Comparison",
-        "description": "Comparison of ContextAssembler extended-context Python dataset against matched CVEFixes Python samples using the same CVE IDs",
+        "name": "ContextAssembler vs CleanVul Comparison",
+        "description": "Comparison of the ContextAssembler CleanVul benchmark against matched CleanVul function-level samples",
         "version": "1.0",
-        "dataset": "ContextAssembler-CVEFixes-Python v1.0",
+        "dataset": "ContextAssembler-CleanVul-Python v1.0",
         "created_date": "2026-02-25"
     },
     "experiment_plans": {
@@ -21,10 +21,10 @@
             "sample_limit": 3
         },
         "vllm_comparison": {
-            "description": "Full comparison between ContextAssembler and matched CVEFixes datasets across vllm models",
+            "description": "Full comparison between ContextAssembler and matched CleanVul datasets across vllm models",
             "datasets": [
                 "context_assembler_binary",
-                "cvefixes_python_matched"
+                "cleanvul_python_matched"
             ],
             "models": [
                 "qwen35-9b-thinking",

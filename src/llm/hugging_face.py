@@ -381,6 +381,15 @@ class HuggingFaceLLM(ILLMInference):
         )
         self._warned_sampling_params.add(param_name)
 
+    def _uses_qwen3_chat_template(self) -> bool:
+        """Return whether the configured tokenizer/model uses Qwen3 chat controls."""
+        candidate_identifiers: tuple[str, ...] = (
+            self.config.model_identifier,
+            self.config.tokenizer_identifier or "",
+            self.config.hf_config_path or "",
+        )
+        return any("qwen3" in identifier.lower() for identifier in candidate_identifiers)
+
     def _format_prompt(self, system_prompt: str, user_prompt: str) -> str:
         """Format prompt using tokenizer's chat template."""
         if not self.tokenizer:
@@ -395,12 +404,14 @@ class HuggingFaceLLM(ILLMInference):
         try:
             apply_chat_template = getattr(self.tokenizer, "apply_chat_template", None)
             if callable(apply_chat_template):
-                formatted_prompt = apply_chat_template(
-                    messages,
-                    tokenize=False,
-                    add_generation_prompt=True,
-                    is_thinking_enabled=self.config.is_thinking_enabled,
-                )
+                template_kwargs: dict[str, object] = {
+                    "tokenize": False,
+                    "add_generation_prompt": True,
+                }
+                if self._uses_qwen3_chat_template():
+                    template_kwargs["enable_thinking"] = self.config.is_thinking_enabled
+
+                formatted_prompt = apply_chat_template(messages, **template_kwargs)
                 return str(formatted_prompt)
             raise AttributeError("apply_chat_template is not available")
 

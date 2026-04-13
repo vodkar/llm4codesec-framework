@@ -123,6 +123,44 @@
                 "step_by_step"
             ],
             "sample_limit": 200
+        },
+        "sampling_sweep_combinations": {
+            "description": "Multi-factor combinations of best individual params on CASTLE binary detection (no thinking)",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b-nt-combo-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-rp110",
+                "qwen3-4b-nt-combo-tp070-pp025",
+                "qwen3-4b-nt-combo-t03-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-pp025",
+                "qwen3-4b-nt-combo-tp070-pp025-rp110",
+                "qwen3-4b-nt-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_combinations_thinking": {
+            "description": "Multi-factor combinations of best individual params on CASTLE binary detection (thinking enabled)",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b-combo-tp070-rp110",
+                "qwen3-4b-combo-tk040-rp110",
+                "qwen3-4b-combo-tp070-pp025",
+                "qwen3-4b-combo-t03-tp070-rp110",
+                "qwen3-4b-combo-tk040-pp025",
+                "qwen3-4b-combo-tp070-pp025-rp110",
+                "qwen3-4b-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
         }
     }
 }

@@ -49,8 +49,14 @@ class ModelRunConfig(BaseModel):
     model_name: str
     model_type: str
     backend: str
+    context_length: int
     max_output_tokens: int
     temperature: float
+    top_p: float | None = None
+    top_k: int | None = None
+    min_p: float | None = None
+    presence_penalty: float | None = None
+    repetition_penalty: float | None = None
     use_quantization: bool
     is_thinking_enabled: bool
     self_consistency_samples: int

@@ -506,6 +506,15 @@ class VllmLLM(ILLMInference):
         )
         return prompt_tokens + generated_tokens
 
+    def _uses_qwen3_chat_template(self) -> bool:
+        """Return whether the configured tokenizer/model uses Qwen3 chat controls."""
+        candidate_identifiers: tuple[str, ...] = (
+            self.config.model_identifier,
+            self.config.tokenizer_identifier or "",
+            self.config.hf_config_path or "",
+        )
+        return any("qwen3" in identifier.lower() for identifier in candidate_identifiers)
+
     def _format_prompt(self, system_prompt: str, user_prompt: str) -> str:
         """
         Format prompt using tokenizer chat template when available.
@@ -529,17 +538,14 @@ class VllmLLM(ILLMInference):
         has_chat_template = getattr(self.tokenizer, "chat_template", None) is not None
         if callable(apply_chat_template) and has_chat_template:
             try:
-                if self.config.is_thinking_enabled:
-                    formatted_prompt = apply_chat_template(
-                        messages,
-                        tokenize=False,
-                        add_generation_prompt=True,
-                        enable_thinking=True,
-                    )
-                else:
-                    formatted_prompt = apply_chat_template(
-                        messages, tokenize=False, add_generation_prompt=True
-                    )
+                template_kwargs: dict[str, object] = {
+                    "tokenize": False,
+                    "add_generation_prompt": True,
+                }
+                if self._uses_qwen3_chat_template():
+                    template_kwargs["enable_thinking"] = self.config.is_thinking_enabled
+
+                formatted_prompt = apply_chat_template(messages, **template_kwargs)
                 return str(formatted_prompt)
             except Exception:
                 LOGGER.exception(

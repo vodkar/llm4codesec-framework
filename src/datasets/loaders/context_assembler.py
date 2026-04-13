@@ -2,14 +2,14 @@
 """
 ContextAssembler Dataset Loader
 
-Loads the CVEFixes-with-Context-Benchmark produced by the ContextAssembler tool.
-Each sample is a Python code snippet with both vulnerable (label=1) and safe (label=0)
-samples, enriched with extended CVE context information.
+Loads ContextAssembler-style benchmark JSON and normalizes it into the framework
+schema. The source may be backed by CVEFixes or CleanVul benchmark metadata.
 
-Fields in the source JSON that differ from the standard schema and are normalised here:
+Fields in the source JSON that differ from the standard schema and are normalized here:
 - ``metadata.CVEFixes-Number`` → ``metadata.cve_id``
-- ``metadata.cwe_number`` (raw int)  → ``"CWE-<N>"`` string stored in ``cwe_types``
-- ``cwe_types`` in source is always ``[]`` – populated from ``cwe_number`` instead
+- ``metadata.cwe_number`` (raw int) → ``"CWE-<N>"`` string stored in ``cwe_types``
+- ``metadata.CleanVul-CommitUrl`` → ``metadata.commit_url``
+- ``cwe_types`` in source is often empty and is reconstructed from ``cwe_number``
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from datasets.loaders.base import DatasetLoadParams, IDatasetLoader
 
 
 class ContextAssemblerDatasetLoader(IDatasetLoader):
-    """Loads and processes the ContextAssembler CVEFixes context benchmark."""
+    """Loads and processes ContextAssembler benchmark JSON files."""
 
     source_path: Path
     __logger: logging.Logger = PrivateAttr(
@@ -84,11 +84,16 @@ class ContextAssemblerDatasetLoader(IDatasetLoader):
             cwe_number_int = 0
 
         metadata: dict[str, Any] = {
-            "cve_id": raw_meta.get("CVEFixes-Number", ""),
+            "cve_id": raw_meta.get("CVEFixes-Number") or raw_meta.get("cve_id", ""),
             "description": raw_meta.get("description", ""),
             "cwe_number": cwe_number_int,
             "source": "ContextAssembler",
         }
+
+        cleanvul_commit_url = raw_meta.get("CleanVul-CommitUrl")
+        if cleanvul_commit_url:
+            metadata["commit_url"] = cleanvul_commit_url
+            metadata["source"] = "ContextAssembler-CleanVul"
 
         return BenchmarkSample(
             id=raw["id"],
@@ -153,7 +158,7 @@ class ContextAssemblerDatasetLoader(IDatasetLoader):
 
         dataset = Dataset(
             metadata=DatasetMetadata(
-                name="ContextAssembler-CVEFixes-Benchmark",
+                name="ContextAssembler-Benchmark",
                 version="1.0",
                 task_type=task_type,
                 programming_language="Python",

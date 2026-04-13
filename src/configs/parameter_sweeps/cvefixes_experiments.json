@@ -127,6 +127,46 @@
                 "step_by_step"
             ],
             "sample_limit": 100
+        },
+        "sampling_sweep_combinations": {
+            "description": "Multi-factor combinations of best individual params on CVEFixes binary datasets (no thinking)",
+            "datasets": [
+                "binary_c_file",
+                "binary_python_file"
+            ],
+            "models": [
+                "qwen3-4b-nt-combo-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-rp110",
+                "qwen3-4b-nt-combo-tp070-pp025",
+                "qwen3-4b-nt-combo-t03-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-pp025",
+                "qwen3-4b-nt-combo-tp070-pp025-rp110",
+                "qwen3-4b-nt-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 100
+        },
+        "sampling_sweep_combinations_thinking": {
+            "description": "Multi-factor combinations of best individual params on CVEFixes binary datasets (thinking enabled)",
+            "datasets": [
+                "binary_c_file",
+                "binary_python_file"
+            ],
+            "models": [
+                "qwen3-4b-combo-tp070-rp110",
+                "qwen3-4b-combo-tk040-rp110",
+                "qwen3-4b-combo-tp070-pp025",
+                "qwen3-4b-combo-t03-tp070-rp110",
+                "qwen3-4b-combo-tk040-pp025",
+                "qwen3-4b-combo-tp070-pp025-rp110",
+                "qwen3-4b-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 100
         }
     }
 }

@@ -14,10 +14,17 @@ from benchmark.results import (
     ExperimentPlanSummary,
     ShortExperimentReport,
 )
-from datasets.loaders.base import JsonDatasetLoader
+from datasets.loaders.base import BalancedJsonDatasetLoader, JsonDatasetLoader
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _make_dataset_loader(dataset_path: Path) -> JsonDatasetLoader:
+    """Return a BalancedJsonDatasetLoader for PrimeVul paths, standard otherwise."""
+    if "primevul" in str(dataset_path).lower():
+        return BalancedJsonDatasetLoader()
+    return JsonDatasetLoader()
 
 
 def resolve_plan_output_base_dir(
@@ -231,7 +238,7 @@ def run_single_experiment(
     if not runner:
         runner = BenchmarkRunner(
             config=config,
-            dataset_loader=JsonDatasetLoader(),
+            dataset_loader=_make_dataset_loader(config.dataset_path),
         )
 
     result = runner.run()
@@ -333,7 +340,9 @@ def run_experiment_plan(
     successful_experiments = 0
     failed_experiments = 0
 
-    dataset_loader = JsonDatasetLoader()
+    dataset_loader = _make_dataset_loader(
+        plan.experiments[0].dataset_path if plan.experiments else Path()
+    )
 
     # Run all experiments
     experiments: list[ShortExperimentReport] = []

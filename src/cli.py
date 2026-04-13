@@ -60,6 +60,11 @@ BENCHMARKS: dict[str, BenchmarkCliConfig] = {
         config_file=CONFIG_DIRECTORY / "context_assembler_experiments.json",
         output_dir=BASE_RESULTS_DIR / "context_assembler_experiments",
     ),
+    "primevul": BenchmarkCliConfig(
+        name="primevul",
+        config_file=CONFIG_DIRECTORY / "primevul_experiments.json",
+        output_dir=BASE_RESULTS_DIR / "primevul_experiments",
+    ),
 }
 
 app = typer.Typer(

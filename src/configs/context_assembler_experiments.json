@@ -1,9 +1,9 @@
 {
     "experiment_metadata": {
-        "name": "ContextAssembler vs CVEFixes Comparison",
-        "description": "Comparison of ContextAssembler extended-context Python dataset against matched CVEFixes Python samples using the same CVE IDs",
+        "name": "ContextAssembler vs CleanVul Comparison",
+        "description": "Comparison of the ContextAssembler CleanVul benchmark against matched CleanVul function-level samples",
         "version": "1.0",
-        "dataset": "ContextAssembler-CVEFixes-Python v1.0",
+        "dataset": "ContextAssembler-CleanVul-Python v1.0",
         "created_date": "2026-02-25"
     },
     "dataset_configurations": {
@@ -12,10 +12,10 @@
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler: Python binary vulnerability detection with extended CVE context (1=vulnerable, 0=safe)"
         },
-        "cvefixes_python_matched": {
-            "dataset_path": "datasets_processed/context_assembler/cvefixes_python_matched.json",
+        "cleanvul_python_matched": {
+            "dataset_path": "datasets_processed/context_assembler/cleanvul_python_matched.json",
             "task_type": "binary_vulnerability",
-            "description": "CVEFixes Python file-level samples matched to ContextAssembler CVE IDs (before-fix=vulnerable, after-fix=safe)"
+            "description": "CleanVul Python function-level samples paired with the ContextAssembler benchmark labels (1=vulnerable, 0=safe)"
         },
         "context_assembler_binary_v2": {
             "dataset_path": "datasets_processed/context_assembler/context_assembler_binary_v2.json",
@@ -43,10 +43,10 @@
             "sample_limit": 3
         },
         "vllm_comparison": {
-            "description": "Full comparison between ContextAssembler and matched CVEFixes datasets across vllm models",
+            "description": "Full comparison between ContextAssembler and matched CleanVul datasets across vllm models",
             "datasets": [
                 "context_assembler_binary",
-                "cvefixes_python_matched"
+                "cleanvul_python_matched"
             ],
             "models": [
                 "qwen35-4b",
@@ -79,10 +79,10 @@
             ]
         },
         "vllm_big_models_comparison": {
-            "description": "ContextAssembler vs matched CVEFixes comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
+            "description": "ContextAssembler vs matched CleanVul comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
             "datasets": [
                 "context_assembler_binary",
-                "cvefixes_python_matched"
+                "cleanvul_python_matched"
             ],
             "models": [
                 "nemotron-nano-v2-12b-gguf",
@@ -94,10 +94,10 @@
             "sample_limit": 200
         },
         "vllm_problematic_big_models": {
-            "description": "ContextAssembler vs matched CVEFixes comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
+            "description": "ContextAssembler vs matched CleanVul comparison using bigger quantized models on vLLM, tuned for a single 16 GB GPU",
             "datasets": [
                 "context_assembler_binary",
-                "cvefixes_python_matched"
+                "cleanvul_python_matched"
             ],
             "models": [
                 "nemotron-nano-v2-12b-gguf",

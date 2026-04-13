@@ -2,6 +2,7 @@ import json
 import logging
 import random
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from functools import cache
 from pathlib import Path
 from typing import Any, Literal, TypedDict, Unpack
@@ -71,3 +72,50 @@ class JsonDatasetLoader:
             _LOGGER.info(f"Limited to {sample_limit} samples")
 
         return SampleCollection(samples)
+
+
+class BalancedJsonDatasetLoader(JsonDatasetLoader):
+    """JsonDatasetLoader that undersamples the majority class to produce a balanced dataset.
+
+    For each unique label, keeps at most ``min_count`` samples where ``min_count``
+    is the size of the smallest class.  The result is shuffled and then the
+    ``sample_limit`` is applied.
+    """
+
+    @cache
+    def load_dataset(
+        self, dataset_path: Path, sample_limit: int | None
+    ) -> SampleCollection:
+        # Load the full dataset (no limit) through the parent's cached loader.
+        all_samples = list(super().load_dataset(dataset_path, None))
+
+        by_label: dict[Any, list[BenchmarkSample]] = defaultdict(list)
+        for sample in all_samples:
+            by_label[sample.label].append(sample)
+
+        if len(by_label) < 2:
+            _LOGGER.warning(
+                "BalancedJsonDatasetLoader: only one class found, no balancing applied"
+            )
+            balanced = all_samples
+        else:
+            min_count = min(len(v) for v in by_label.values())
+            balanced = []
+            for label_samples in by_label.values():
+                bucket = list(label_samples)
+                random.shuffle(bucket)
+                balanced.extend(bucket[:min_count])
+            random.shuffle(balanced)
+            _LOGGER.info(
+                "Balanced dataset: %d classes × %d samples = %d total (original: %d)",
+                len(by_label),
+                min_count,
+                len(balanced),
+                len(all_samples),
+            )
+
+        if sample_limit and sample_limit < len(balanced):
+            balanced = balanced[:sample_limit]
+            _LOGGER.info("Limited to %d samples after balancing", sample_limit)
+
+        return SampleCollection(balanced)

@@ -14,7 +14,6 @@ from benchmark.models import PredictionResult
 from benchmark.results import (
     BenchmarkInfo,
     BenchmarkReport,
-    DescribeResult,
     MetricsResult,
     ModelRunConfig,
     PredictionRecord,
@@ -127,16 +126,8 @@ class BenchmarkResultProcessor(BaseModel):
 
     def _to_prediction_record(self, prediction: PredictionResult) -> PredictionRecord:
         """Convert PredictionResult to a serializable PredictionRecord."""
-        predicted_label: int | str = (
-            prediction.predicted_label
-            if isinstance(prediction.predicted_label, (int, str))
-            else str(prediction.predicted_label)
-        )
-        true_label: int | str = (
-            prediction.true_label
-            if isinstance(prediction.true_label, (int, str))
-            else str(prediction.true_label)
-        )
+        predicted_label: int | str = prediction.predicted_label
+        true_label: int | str = prediction.true_label
         inference_data = SampleInferenceData(
             responses=prediction.all_responses if prediction.all_responses else [prediction.response_text],
             vote_counts=prediction.vote_counts,
@@ -162,7 +153,7 @@ class BenchmarkResultProcessor(BaseModel):
             return {"count": 0, "min": 0.0, "max": 0.0, "mean": 0.0, "variance": 0.0, "std": 0.0}
 
         time_array: NDArray[np.float64] = np.array(times, dtype=float)
-        summary: DescribeResult = stats.describe(time_array)
+        summary = stats.describe(time_array)
 
         return {
             "count": int(summary.nobs),
@@ -182,7 +173,7 @@ class BenchmarkResultProcessor(BaseModel):
             return {"count": 0, "min": 0.0, "max": 0.0, "mean": 0.0, "variance": 0.0, "std": 0.0}
 
         token_array: NDArray[np.float64] = np.array(tokens, dtype=float)
-        summary: DescribeResult = stats.describe(token_array)
+        summary = stats.describe(token_array)
 
         return {
             "count": int(summary.nobs),
@@ -236,8 +227,14 @@ class BenchmarkResultProcessor(BaseModel):
             model_name=self.config.model_name,
             model_type=self.config.model_type.value,
             backend=self.config.backend.value,
+            context_length=int(self.config.model_context_length_tokens),
             max_output_tokens=int(self.config.max_output_tokens),
             temperature=float(self.config.temperature),
+            top_p=self.config.top_p,
+            top_k=self.config.top_k,
+            min_p=self.config.min_p,
+            presence_penalty=self.config.presence_penalty,
+            repetition_penalty=self.config.repetition_penalty,
             use_quantization=bool(self.config.use_quantization),
             is_thinking_enabled=bool(self.config.is_thinking_enabled),
             self_consistency_samples=int(self.config.self_consistency_samples),

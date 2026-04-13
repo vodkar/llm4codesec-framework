@@ -1,0 +1,166 @@
+{
+    "experiment_metadata": {
+        "name": "PrimeVul Sampling Parameter Sweeps",
+        "description": "One-factor and combination sampling-parameter study for PrimeVul binary vulnerability detection",
+        "version": "1.0",
+        "created_date": "2026-04-12"
+    },
+    "experiment_plans": {
+        "sampling_sweep_quick": {
+            "description": "Quick validation of one-factor sampling sweeps on PrimeVul binary detection (no thinking)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-nt-base",
+                "qwen3-4b-nt-temp-00",
+                "qwen3-4b-nt-top-p-090",
+                "qwen3-4b-nt-top-k-040",
+                "qwen3-4b-nt-min-p-005",
+                "qwen3-4b-nt-presence-050",
+                "qwen3-4b-nt-repeat-110"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 5
+        },
+        "sampling_sweep_binary": {
+            "description": "Full one-factor sampling sweep on PrimeVul binary detection (no thinking)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-nt-base",
+                "qwen3-4b-nt-temp-00",
+                "qwen3-4b-nt-temp-03",
+                "qwen3-4b-nt-temp-09",
+                "qwen3-4b-nt-top-p-080",
+                "qwen3-4b-nt-top-p-090",
+                "qwen3-4b-nt-top-p-095",
+                "qwen3-4b-nt-top-k-020",
+                "qwen3-4b-nt-top-k-040",
+                "qwen3-4b-nt-top-k-080",
+                "qwen3-4b-nt-min-p-002",
+                "qwen3-4b-nt-min-p-005",
+                "qwen3-4b-nt-min-p-010",
+                "qwen3-4b-nt-presence-025",
+                "qwen3-4b-nt-presence-050",
+                "qwen3-4b-nt-presence-100",
+                "qwen3-4b-nt-presence-150",
+                "qwen3-4b-nt-presence-200",
+                "qwen3-4b-nt-repeat-105",
+                "qwen3-4b-nt-repeat-110",
+                "qwen3-4b-nt-repeat-120",
+                "qwen3-4b-nt-repeat-130",
+                "qwen3-4b-nt-repeat-140",
+                "qwen3-4b-nt-repeat-150",
+                "qwen3-4b-nt-temp-10",
+                "qwen3-4b-nt-temp-12",
+                "qwen3-4b-nt-top-p-070",
+                "qwen3-4b-nt-top-p-075"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_quick_thinking": {
+            "description": "Quick validation of one-factor sampling sweeps on PrimeVul binary detection (thinking enabled)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-base",
+                "qwen3-4b-temp-00",
+                "qwen3-4b-top-p-090",
+                "qwen3-4b-top-k-040",
+                "qwen3-4b-min-p-005",
+                "qwen3-4b-presence-050",
+                "qwen3-4b-repeat-110"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 5
+        },
+        "sampling_sweep_binary_thinking": {
+            "description": "Full one-factor sampling sweep on PrimeVul binary detection (thinking enabled)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-base",
+                "qwen3-4b-temp-00",
+                "qwen3-4b-temp-03",
+                "qwen3-4b-temp-09",
+                "qwen3-4b-top-p-080",
+                "qwen3-4b-top-p-090",
+                "qwen3-4b-top-p-095",
+                "qwen3-4b-top-k-020",
+                "qwen3-4b-top-k-040",
+                "qwen3-4b-top-k-080",
+                "qwen3-4b-min-p-002",
+                "qwen3-4b-min-p-005",
+                "qwen3-4b-min-p-010",
+                "qwen3-4b-presence-025",
+                "qwen3-4b-presence-050",
+                "qwen3-4b-presence-100",
+                "qwen3-4b-presence-150",
+                "qwen3-4b-presence-200",
+                "qwen3-4b-repeat-105",
+                "qwen3-4b-repeat-110",
+                "qwen3-4b-repeat-120",
+                "qwen3-4b-repeat-130",
+                "qwen3-4b-repeat-140",
+                "qwen3-4b-repeat-150",
+                "qwen3-4b-temp-10",
+                "qwen3-4b-temp-12",
+                "qwen3-4b-top-p-070",
+                "qwen3-4b-top-p-075"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_combinations": {
+            "description": "Multi-factor combinations of best individual params on PrimeVul binary detection (no thinking)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-nt-combo-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-rp110",
+                "qwen3-4b-nt-combo-tp070-pp025",
+                "qwen3-4b-nt-combo-t03-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-pp025",
+                "qwen3-4b-nt-combo-tp070-pp025-rp110",
+                "qwen3-4b-nt-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_combinations_thinking": {
+            "description": "Multi-factor combinations of best individual params on PrimeVul binary detection (thinking enabled)",
+            "datasets": [
+                "binary"
+            ],
+            "models": [
+                "qwen3-4b-combo-tp070-rp110",
+                "qwen3-4b-combo-tk040-rp110",
+                "qwen3-4b-combo-tp070-pp025",
+                "qwen3-4b-combo-t03-tp070-rp110",
+                "qwen3-4b-combo-tk040-pp025",
+                "qwen3-4b-combo-tp070-pp025-rp110",
+                "qwen3-4b-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        }
+    }
+}

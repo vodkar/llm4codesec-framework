@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-#PLAN_SUFFIX=quick
-PLAN_SUFFIX=binary
+# PLAN_SUFFIX=binary
+PLAN_SUFFIX=combinations
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -12,13 +12,14 @@ run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 cd "$REPO_ROOT"
 
 benchmarks=(
-#  castle
-#  cvefixes
+ castle
+ cvefixes
  jitvul
+ primevul
 )
 
 for benchmark in "${benchmarks[@]}"; do
-  for thinking in "" "_thinking"; do
+  for thinking in "_thinking" ""; do
     plan_name="sampling_sweep_${PLAN_SUFFIX}${thinking}"
     echo "Running ${benchmark} with plan ${plan_name}"
     $run_benchmark cli.py run-plan "$benchmark" "$plan_name" \

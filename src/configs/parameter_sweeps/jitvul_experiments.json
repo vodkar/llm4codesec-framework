@@ -18,7 +18,9 @@
                 "qwen3-4b-nt-top-k-040",
                 "qwen3-4b-nt-min-p-005",
                 "qwen3-4b-nt-presence-050",
-                "qwen3-4b-nt-repeat-110"
+                "qwen3-4b-nt-presence-200",
+                "qwen3-4b-nt-repeat-110",
+                "qwen3-4b-nt-repeat-120"
             ],
             "prompts": [
                 "step_by_step"
@@ -77,7 +79,9 @@
                 "qwen3-4b-top-k-040",
                 "qwen3-4b-min-p-005",
                 "qwen3-4b-presence-050",
-                "qwen3-4b-repeat-110"
+                "qwen3-4b-presence-200",
+                "qwen3-4b-repeat-110",
+                "qwen3-4b-repeat-120"
             ],
             "prompts": [
                 "step_by_step"
@@ -118,6 +122,44 @@
                 "qwen3-4b-temp-12",
                 "qwen3-4b-top-p-070",
                 "qwen3-4b-top-p-075"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_combinations": {
+            "description": "Multi-factor combinations of best individual params on JitVul binary detection (no thinking)",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b-nt-combo-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-rp110",
+                "qwen3-4b-nt-combo-tp070-pp025",
+                "qwen3-4b-nt-combo-t03-tp070-rp110",
+                "qwen3-4b-nt-combo-tk040-pp025",
+                "qwen3-4b-nt-combo-tp070-pp025-rp110",
+                "qwen3-4b-nt-combo-pp200-rp120"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 200
+        },
+        "sampling_sweep_combinations_thinking": {
+            "description": "Multi-factor combinations of best individual params on JitVul binary detection (thinking enabled)",
+            "datasets": [
+                "binary_all"
+            ],
+            "models": [
+                "qwen3-4b-combo-tp070-rp110",
+                "qwen3-4b-combo-tk040-rp110",
+                "qwen3-4b-combo-tp070-pp025",
+                "qwen3-4b-combo-t03-tp070-rp110",
+                "qwen3-4b-combo-tk040-pp025",
+                "qwen3-4b-combo-tp070-pp025-rp110",
+                "qwen3-4b-combo-pp200-rp120"
             ],
             "prompts": [
                 "step_by_step"

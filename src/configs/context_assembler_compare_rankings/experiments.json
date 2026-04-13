@@ -44,9 +44,7 @@
                 "context_assembler_compare_depth_repeats_context",
                 "context_assembler_compare_dummy",
                 "context_assembler_compare_multiplicative_boost",
-                "context_assembler_compare_random_picking",
-                "context_assembler_compare_security_first",
-                "context_assembler_compare_security_score_only"
+                "context_assembler_compare_random_picking"
             ],
             "models": [
                 "qwen3-8b-thinking-sc5"
@@ -63,9 +61,7 @@
                 "context_assembler_compare_depth_repeats_context",
                 "context_assembler_compare_dummy",
                 "context_assembler_compare_multiplicative_boost",
-                "context_assembler_compare_random_picking",
-                "context_assembler_compare_security_first",
-                "context_assembler_compare_security_score_only"
+                "context_assembler_compare_random_picking"
             ],
             "models": [
                 "gemma3-12b-it-gguf",

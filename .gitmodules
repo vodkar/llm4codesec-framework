@@ -16,3 +16,6 @@
 [submodule "benchmarks/context-assembler-dataset"]
 	path = benchmarks/context-assembler-dataset
 	url = git@github.com:vodkar/context-assembler-dataset.git
+[submodule "benchmarks/CleanVul"]
+	path = benchmarks/CleanVul
+	url = https://github.com/yikun-li/CleanVul.git

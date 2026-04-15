@@ -14,7 +14,6 @@ Usage (inside Docker):
 
 import argparse
 import logging
-import sys
 from pathlib import Path
 
 from benchmark.enums import TaskType
@@ -22,12 +21,6 @@ from datasets.loaders.cleanvul import EXTENSION_TO_LANGUAGE, CleanVulDatasetLoad
 from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
-
-_SCORE_CONFIGS = [
-    ("score4", "--source-score4"),
-    ("score3", "--source-score3"),
-]
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(

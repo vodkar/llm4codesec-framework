@@ -1,0 +1,52 @@
+{
+    "experiment_metadata": {
+        "name": "ContextAssembler Compare Rankings – RTX 6000 Pro (Average-Size Models)",
+        "description": "Evaluate average-size GGUF models on all context-assembly ranking strategies using the RTX 6000 Pro (96 GB VRAM)",
+        "version": "1.0",
+        "dataset": "ContextAssembler Compare Rankings v1.0",
+        "created_date": "2026-04-15"
+    },
+    "experiment_plans": {
+        "rtx_6000_pro_compare_rankings": {
+            "description": "Full compare-rankings evaluation across all ranking strategies using the RTX 6000 Pro average-size GGUF models",
+            "datasets": [
+                "context_assembler_compare_current",
+                "context_assembler_compare_depth_repeats_context",
+                "context_assembler_compare_dummy",
+                "context_assembler_compare_multiplicative_boost",
+                "context_assembler_compare_random_picking"
+            ],
+            "models": [
+                "qwen35-122b-a10b-gguf",
+                "qwen35-35b-a3b-gguf",
+                "gemma3-27b-it-gguf"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": null
+        },
+        "rtx_6000_pro_smoke_test": {
+            "description": "Quick 3-sample smoke test to validate the RTX 6000 Pro pipeline before a full run",
+            "datasets": [
+                "context_assembler_compare_current"
+            ],
+            "models": [
+                "qwen35-35b-a3b-gguf",
+                "gemma3-27b-it-gguf",
+                "qwen35-122b-a10b-gguf"
+            ],
+            "prompts": [
+                "step_by_step"
+            ],
+            "sample_limit": 3
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/context_assembler_compare_rankings_experiments",
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    }
+}

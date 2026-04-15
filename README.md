@@ -1,3 +1,10 @@
+# FEEL FREE TO CONTACT ME IF YOU HAVE ANY QUESTION
+
+I will help you there:
+
+- https://t.me/dev_stvennica
+- boombarah@gmail.com
+
 # LLM Code Security Benchmark Framework
 
 A comprehensive framework for benchmarking Large Language Models on static code analysis and vulnerability detection tasks. This framework supports multiple LLM models, datasets, and evaluation metrics for binary and multi-class classification tasks.

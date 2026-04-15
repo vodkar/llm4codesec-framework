@@ -1,0 +1,59 @@
+{
+    "datasets": {
+        "binary_c": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_c_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C function-level vulnerability detection (score=4)"
+        },
+        "binary_cpp": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_cpp_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C++ function-level vulnerability detection (score=4)"
+        },
+        "binary_java": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_java_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java function-level vulnerability detection (score=4)"
+        },
+        "binary_py": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_py_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Python function-level vulnerability detection (score=4)"
+        },
+        "binary_js": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_js_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: JavaScript function-level vulnerability detection (score=4)"
+        },
+        "binary_cs": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_cs_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C# function-level vulnerability detection (score=4)"
+        },
+        "multiclass_c": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_c_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: C function-level CWE identification (score=4)"
+        },
+        "multiclass_java": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_java_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class classification: Java function-level CWE identification (score=4)"
+        },
+        "binary_c_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_c_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C function-level vulnerability detection (score>=3)"
+        },
+        "binary_cpp_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_cpp_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C++ function-level vulnerability detection (score>=3)"
+        },
+        "binary_java_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_java_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java function-level vulnerability detection (score>=3)"
+        }
+    }
+}

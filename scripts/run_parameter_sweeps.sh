@@ -12,10 +12,11 @@ run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 cd "$REPO_ROOT"
 
 benchmarks=(
- castle
- cvefixes
- jitvul
- primevul
+  castle
+  cvefixes
+  jitvul
+  primevul
+  cleanvul
 )
 
 for benchmark in "${benchmarks[@]}"; do

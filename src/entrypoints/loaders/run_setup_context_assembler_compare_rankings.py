@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Prepare processed datasets for the ContextAssembler compare-rankings study.
 
-This entrypoint normalizes the associated ContextAssembler ranking variants from
-``benchmarks/context-assembler-dataset/compare_rankings`` into framework-ready
-processed JSON files under a dedicated output directory.
-
-The ``cvefixes_unassociated.json`` file is intentionally excluded because it is
-not part of the counted comparison set for this experiment.
+This entrypoint normalizes the associated CleanVul-backed ContextAssembler
+ranking variants from
+``benchmarks/context-assembler-dataset/cleanvul_compare_rankings`` into
+framework-ready processed JSON files under a dedicated output directory.
 """
 
 from __future__ import annotations
@@ -29,41 +27,43 @@ from logging_tools import setup_logging
 
 LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 
-DEFAULT_SOURCE_DIR: Final[str] = "benchmarks/context-assembler-dataset/compare_rankings"
+DEFAULT_SOURCE_DIR: Final[str] = (
+    "benchmarks/context-assembler-dataset/cleanvul_compare_rankings"
+)
 DEFAULT_OUTPUT_DIR: Final[str] = "datasets_processed/context_assembler_compare_rankings"
 
 DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
-    "cvefixes_context_benchmark.json": (
+    "cleanvul_context_benchmark.json": (
         "context_assembler_compare_current.json",
         "ContextAssembler Compare Rankings - Current",
     ),
-    "cvefixes_context_benchmark_depth_repeats_context.json": (
+    "cleanvul_context_benchmark_depth_repeats_context.json": (
         "context_assembler_compare_depth_repeats_context.json",
         "ContextAssembler Compare Rankings - Depth Repeats Context",
     ),
-    "cvefixes_context_benchmark_dummy.json": (
+    "cleanvul_context_benchmark_dummy.json": (
         "context_assembler_compare_dummy.json",
         "ContextAssembler Compare Rankings - Dummy",
     ),
-    "cvefixes_context_benchmark_multiplicative_boost.json": (
+    "cleanvul_context_benchmark_multiplicative_boost.json": (
         "context_assembler_compare_multiplicative_boost.json",
         "ContextAssembler Compare Rankings - Multiplicative Boost",
     ),
-    "cvefixes_context_benchmark_random_picking.json": (
+    "cleanvul_context_benchmark_random_picking.json": (
         "context_assembler_compare_random_picking.json",
         "ContextAssembler Compare Rankings - Random Picking",
     ),
-    # "cvefixes_context_benchmark_security_first.json": (
+    # "cleanvul_context_benchmark_security_first.json": (
     #     "context_assembler_compare_security_first.json",
     #     "ContextAssembler Compare Rankings - Security First",
     # ),
-    # "cvefixes_context_benchmark_security_score_only.json": (
+    # "cleanvul_context_benchmark_security_score_only.json": (
     #     "context_assembler_compare_security_score_only.json",
     #     "ContextAssembler Compare Rankings - Security Score Only",
     # ),
 }
 
-EXCLUDED_SOURCE_FILES: Final[set[str]] = {"cvefixes_unassociated.json"}
+EXCLUDED_SOURCE_FILES: Final[set[str]] = {"cleanvul_entries.json"}
 SMOKE_TEST_OUTPUT_NAME: Final[str] = "context_assembler_compare_smoke_test.json"
 SMOKE_TEST_DATASET_NAME: Final[str] = "ContextAssembler Compare Rankings - Smoke Test"
 
@@ -161,7 +161,7 @@ def build_compare_rankings_datasets(
         )
         written_files.append(output_path)
 
-    current_source_path: Path = source_dir / "cvefixes_context_benchmark.json"
+    current_source_path: Path = source_dir / "cleanvul_context_benchmark.json"
     smoke_output_path: Path = output_dir / SMOKE_TEST_OUTPUT_NAME
     _write_smoke_test_dataset(
         source_path=current_source_path,

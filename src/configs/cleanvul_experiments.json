@@ -1,0 +1,286 @@
+{
+    "experiment_metadata": {
+        "name": "CleanVul Benchmark LLM Evaluation",
+        "description": "Evaluation of LLMs on CleanVul benchmark (Li et al., 2022) with binary and multiclass tasks across multiple programming languages",
+        "version": "1.0",
+        "dataset": "CleanVul (vulnerability_score_4 — highest quality subset, score=4, ~6051 entries)",
+        "created_date": "2026-04-13"
+    },
+    "dataset_configurations": {
+        "binary_c": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_c_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C function-level vulnerability detection (score=4)"
+        },
+        "binary_cpp": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_cpp_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C++ function-level vulnerability detection (score=4)"
+        },
+        "binary_java": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_java_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java function-level vulnerability detection (score=4)"
+        },
+        "binary_py": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_py_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Python function-level vulnerability detection (score=4)"
+        },
+        "binary_js": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_js_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: JavaScript function-level vulnerability detection (score=4)"
+        },
+        "binary_cs": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_cs_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C# function-level vulnerability detection (score=4)"
+        },
+        "multiclass_c": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_c_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class CWE identification: C function-level (score=4)"
+        },
+        "multiclass_java": {
+            "dataset_path": "datasets_processed/cleanvul/score4/cleanvul_java_multiclass.json",
+            "task_type": "multiclass_vulnerability",
+            "description": "Multi-class CWE identification: Java function-level (score=4)"
+        },
+        "binary_c_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_c_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C (score>=3, larger, slightly lower quality)"
+        },
+        "binary_cpp_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_cpp_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: C++ (score>=3)"
+        },
+        "binary_java_score3": {
+            "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_java_binary.json",
+            "task_type": "binary_vulnerability",
+            "description": "Binary classification: Java (score>=3)"
+        }
+    },
+    "prompt_strategies": {
+        "basic_security": {
+            "name": "Basic Security Analysis",
+            "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, memory safety issues, etc.)\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision on concrete security risks, not coding style issues",
+            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "detailed_analysis": {
+            "name": "Detailed Security Analysis",
+            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for memory safety issues, injection flaws, input validation problems\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, improper resource management\n- Consider null/nil pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices\n\nResponse Format: Respond with only \"VULNERABLE\" or \"SAFE\"",
+            "user_prompt": "Please analyze the following code for security vulnerabilities:\n\n```\n{code}\n```"
+        },
+        "step_by_step": {
+            "name": "Step-by-Step Analysis",
+            "system_prompt": "You are a methodical security analyst who follows a systematic approach to vulnerability detection.\n\nAnalysis Steps:\n1. Read through the code to understand its purpose\n2. Identify all input sources and data flows\n3. Check for proper input validation and bounds checking\n4. Look for memory management and resource handling issues\n5. Examine error handling and edge cases\n6. Determine if vulnerabilities exist\n\nFinal Answer: After your analysis, respond with only \"VULNERABLE\" or \"SAFE\"",
+            "user_prompt": "Systematically analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "multiclass_basic": {
+            "name": "Basic Multiclass Vulnerability Analysis",
+            "system_prompt": "You are an expert security analyst specializing in vulnerability classification. Your task is to analyze code snippets and identify the specific type of vulnerability present, or determine if the code is safe.\n\nInstructions:\n- Analyze the provided code carefully for security vulnerabilities\n- If vulnerable, identify the specific CWE (Common Weakness Enumeration) type\n- If safe, respond with \"NONE\"\n- Common vulnerability types: CWE-79, CWE-89, CWE-119, CWE-125, CWE-190, CWE-416, CWE-476, CWE-787, and others\n- Respond with only the CWE identifier (e.g., \"CWE-125\") or \"NONE\" - no additional explanation",
+            "user_prompt": "Classify the vulnerability type in this code:\n\n{code}"
+        },
+        "multiclass_detailed": {
+            "name": "Detailed Multiclass Vulnerability Analysis",
+            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of Common Weakness Enumeration (CWE) patterns. Your task is to perform thorough static analysis to identify and classify specific vulnerability types.\n\nAnalysis Guidelines:\n- Memory safety: buffer overflows/underflows (CWE-119, CWE-120, CWE-125, CWE-787)\n- Integer issues: overflows/underflows (CWE-190)\n- Null pointer dereferences (CWE-476)\n- Use-after-free and double-free (CWE-416, CWE-415)\n- Injection flaws: SQL injection (CWE-89), XSS (CWE-79), command injection (CWE-78)\n- Broken access control and authentication issues\n\nResponse Format: Respond with only the specific CWE identifier (e.g., \"CWE-125\") or \"NONE\" if no vulnerabilities are found",
+            "user_prompt": "Analyze and classify the vulnerability type in this code:\n\n```\n{code}\n```"
+        }
+    },
+    "model_configurations": {
+        "qwen3-4b": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "qwen3-4b-thinking": {
+            "model_name": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true,
+            "is_thinking_enabled": true
+        },
+        "qwen3-8b": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "qwen-3",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 1,
+            "use_quantization": true
+        },
+        "qwen3-8b-thinking": {
+            "model_name": "Qwen/Qwen3-8B",
+            "model_type": "qwen-3",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 1,
+            "use_quantization": true,
+            "is_thinking_enabled": true
+        },
+        "qwen3-30b": {
+            "model_name": "Qwen/Qwen3-30B-A3B",
+            "model_type": "qwen-3",
+            "batch_size": 2,
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "use_quantization": true,
+            "is_thinking_enabled": false
+        },
+        "deepseek-r1-distill-qwen2.5-7b": {
+            "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "model_type": "deepseek-r1",
+            "max_tokens": 2048,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        },
+        "llama3.2-3B": {
+            "model_name": "meta-llama/Llama-3.2-3B-Instruct",
+            "model_type": "llama-3",
+            "max_tokens": 512,
+            "temperature": 0.1,
+            "batch_size": 1,
+            "use_quantization": true
+        },
+        "gemma3-4b": {
+            "model_name": "google/gemma-3-4b-it-qat-q4_0-unquantized",
+            "model_type": "gemma-3",
+            "max_tokens": 1024,
+            "temperature": 0.1,
+            "batch_size": 2,
+            "use_quantization": true
+        }
+    },
+    "experiment_plans": {
+        "quick_test": {
+            "description": "Quick sanity check: CleanVul C binary with small sample",
+            "datasets": [
+                "binary_c",
+                "binary_java"
+            ],
+            "models": [
+                "qwen3-4b",
+                "llama3.2-3B"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 10
+        },
+        "binary_c_small_models": {
+            "description": "Binary vulnerability detection on CleanVul C (score=4) with small models",
+            "datasets": [
+                "binary_c"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking",
+                "llama3.2-3B",
+                "gemma3-4b",
+                "deepseek-r1-distill-qwen2.5-7b"
+            ],
+            "prompts": [
+                "basic_security",
+                "detailed_analysis",
+                "step_by_step"
+            ],
+            "sample_limit": 100
+        },
+        "binary_multilang_small_models": {
+            "description": "Binary detection across C, C++, Java, Python with small models",
+            "datasets": [
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b"
+            ],
+            "prompts": [
+                "basic_security",
+                "detailed_analysis"
+            ],
+            "sample_limit": 50
+        },
+        "score3_vs_score4": {
+            "description": "Compare model accuracy on lower-quality (score>=3) vs highest-quality (score=4) labels",
+            "datasets": [
+                "binary_c",
+                "binary_c_score3"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-8b"
+            ],
+            "prompts": [
+                "basic_security"
+            ],
+            "sample_limit": 100
+        },
+        "multiclass_small_models": {
+            "description": "Multiclass CWE classification on CleanVul C and Java",
+            "datasets": [
+                "multiclass_c",
+                "multiclass_java"
+            ],
+            "models": [
+                "qwen3-4b",
+                "qwen3-4b-thinking",
+                "qwen3-8b",
+                "qwen3-8b-thinking"
+            ],
+            "prompts": [
+                "multiclass_basic",
+                "multiclass_detailed"
+            ],
+            "sample_limit": 100
+        },
+        "large_models_binary": {
+            "description": "Binary vulnerability detection with large models on C",
+            "datasets": [
+                "binary_c"
+            ],
+            "models": [
+                "qwen3-30b"
+            ],
+            "prompts": [
+                "detailed_analysis",
+                "step_by_step"
+            ],
+            "sample_limit": 50
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/cleanvul_experiments",
+        "create_subdirs": true,
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    },
+    "evaluation_settings": {
+        "metrics": [
+            "accuracy",
+            "precision",
+            "recall",
+            "f1",
+            "auc"
+        ],
+        "calculate_per_cwe": true,
+        "create_confusion_matrix": true,
+        "analyze_errors": true
+    }
+}

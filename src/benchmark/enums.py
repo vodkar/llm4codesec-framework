@@ -32,12 +32,23 @@ class ModelType(Enum):
 
     # Gemma models
     GEMMA_3 = "gemma-3"
-    
+
     # nemotron
-    NEMOTRON_NANO_V2= "nemotron-nano-v2"
+    NEMOTRON_NANO_V2 = "nemotron-nano-v2"
+
+    # Online model families
+    OPENAI_GPT = "openai-gpt"
+    CLAUDE = "claude"
 
 
 class BackendFrameworks(StrEnum):
     HF = "hf"
     VLLM = "vllm"
     LLAMA_CPP = "llama_cpp"
+    ONLINE = "online"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+
+class BinaryDecisionMode(StrEnum):
+    FINAL_ANSWER_LOGPROBS = "final_answer_logprobs"
+    TEXT = "text"

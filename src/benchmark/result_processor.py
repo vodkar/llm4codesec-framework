@@ -53,6 +53,9 @@ class BenchmarkResultProcessor(BaseModel):
         confidence_stats: dict[str, float] | None = self._describe_confidence_scores(
             prediction_records
         )
+        binary_label_confidence_stats: dict[str, float] | None = (
+            self._describe_binary_label_confidence_scores(prediction_records)
+        )
 
         benchmark_info: BenchmarkInfo = self._build_benchmark_info(
             total_time=total_time,
@@ -60,6 +63,7 @@ class BenchmarkResultProcessor(BaseModel):
             processing_stats=processing_stats,
             token_stats=token_stats,
             confidence_stats=confidence_stats,
+            binary_label_confidence_stats=binary_label_confidence_stats,
         )
 
         report: BenchmarkReport = BenchmarkReport(
@@ -134,6 +138,7 @@ class BenchmarkResultProcessor(BaseModel):
             tokens_used=prediction.tokens_used or 0,
             processing_time=prediction.processing_time,
             confidence=prediction.confidence,
+            binary_label_confidence=prediction.binary_label_confidence,
         )
         return PredictionRecord(
             sample_id=str(prediction.sample_id),
@@ -202,6 +207,24 @@ class BenchmarkResultProcessor(BaseModel):
             "count": float(len(scores)),
         }
 
+    def _describe_binary_label_confidence_scores(
+        self, predictions: list[PredictionRecord]
+    ) -> dict[str, float] | None:
+        """Compute descriptive statistics for final-answer-position P(VULNERABLE) scores."""
+        scores: list[float] = [
+            p.inference_data.binary_label_confidence
+            for p in predictions
+            if p.inference_data.binary_label_confidence is not None
+        ]
+        if not scores:
+            return None
+        return {
+            "mean": sum(scores) / len(scores),
+            "min": min(scores),
+            "max": max(scores),
+            "count": float(len(scores)),
+        }
+
     def _build_benchmark_info(
         self,
         total_time: float,
@@ -209,6 +232,7 @@ class BenchmarkResultProcessor(BaseModel):
         processing_stats: dict[str, float | int],
         token_stats: dict[str, float | int],
         confidence_stats: dict[str, float] | None,
+        binary_label_confidence_stats: dict[str, float] | None,
     ) -> BenchmarkInfo:
         """Construct benchmark metadata for the report."""
         avg_time_per_sample: float = (
@@ -239,6 +263,8 @@ class BenchmarkResultProcessor(BaseModel):
             is_thinking_enabled=bool(self.config.is_thinking_enabled),
             self_consistency_samples=int(self.config.self_consistency_samples),
             enable_logprobs=bool(self.config.enable_logprobs),
+            binary_decision_mode=self.config.binary_decision_mode,
+            binary_logprob_threshold=self.config.binary_logprob_threshold,
         )
 
         run_stats = RunStats(
@@ -250,6 +276,7 @@ class BenchmarkResultProcessor(BaseModel):
             processing_time_stats=processing_stats,
             tokens_used_stats=token_stats,
             confidence_stats=confidence_stats,
+            binary_label_confidence_stats=binary_label_confidence_stats,
         )
 
         return BenchmarkInfo(

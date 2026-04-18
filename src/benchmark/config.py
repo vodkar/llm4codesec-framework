@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, PrivateAttr
 
-from benchmark.enums import BackendFrameworks, ModelType, TaskType
+from benchmark.enums import BackendFrameworks, BinaryDecisionMode, ModelType, TaskType
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,6 +39,22 @@ class ModelConfig(BaseModel):
     enable_prefix_caching: bool | None = None
     self_consistency_samples: int = 1
     enable_logprobs: bool = False
+    binary_decision_mode: BinaryDecisionMode = BinaryDecisionMode.TEXT
+    binary_logprob_threshold: float | None = None
+    api_provider: str | None = None
+    api_base_url: str | None = None
+    api_key_env_var: str | None = None
+    api_reasoning_effort: str | None = None
+    api_reasoning_budget_tokens: int | None = None
+    api_max_retries: int | None = None
+    api_timeout_seconds: float | None = None
+    api_thinking_budget_tokens: int | None = None
+    api_thinking_type: str | None = None
+    api_thinking_display: str | None = None
+    api_use_batch: bool = False
+    api_batch_poll_interval_seconds: float | None = None
+    api_batch_completion_window: str | None = None
+    api_batch_max_wait_seconds: float | None = None
 
 
 class DatasetConfig(BaseModel):
@@ -113,6 +129,22 @@ class ExperimentConfig(BaseModel):
     enable_prefix_caching: bool | None = None
     self_consistency_samples: int = 1
     enable_logprobs: bool = False
+    binary_decision_mode: BinaryDecisionMode = BinaryDecisionMode.TEXT
+    binary_logprob_threshold: float | None = None
+    api_provider: str | None = None
+    api_base_url: str | None = None
+    api_key_env_var: str | None = None
+    api_reasoning_effort: str | None = None
+    api_reasoning_budget_tokens: int | None = None
+    api_max_retries: int | None = None
+    api_timeout_seconds: float | None = None
+    api_thinking_budget_tokens: int | None = None
+    api_thinking_type: str | None = None
+    api_thinking_display: str | None = None
+    api_use_batch: bool = False
+    api_batch_poll_interval_seconds: float | None = None
+    api_batch_completion_window: str | None = None
+    api_batch_max_wait_seconds: float | None = None
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -121,6 +153,31 @@ class ExperimentConfig(BaseModel):
     __dataset_config: DatasetConfig = PrivateAttr()
     __prompt_config: PromptConfig = PrivateAttr()
     __output_settings: OutputConfig = PrivateAttr()
+
+    def model_post_init(self, context: Any) -> None:
+        """Validate experiment settings after initialization."""
+
+        if self.binary_decision_mode == BinaryDecisionMode.FINAL_ANSWER_LOGPROBS:
+            if self.task_type not in {
+                TaskType.BINARY_VULNERABILITY,
+                TaskType.BINARY_CWE_SPECIFIC,
+                TaskType.BINARY_VULNERABILITY_SPECIFIC,
+            }:
+                raise ValueError(
+                    "binary_decision_mode='final_answer_logprobs' is only supported "
+                    "for binary vulnerability tasks"
+                )
+            if not self.enable_logprobs:
+                raise ValueError(
+                    "binary_decision_mode='final_answer_logprobs' requires enable_logprobs=true"
+                )
+            if self.binary_logprob_threshold is None:
+                raise ValueError(
+                    "binary_decision_mode='final_answer_logprobs' requires an explicit "
+                    "binary_logprob_threshold calibrated on held-out data"
+                )
+
+        super().model_post_init(context)
 
     @classmethod
     def from_file(
@@ -213,6 +270,22 @@ class ExperimentConfig(BaseModel):
             enable_prefix_caching=model_config.enable_prefix_caching,
             self_consistency_samples=model_config.self_consistency_samples,
             enable_logprobs=model_config.enable_logprobs,
+            binary_decision_mode=model_config.binary_decision_mode,
+            binary_logprob_threshold=model_config.binary_logprob_threshold,
+            api_provider=model_config.api_provider,
+            api_base_url=model_config.api_base_url,
+            api_key_env_var=model_config.api_key_env_var,
+            api_reasoning_effort=model_config.api_reasoning_effort,
+            api_reasoning_budget_tokens=model_config.api_reasoning_budget_tokens,
+            api_max_retries=model_config.api_max_retries,
+            api_timeout_seconds=model_config.api_timeout_seconds,
+            api_thinking_budget_tokens=model_config.api_thinking_budget_tokens,
+            api_thinking_type=model_config.api_thinking_type,
+            api_thinking_display=model_config.api_thinking_display,
+            api_use_batch=model_config.api_use_batch,
+            api_batch_poll_interval_seconds=model_config.api_batch_poll_interval_seconds,
+            api_batch_completion_window=model_config.api_batch_completion_window,
+            api_batch_max_wait_seconds=model_config.api_batch_max_wait_seconds,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,

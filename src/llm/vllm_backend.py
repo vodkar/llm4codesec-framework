@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
+from benchmark.enums import BinaryDecisionMode
 import torch
 from huggingface_hub import hf_hub_download, list_repo_files
 from transformers import PreTrainedTokenizerBase
@@ -22,6 +23,9 @@ if TYPE_CHECKING:
 
 LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 _DEFAULT_MODEL_DIR: Final[str] = "~/.cache/huggingface"
+_BINARY_LABELS: Final[tuple[str, str]] = ("VULNERABLE", "SAFE")
+_FINAL_ANSWER_LOGPROBS_TOP_K: Final[int] = 20
+_FINAL_ANSWER_PREFIX: Final[str] = "[[FINAL_ANSWER:"
 
 
 class VllmLLM(ILLMInference):
@@ -37,6 +41,8 @@ class VllmLLM(ILLMInference):
         self.config: ExperimentConfig = config
         self.llm: LLM | None = None
         self.tokenizer: PreTrainedTokenizerBase | None = None
+        self._binary_label_token_ids: dict[str, int] | None = None
+        self._did_warn_binary_label_tokenization: bool = False
 
         self._load_model()
 
@@ -423,9 +429,13 @@ class VllmLLM(ILLMInference):
                 sampling_kwargs[key] = value
 
         if self.config.enable_logprobs:
-            # logprobs=1 returns top-1 log-probability per generated token position.
-            # Note: requires temperature > 0 in most vLLM configurations.
-            sampling_kwargs["logprobs"] = 1
+            # For final-answer label calibration, request a wider top-k slice so both
+            # candidate labels have a chance to appear at the decision position.
+            sampling_kwargs["logprobs"] = (
+                _FINAL_ANSWER_LOGPROBS_TOP_K
+                if self.config.binary_decision_mode == BinaryDecisionMode.FINAL_ANSWER_LOGPROBS
+                else 1
+            )
 
         return sampling_params_cls(**sampling_kwargs)
 
@@ -450,18 +460,24 @@ class VllmLLM(ILLMInference):
             response_text: str = ""
             token_count: int = 0
             confidence: float | None = None
+            binary_label_confidence: float | None = None
 
             if output.outputs:
                 response_text = output.outputs[0].text.strip()
                 token_count = self._count_tokens(output)
                 if self.config.enable_logprobs:
                     confidence = self._compute_confidence(output)
+                    if self.config.binary_decision_mode == BinaryDecisionMode.FINAL_ANSWER_LOGPROBS:
+                        binary_label_confidence = self._compute_binary_label_confidence(
+                            output
+                        )
 
             results.append(InferenceResult(
                 response_text=response_text,
                 tokens_used=token_count,
                 duration=per_item_duration,
                 confidence=confidence,
+                binary_label_confidence=binary_label_confidence,
             ))
 
         return results
@@ -484,6 +500,100 @@ class VllmLLM(ILLMInference):
         if not max_lps:
             return None
         return math.exp(sum(max_lps) / len(max_lps))
+
+    def _compute_binary_label_confidence(self, output: RequestOutput) -> float | None:
+        """Compute final-answer-position P(VULNERABLE) from returned top-logprobs."""
+        label_token_ids: dict[str, int] | None = self._get_binary_label_token_ids()
+        if label_token_ids is None:
+            return None
+
+        logprobs_list = output.outputs[0].logprobs
+        if not logprobs_list:
+            return None
+
+        generated_token_ids: list[int] = output.outputs[0].token_ids or []
+        label_position: int | None = self._find_final_answer_label_token_position(
+            generated_token_ids
+        )
+        if label_position is None or label_position >= len(logprobs_list):
+            return None
+
+        label_position_logprobs = logprobs_list[label_position]
+        if not label_position_logprobs:
+            return None
+
+        vulnerable_logprob = label_position_logprobs.get(label_token_ids["VULNERABLE"])
+        safe_logprob = label_position_logprobs.get(label_token_ids["SAFE"])
+        if vulnerable_logprob is None or safe_logprob is None:
+            return None
+
+        p_vulnerable: float = math.exp(vulnerable_logprob.logprob)
+        p_safe: float = math.exp(safe_logprob.logprob)
+        denominator: float = p_vulnerable + p_safe
+        if denominator == 0.0:
+            return None
+        return p_vulnerable / denominator
+
+    def _find_final_answer_label_token_position(self, token_ids: list[int]) -> int | None:
+        """Find the token index where the final-answer label begins."""
+        if self.tokenizer is None or not token_ids:
+            return None
+
+        generated_text: str = self.tokenizer.decode(
+            token_ids,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False,
+        )
+        marker_index: int = generated_text.rfind(_FINAL_ANSWER_PREFIX)
+        if marker_index < 0:
+            return None
+
+        label_start_char_index: int = marker_index + len(_FINAL_ANSWER_PREFIX)
+        while (
+            label_start_char_index < len(generated_text)
+            and generated_text[label_start_char_index].isspace()
+        ):
+            label_start_char_index += 1
+
+        if label_start_char_index >= len(generated_text):
+            return None
+
+        for token_index in range(len(token_ids)):
+            decoded_prefix: str = self.tokenizer.decode(
+                token_ids[: token_index + 1],
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )
+            if len(decoded_prefix) > label_start_char_index:
+                return token_index
+
+        return None
+
+    def _get_binary_label_token_ids(self) -> dict[str, int] | None:
+        """Resolve token ids for SAFE and VULNERABLE when both are single tokens."""
+        if self._binary_label_token_ids is not None:
+            return self._binary_label_token_ids
+
+        if self.tokenizer is None:
+            return None
+
+        label_token_ids: dict[str, int] = {}
+        for label in _BINARY_LABELS:
+            token_ids: list[int] = self.tokenizer.encode(label, add_special_tokens=False)
+            if len(token_ids) != 1:
+                if not self._did_warn_binary_label_tokenization:
+                    LOGGER.warning(
+                        "Skipping final-answer logprob binary calibration for %s: %s tokenizes to %s",
+                        self.config.model_identifier,
+                        label,
+                        token_ids,
+                    )
+                    self._did_warn_binary_label_tokenization = True
+                return None
+            label_token_ids[label] = token_ids[0]
+
+        self._binary_label_token_ids = label_token_ids
+        return self._binary_label_token_ids
 
     @staticmethod
     def _count_tokens(output: RequestOutput) -> int:

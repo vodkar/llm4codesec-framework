@@ -12,6 +12,8 @@ class InferenceResult:
     confidence: float | None = field(default=None)
     """Geometric-mean per-token probability (exp of mean log-prob).
     None when logprobs are not enabled or not supported."""
+    binary_label_confidence: float | None = field(default=None)
+    """Binary P(VULNERABLE) derived from final-answer label-position logprobs."""
 
 
 class ILLMInference(ABC):

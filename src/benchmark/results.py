@@ -5,6 +5,7 @@ import numpy as np
 from numpy.typing import NDArray
 from pydantic import BaseModel, ConfigDict, Field
 
+from benchmark.enums import BinaryDecisionMode
 from benchmark.models import PredictionResult
 
 
@@ -30,6 +31,8 @@ class SampleInferenceData(BaseModel):
     """Mean inference duration across all N draws in seconds."""
     confidence: float | None
     """Geometric-mean per-token probability averaged over N draws; None if not enabled."""
+    binary_label_confidence: float | None = None
+    """Mean final-answer-position P(VULNERABLE) across draws when enabled."""
 
 
 class PredictionRecord(BaseModel):
@@ -61,6 +64,8 @@ class ModelRunConfig(BaseModel):
     is_thinking_enabled: bool
     self_consistency_samples: int
     enable_logprobs: bool
+    binary_decision_mode: BinaryDecisionMode
+    binary_logprob_threshold: float | None = None
 
 
 class RunStats(BaseModel):
@@ -75,6 +80,8 @@ class RunStats(BaseModel):
     tokens_used_stats: dict[str, float | int]
     confidence_stats: dict[str, float] | None
     """Per-run confidence summary; None when enable_logprobs=False."""
+    binary_label_confidence_stats: dict[str, float] | None = None
+    """Per-run final-answer-position P(VULNERABLE) summary when enabled and available."""
 
 
 class BenchmarkInfo(BaseModel):

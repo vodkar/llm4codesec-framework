@@ -22,6 +22,7 @@ LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
 
 # Default directory for downloaded GGUF models
 _DEFAULT_MODEL_DIR: Final[str] = "llm_models"
+_GENERATION_PROGRESS_LOG_STEPS: Final[int] = 10
 
 
 class LlamaCppLLM(ILLMInference):
@@ -341,9 +342,24 @@ class LlamaCppLLM(ILLMInference):
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 
+        total_generations: int = len(system_prompts)
+        self._log_generation_batch_start(
+            total_generations,
+            "system/user prompt pairs",
+        )
+
         results: list[InferenceResult] = []
-        for system_prompt, user_prompt in zip(system_prompts, user_prompts):
+        started_at: float = time.time()
+        for index, (system_prompt, user_prompt) in enumerate(
+            zip(system_prompts, user_prompts),
+            start=1,
+        ):
             results.append(self.generate_response(system_prompt, user_prompt))
+            self._maybe_log_generation_progress(
+                completed=index,
+                total=total_generations,
+                started_at=started_at,
+            )
         return results
 
     def generate_batch_responses(
@@ -355,8 +371,12 @@ class LlamaCppLLM(ILLMInference):
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
 
+        total_generations: int = len(prompts)
+        self._log_generation_batch_start(total_generations, "formatted prompts")
+
         results: list[InferenceResult] = []
-        for prompt in prompts:
+        started_at: float = time.time()
+        for index, prompt in enumerate(prompts, start=1):
             start_time: float = time.time()
             completion_kwargs: dict[str, int | float] = self._build_generation_kwargs(
                 self.model.__call__
@@ -378,8 +398,62 @@ class LlamaCppLLM(ILLMInference):
                 duration=duration,
                 confidence=confidence,
             ))
+            self._maybe_log_generation_progress(
+                completed=index,
+                total=total_generations,
+                started_at=started_at,
+            )
 
         return results
+
+    @staticmethod
+    def _log_generation_batch_start(total: int, batch_kind: str) -> None:
+        """Log the start of a sequential llama.cpp generation batch."""
+        if total <= 0:
+            return
+
+        LOGGER.info(
+            "Starting %d llama.cpp generations for %s",
+            total,
+            batch_kind,
+        )
+
+    @staticmethod
+    def _should_log_generation_progress(completed: int, total: int) -> bool:
+        """Determine whether to emit a progress update for sequential generations."""
+        if total <= 0:
+            return False
+
+        if completed >= total:
+            return True
+
+        progress_interval: int = max(1, total // _GENERATION_PROGRESS_LOG_STEPS)
+        return completed == 1 or completed % progress_interval == 0
+
+    def _maybe_log_generation_progress(
+        self,
+        *,
+        completed: int,
+        total: int,
+        started_at: float,
+    ) -> None:
+        """Log sequential llama.cpp generation progress at a controlled cadence."""
+        if not self._should_log_generation_progress(completed, total):
+            return
+
+        elapsed_seconds: float = time.time() - started_at
+        percent_complete: float = (completed / total) * 100 if total else 0.0
+        average_seconds_per_generation: float = elapsed_seconds / completed if completed else 0.0
+        eta_seconds: float = average_seconds_per_generation * max(total - completed, 0)
+
+        LOGGER.info(
+            "llama.cpp generation progress: %d/%d (%.1f%%) elapsed=%.1fs eta=%.1fs",
+            completed,
+            total,
+            percent_complete,
+            elapsed_seconds,
+            eta_seconds,
+        )
 
     def _generate_chat(self, system_prompt: str, user_prompt: str) -> tuple[str, int, float | None]:
         """Generate response using chat completion if supported."""

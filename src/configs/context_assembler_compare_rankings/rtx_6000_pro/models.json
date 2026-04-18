@@ -1,11 +1,11 @@
 {
     "models": {
         "qwen35-122b-a10b-gguf": {
-            "model_identifier": "hf://unsloth/Qwen3.5-122B-A10B-GGUF/Qwen3.5-122B-A10B-Q4_K_M.gguf",
+            "model_identifier": "hf://unsloth/Qwen3.5-122B-A10B-GGUF/Q4_K_M/",
             "tokenizer_identifier": "Qwen/Qwen3.5-122B-A10B",
             "hf_config_path": "Qwen/Qwen3.5-122B-A10B",
             "model_type": "qwen-3.5",
-            "backend": "vllm",
+            "backend": "llama_cpp",
             "max_output_tokens": 16384,
             "is_thinking_enabled": true,
             "context_length": 33000,
@@ -28,7 +28,7 @@
             "tokenizer_identifier": "Qwen/Qwen3.5-35B-A3B",
             "hf_config_path": "Qwen/Qwen3.5-35B-A3B",
             "model_type": "qwen-3.5",
-            "backend": "vllm",
+            "backend": "llama_cpp",
             "max_output_tokens": 16384,
             "is_thinking_enabled": true,
             "context_length": 33000,
@@ -51,7 +51,7 @@
             "tokenizer_identifier": "google/gemma-3-27b-it",
             "hf_config_path": "google/gemma-3-27b-it",
             "model_type": "gemma-3",
-            "backend": "vllm",
+            "backend": "llama_cpp",
             "max_output_tokens": 16384,
             "context_length": 33000,
             "temperature": 1.0,

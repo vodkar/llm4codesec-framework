@@ -70,7 +70,24 @@
                 "gemma3-12b-it-gguf"
             ],
             "prompts": [
-                "step_by_step"
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 100
+        },
+        "online_models_compare_rankings": {
+            "description": "Full compare-rankings evaluation across all ranking strategies and requested online models",
+            "datasets": [
+                "context_assembler_compare_current",
+                "context_assembler_compare_depth_repeats_context",
+                "context_assembler_compare_dummy",
+                "context_assembler_compare_multiplicative_boost",
+                "context_assembler_compare_random_picking"
+            ],
+            "models": [
+                "claude-sonnet-4-6-thinking-batch"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
             ],
             "sample_limit": 100
         },

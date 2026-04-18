@@ -34,6 +34,8 @@ class PredictionResult(BaseModel):
     predicted_label: int | str
     true_label: int | str
     confidence: float | None
+    binary_label_confidence: float | None = None
+    """Binary P(VULNERABLE) from the parsed final-answer label position when available."""
     response_text: str
     processing_time: float
     tokens_used: int | None = None

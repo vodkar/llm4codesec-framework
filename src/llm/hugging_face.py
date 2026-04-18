@@ -2,8 +2,9 @@ import logging
 import math
 import os
 import time
-from typing import Any
+from typing import Any, Final
 
+from benchmark.enums import BinaryDecisionMode
 import torch
 import torch.nn.functional as F
 from transformers import (
@@ -19,6 +20,9 @@ from benchmark.config import ExperimentConfig
 from flash_attention import is_flash_attention_available, is_flash_attention_supported
 from llm.llm import ILLMInference, InferenceResult
 
+_BINARY_LABELS: Final[tuple[str, str]] = ("VULNERABLE", "SAFE")
+_FINAL_ANSWER_PREFIX: Final[str] = "[[FINAL_ANSWER:"
+
 
 class HuggingFaceLLM(ILLMInference):
     """Hugging Face transformers-based LLM interface."""
@@ -31,6 +35,8 @@ class HuggingFaceLLM(ILLMInference):
         self.pipeline: Pipeline | None = None
         self.pad_token_id: int = 0
         self._warned_sampling_params: set[str] = set()
+        self._binary_label_token_ids: dict[str, int] | None = None
+        self._did_warn_binary_label_tokenization: bool = False
 
         self._load_model()
 
@@ -322,15 +328,111 @@ class HuggingFaceLLM(ILLMInference):
                 for score in outputs.scores
             ]
             confidence: float | None = math.exp(sum(max_lps) / len(max_lps)) if max_lps else None
+            binary_label_confidence: float | None = None
+            if self.config.binary_decision_mode == BinaryDecisionMode.FINAL_ANSWER_LOGPROBS:
+                binary_label_confidence = self._compute_binary_label_confidence(
+                    generated_ids.tolist(),
+                    outputs.scores,
+                )
 
             results.append(InferenceResult(
                 response_text=response_text,
                 tokens_used=token_count,
                 duration=duration,
                 confidence=confidence,
+                binary_label_confidence=binary_label_confidence,
             ))
 
         return results
+
+    def _compute_binary_label_confidence(
+        self,
+        generated_token_ids: list[int],
+        scores: tuple[torch.Tensor, ...],
+    ) -> float | None:
+        """Compute final-answer-position P(VULNERABLE) from decoder scores."""
+        label_token_ids: dict[str, int] | None = self._get_binary_label_token_ids()
+        if label_token_ids is None or not scores:
+            return None
+
+        label_position: int | None = self._find_final_answer_label_token_position(
+            generated_token_ids
+        )
+        if label_position is None or label_position >= len(scores):
+            return None
+
+        label_position_scores = F.log_softmax(scores[label_position][0], dim=-1)
+        p_vulnerable: float = math.exp(
+            label_position_scores[label_token_ids["VULNERABLE"]].item()
+        )
+        p_safe: float = math.exp(
+            label_position_scores[label_token_ids["SAFE"]].item()
+        )
+        denominator: float = p_vulnerable + p_safe
+        if denominator == 0.0:
+            return None
+        return p_vulnerable / denominator
+
+    def _find_final_answer_label_token_position(self, token_ids: list[int]) -> int | None:
+        """Find the token index where the final-answer label begins."""
+        if self.tokenizer is None or not token_ids:
+            return None
+
+        generated_text: str = self.tokenizer.decode(
+            token_ids,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False,
+        )
+        marker_index: int = generated_text.rfind(_FINAL_ANSWER_PREFIX)
+        if marker_index < 0:
+            return None
+
+        label_start_char_index: int = marker_index + len(_FINAL_ANSWER_PREFIX)
+        while (
+            label_start_char_index < len(generated_text)
+            and generated_text[label_start_char_index].isspace()
+        ):
+            label_start_char_index += 1
+
+        if label_start_char_index >= len(generated_text):
+            return None
+
+        for token_index in range(len(token_ids)):
+            decoded_prefix: str = self.tokenizer.decode(
+                token_ids[: token_index + 1],
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )
+            if len(decoded_prefix) > label_start_char_index:
+                return token_index
+
+        return None
+
+    def _get_binary_label_token_ids(self) -> dict[str, int] | None:
+        """Resolve token ids for SAFE and VULNERABLE when both are single tokens."""
+        if self._binary_label_token_ids is not None:
+            return self._binary_label_token_ids
+
+        if self.tokenizer is None:
+            return None
+
+        label_token_ids: dict[str, int] = {}
+        for label in _BINARY_LABELS:
+            token_ids: list[int] = self.tokenizer.encode(label, add_special_tokens=False)
+            if len(token_ids) != 1:
+                if not self._did_warn_binary_label_tokenization:
+                    logging.warning(
+                        "Skipping final-answer logprob binary calibration for %s: %s tokenizes to %s",
+                        self.config.model_identifier,
+                        label,
+                        token_ids,
+                    )
+                    self._did_warn_binary_label_tokenization = True
+                return None
+            label_token_ids[label] = token_ids[0]
+
+        self._binary_label_token_ids = label_token_ids
+        return self._binary_label_token_ids
 
     def _build_generation_kwargs(
         self, batch_size: int

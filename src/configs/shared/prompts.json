@@ -2,7 +2,12 @@
     "prompts": {
         "basic_security": {
             "name": "Basic Security Analysis",
-            "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Base your decision on concrete security risks, not coding style issues",
+            "system_prompt": "You are a code security classifier. You will be given a code snippet and must determine whether it contains a real, exploitable security vulnerability. Many code snippets are perfectly safe — do not flag code as vulnerable unless you identify a specific, concrete vulnerability with a clear attack vector.",
+            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
+        },
+        "strict_exploitable_security": {
+            "name": "Strict Exploitable Security Analysis",
+            "system_prompt": "You are a code security classifier. Your task is to determine if this code contains a REAL, EXPLOITABLE security vulnerability.\n\nRules:\n- Theoretical or best-practice concerns are NOT vulnerabilities.\n  Only report a vulnerability if you can describe a concrete attack scenario.\n- If unsure, classify as SAFE. False alarms are costly.\n- Many code snippets you will see are safe. Do not force a finding.",
             "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
         },
         "detailed_analysis": {

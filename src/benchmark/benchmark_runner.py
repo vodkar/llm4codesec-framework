@@ -12,11 +12,22 @@ from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
 from logging_tools import get_logger
+from benchmark.enums import BinaryDecisionMode, TaskType
 
 _LOGGER = get_logger(__name__)
 
 _ERRORS_THRESHOLD = 0.2  # If more than 20% of samples fail, fail the experiment
 _CHAT_TEMPLATE_TOKEN_OVERHEAD = 200  # Safety margin for chat-template special tokens
+
+
+def _is_binary_task(task_type: object) -> bool:
+    """Return whether the configured task uses binary labels."""
+
+    return task_type in {
+        TaskType.BINARY_VULNERABILITY,
+        TaskType.BINARY_CWE_SPECIFIC,
+        TaskType.BINARY_VULNERABILITY_SPECIFIC,
+    }
 
 
 def _majority_vote(labels: list[int | str]) -> int | str:
@@ -199,12 +210,36 @@ class BenchmarkRunner(BaseModel):
             confidence: float | None = (
                 sum(raw_confidences) / len(raw_confidences) if raw_confidences else None
             )
+            raw_binary_label_confidences: list[float] = [
+                r.binary_label_confidence
+                for r in group
+                if r.binary_label_confidence is not None
+            ]
+            binary_label_confidence: float | None = (
+                sum(raw_binary_label_confidences) / len(raw_binary_label_confidences)
+                if raw_binary_label_confidences
+                else None
+            )
 
             try:
                 parsed_labels: list[int | str] = [
                     response_parser.parse_response(t) for t in all_texts
                 ]
-                predicted_label: int | str = _majority_vote(parsed_labels)
+                predicted_label: int | str
+                binary_logprob_threshold: float | None = self.config.binary_logprob_threshold
+                if (
+                    _is_binary_task(self.config.task_type)
+                    and self.config.binary_decision_mode == BinaryDecisionMode.FINAL_ANSWER_LOGPROBS
+                    and binary_label_confidence is not None
+                    and binary_logprob_threshold is not None
+                ):
+                    predicted_label = (
+                        1
+                        if binary_label_confidence > binary_logprob_threshold
+                        else 0
+                    )
+                else:
+                    predicted_label = _majority_vote(parsed_labels)
                 vote_counts: dict[str, int] = {}
                 for lbl in parsed_labels:
                     key = str(lbl)
@@ -221,6 +256,7 @@ class BenchmarkRunner(BaseModel):
                     predicted_label=predicted_label,
                     true_label=true_label,
                     confidence=confidence,
+                    binary_label_confidence=binary_label_confidence,
                     response_text=all_texts[0],
                     processing_time=avg_time,
                     tokens_used=total_tokens,
@@ -229,9 +265,6 @@ class BenchmarkRunner(BaseModel):
                     all_responses=all_texts,
                     vote_counts=vote_counts,
                 )
-
-                if (i + 1) % 50 == 0:
-                    _LOGGER.info(f"Processed {i + 1}/{len(samples)} predictions")
             except Exception as e:
                 _LOGGER.error(
                     f"Error processing sample ID {sample.id}: {e}\nResponse text: {all_texts[0] if all_texts else ''}"
@@ -241,6 +274,7 @@ class BenchmarkRunner(BaseModel):
                     predicted_label="",
                     true_label=sample.label,
                     confidence=confidence,
+                    binary_label_confidence=binary_label_confidence,
                     response_text=all_texts[0] if all_texts else "",
                     processing_time=avg_time,
                     tokens_used=total_tokens,

@@ -32,5 +32,17 @@ def create_llm_inference(config: ExperimentConfig) -> ILLMInference:
         from llm.llama_cpp_backend import LlamaCppLLM
 
         return LlamaCppLLM(config)
+    if backend == "openai":
+        from llm.openai_backend import OpenAILLM
+
+        return OpenAILLM(config)
+    if backend == "anthropic":
+        from llm.anthropic_backend import AnthropicLLM
+
+        return AnthropicLLM(config)
+    if backend == "online":
+        from llm.online_backend import create_online_backend
+
+        return create_online_backend(config)
 
     raise ValueError(f"Unsupported LLM backend: {config.backend}")

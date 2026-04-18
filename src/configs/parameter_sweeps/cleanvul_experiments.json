@@ -9,7 +9,10 @@
         "sampling_sweep_quick": {
             "description": "Quick validation of one-factor sampling sweeps on CleanVul C binary detection (no thinking)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-nt-base",
@@ -28,7 +31,10 @@
         "sampling_sweep_binary": {
             "description": "Full one-factor sampling sweep on CleanVul C binary detection (no thinking)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-nt-base",
@@ -68,7 +74,10 @@
         "sampling_sweep_quick_thinking": {
             "description": "Quick validation of one-factor sampling sweeps on CleanVul C binary detection (thinking enabled)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-base",
@@ -87,7 +96,10 @@
         "sampling_sweep_binary_thinking": {
             "description": "Full one-factor sampling sweep on CleanVul C binary detection (thinking enabled)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-base",
@@ -127,7 +139,10 @@
         "sampling_sweep_combinations": {
             "description": "Multi-factor combinations of best individual params on CleanVul C binary detection (no thinking)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-nt-combo-tp070-rp110",
@@ -146,7 +161,10 @@
         "sampling_sweep_combinations_thinking": {
             "description": "Multi-factor combinations of best individual params on CleanVul C binary detection (thinking enabled)",
             "datasets": [
-                "binary_c"
+                "binary_c",
+                "binary_cpp",
+                "binary_java",
+                "binary_py"
             ],
             "models": [
                 "qwen3-4b-combo-tp070-rp110",

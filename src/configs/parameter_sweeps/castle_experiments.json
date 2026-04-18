@@ -131,12 +131,11 @@
             ],
             "models": [
                 "qwen3-4b-nt-combo-tp070-rp110",
-                "qwen3-4b-nt-combo-tk040-rp110",
-                "qwen3-4b-nt-combo-tp070-pp025",
                 "qwen3-4b-nt-combo-t03-tp070-rp110",
-                "qwen3-4b-nt-combo-tk040-pp025",
-                "qwen3-4b-nt-combo-tp070-pp025-rp110",
-                "qwen3-4b-nt-combo-pp200-rp120"
+                "qwen3-4b-nt-combo-pp200-rp120",
+                "qwen3-4b-nt-combo-rp110-pp150",
+                "qwen3-4b-nt-combo-tp070-pp150",
+                "qwen3-4b-nt-combo-t03-rp110-pp150"
             ],
             "prompts": [
                 "step_by_step"
@@ -150,12 +149,11 @@
             ],
             "models": [
                 "qwen3-4b-combo-tp070-rp110",
-                "qwen3-4b-combo-tk040-rp110",
-                "qwen3-4b-combo-tp070-pp025",
                 "qwen3-4b-combo-t03-tp070-rp110",
-                "qwen3-4b-combo-tk040-pp025",
-                "qwen3-4b-combo-tp070-pp025-rp110",
-                "qwen3-4b-combo-pp200-rp120"
+                "qwen3-4b-combo-pp200-rp120",
+                "qwen3-4b-combo-rp110-pp150",
+                "qwen3-4b-combo-tp070-pp150",
+                "qwen3-4b-combo-t03-rp110-pp150"
             ],
             "prompts": [
                 "step_by_step"

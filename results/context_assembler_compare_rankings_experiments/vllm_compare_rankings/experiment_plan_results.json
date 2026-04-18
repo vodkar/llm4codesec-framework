@@ -1,8 +1,8 @@
 {
   "plan_name": "vllm_compare_rankings",
   "description": "Full compare-rankings evaluation across all ranking strategies and requested vLLM models",
-  "start_time": "2026-04-02T22:55:46.516086",
-  "end_time": "2026-04-03T02:58:18.233411",
+  "start_time": "2026-04-15T15:51:47.489517",
+  "end_time": "2026-04-16T00:34:16.541651",
   "experiments": [
     {
       "benchmark_info": {
@@ -11,61 +11,70 @@
         "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_current.json",
         "description": "ContextAssembler compare-rankings baseline dataset using the current ranking strategy",
         "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-02T23:30:28.038817",
+        "batch_size": 8,
+        "timestamp": "2026-04-15T17:37:15.361894",
         "model": {
           "model_name": "qwen3-8b-thinking-sc5",
           "model_type": "qwen-3",
           "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.6,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
           "use_quantization": true,
           "is_thinking_enabled": true,
           "self_consistency_samples": 5,
-          "enable_logprobs": false
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
         },
         "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 2002.2460129261017,
-          "avg_time_per_sample": 7.361198576934197,
-          "tokens_used_total": 9292586,
-          "tokens_used_avg": 34163.919117647056,
+          "total_samples": 499,
+          "total_time_seconds": 6244.098602771759,
+          "avg_time_per_sample": 12.513223652849216,
+          "tokens_used_total": 19426768,
+          "tokens_used_avg": 38931.39879759519,
           "processing_time_stats": {
-            "count": 272,
-            "min": 1.4720356346929775,
-            "max": 1.4720356346929775,
-            "mean": 1.4720356346929773,
-            "variance": 4.948573944190849e-32,
-            "std": 2.224539040833145e-16
+            "count": 499,
+            "min": 2.502305298004456,
+            "max": 2.502305298004456,
+            "mean": 2.5023052980044556,
+            "variance": 1.9761124081590607e-31,
+            "std": 4.445348589434872e-16
           },
           "tokens_used_stats": {
-            "count": 272,
-            "min": 5268.0,
-            "max": 68051.0,
-            "mean": 34163.919117647056,
-            "variance": 344840659.8753527,
-            "std": 18569.885833665016
+            "count": 499,
+            "min": 3073.0,
+            "max": 78380.0,
+            "mean": 38931.39879759519,
+            "variance": 458620545.47718734,
+            "std": 21415.427744436656
           },
-          "confidence_stats": null
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
         },
         "extra_metadata": {}
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5220588235294118,
+        "accuracy": 0.5571142284569138,
         "summary": {
-          "accuracy": 0.5220588235294118,
-          "precision": 0.5144230769230769,
-          "recall": 0.7867647058823529,
-          "f1_score": 0.6220930232558138,
-          "specificity": 0.25735294117647056
+          "accuracy": 0.5571142284569138,
+          "precision": 0.569377990430622,
+          "recall": 0.476,
+          "f1_score": 0.5185185185185185,
+          "specificity": 0.6385542168674698
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 107,
-            "true_negatives": 35,
-            "false_positives": 101,
-            "false_negatives": 29
+            "true_positives": 119,
+            "true_negatives": 159,
+            "false_positives": 90,
+            "false_negatives": 131
           },
           "labels": [
             0,
@@ -82,61 +91,70 @@
         "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_depth_repeats_context.json",
         "description": "ContextAssembler compare-rankings dataset using the depth-repeats-context strategy",
         "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T00:05:07.335989",
+        "batch_size": 8,
+        "timestamp": "2026-04-15T19:22:32.731971",
         "model": {
           "model_name": "qwen3-8b-thinking-sc5",
           "model_type": "qwen-3",
           "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.6,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
           "use_quantization": true,
           "is_thinking_enabled": true,
           "self_consistency_samples": 5,
-          "enable_logprobs": false
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
         },
         "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 2041.6502795219421,
-          "avg_time_per_sample": 7.506067204124787,
-          "tokens_used_total": 9476058,
-          "tokens_used_avg": 34838.44852941176,
+          "total_samples": 500,
+          "total_time_seconds": 6264.278895139694,
+          "avg_time_per_sample": 12.528557790279388,
+          "tokens_used_total": 19646373,
+          "tokens_used_avg": 39292.746,
           "processing_time_stats": {
-            "count": 272,
-            "min": 1.5010738591937458,
-            "max": 1.5010738591937458,
-            "mean": 1.5010738591937456,
-            "variance": 4.948573944190849e-32,
-            "std": 2.224539040833145e-16
+            "count": 500,
+            "min": 2.505498694705963,
+            "max": 2.505498694705963,
+            "mean": 2.505498694705963,
+            "variance": 0.0,
+            "std": 0.0
           },
           "tokens_used_stats": {
-            "count": 272,
-            "min": 6195.0,
-            "max": 68073.0,
-            "mean": 34838.44852941176,
-            "variance": 356471773.3478945,
-            "std": 18880.460093649584
+            "count": 500,
+            "min": 3114.0,
+            "max": 90738.0,
+            "mean": 39292.746,
+            "variance": 470218870.9153146,
+            "std": 21684.53068238542
           },
-          "confidence_stats": null
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
         },
         "extra_metadata": {}
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5808823529411765,
+        "accuracy": 0.58,
         "summary": {
-          "accuracy": 0.5808823529411765,
-          "precision": 0.5561224489795918,
-          "recall": 0.8014705882352942,
-          "f1_score": 0.6566265060240964,
-          "specificity": 0.3602941176470588
+          "accuracy": 0.58,
+          "precision": 0.6,
+          "recall": 0.48,
+          "f1_score": 0.5333333333333332,
+          "specificity": 0.68
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 109,
-            "true_negatives": 49,
-            "false_positives": 87,
-            "false_negatives": 27
+            "true_positives": 120,
+            "true_negatives": 170,
+            "false_positives": 80,
+            "false_negatives": 130
           },
           "labels": [
             0,
@@ -153,61 +171,70 @@
         "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_dummy.json",
         "description": "ContextAssembler compare-rankings dataset using the dummy ranking strategy",
         "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T00:41:58.346859",
+        "batch_size": 8,
+        "timestamp": "2026-04-15T21:08:31.727741",
         "model": {
           "model_name": "qwen3-8b-thinking-sc5",
           "model_type": "qwen-3",
           "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.6,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
           "use_quantization": true,
           "is_thinking_enabled": true,
           "self_consistency_samples": 5,
-          "enable_logprobs": false
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
         },
         "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 2168.3636631965637,
-          "avg_time_per_sample": 7.971925232340308,
-          "tokens_used_total": 9523749,
-          "tokens_used_avg": 35013.783088235294,
+          "total_samples": 498,
+          "total_time_seconds": 6308.3851618766785,
+          "avg_time_per_sample": 12.667440084089716,
+          "tokens_used_total": 19575011,
+          "tokens_used_avg": 39307.25100401606,
           "processing_time_stats": {
-            "count": 272,
-            "min": 1.5942345899694106,
-            "max": 1.5942345899694106,
-            "mean": 1.5942345899694106,
+            "count": 498,
+            "min": 2.533320747896371,
+            "max": 2.533320747896371,
+            "mean": 2.533320747896371,
             "variance": 0.0,
             "std": 0.0
           },
           "tokens_used_stats": {
-            "count": 272,
-            "min": 5569.0,
-            "max": 70110.0,
-            "mean": 35013.783088235294,
-            "variance": 360820903.188938,
-            "std": 18995.28634132526
+            "count": 498,
+            "min": 3232.0,
+            "max": 87240.0,
+            "mean": 39307.25100401606,
+            "variance": 471701694.47811764,
+            "std": 21718.69458503705
           },
-          "confidence_stats": null
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
         },
         "extra_metadata": {}
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5661764705882353,
+        "accuracy": 0.5502008032128514,
         "summary": {
-          "accuracy": 0.5661764705882353,
-          "precision": 0.5459183673469388,
-          "recall": 0.7867647058823529,
-          "f1_score": 0.644578313253012,
-          "specificity": 0.34558823529411764
+          "accuracy": 0.5502008032128514,
+          "precision": 0.5647668393782384,
+          "recall": 0.43775100401606426,
+          "f1_score": 0.49321266968325794,
+          "specificity": 0.6626506024096386
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 107,
-            "true_negatives": 47,
-            "false_positives": 89,
-            "false_negatives": 29
+            "true_positives": 109,
+            "true_negatives": 165,
+            "false_positives": 84,
+            "false_negatives": 140
           },
           "labels": [
             0,
@@ -224,61 +251,70 @@
         "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_boost.json",
         "description": "ContextAssembler compare-rankings dataset using the multiplicative-boost strategy",
         "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T01:15:28.719503",
+        "batch_size": 8,
+        "timestamp": "2026-04-15T22:49:03.883632",
         "model": {
           "model_name": "qwen3-8b-thinking-sc5",
           "model_type": "qwen-3",
           "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.6,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
           "use_quantization": true,
           "is_thinking_enabled": true,
           "self_consistency_samples": 5,
-          "enable_logprobs": false
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
         },
         "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 1971.9779782295227,
-          "avg_time_per_sample": 7.24991903760854,
-          "tokens_used_total": 9445732,
-          "tokens_used_avg": 34726.955882352944,
+          "total_samples": 500,
+          "total_time_seconds": 5988.940222978592,
+          "avg_time_per_sample": 11.977880445957183,
+          "tokens_used_total": 19363764,
+          "tokens_used_avg": 38727.528,
           "processing_time_stats": {
-            "count": 272,
-            "min": 1.4498423301121768,
-            "max": 1.4498423301121768,
-            "mean": 1.4498423301121766,
-            "variance": 4.948573944190849e-32,
-            "std": 2.224539040833145e-16
+            "count": 500,
+            "min": 2.3954106466293337,
+            "max": 2.3954106466293337,
+            "mean": 2.395410646629334,
+            "variance": 1.9761044719965223e-31,
+            "std": 4.445339663058968e-16
           },
           "tokens_used_stats": {
-            "count": 272,
-            "min": 5593.0,
-            "max": 68456.0,
-            "mean": 34726.955882352944,
-            "variance": 349641710.51465154,
-            "std": 18698.708792712172
+            "count": 500,
+            "min": 3272.0,
+            "max": 77617.0,
+            "mean": 38727.528,
+            "variance": 448593508.7707575,
+            "std": 21180.02617493089
           },
-          "confidence_stats": null
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
         },
         "extra_metadata": {}
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5330882352941176,
+        "accuracy": 0.558,
         "summary": {
-          "accuracy": 0.5330882352941176,
-          "precision": 0.5213270142180095,
-          "recall": 0.8088235294117647,
-          "f1_score": 0.6340057636887608,
-          "specificity": 0.25735294117647056
+          "accuracy": 0.558,
+          "precision": 0.5707317073170731,
+          "recall": 0.468,
+          "f1_score": 0.5142857142857142,
+          "specificity": 0.648
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 110,
-            "true_negatives": 35,
-            "false_positives": 101,
-            "false_negatives": 26
+            "true_positives": 117,
+            "true_negatives": 162,
+            "false_positives": 88,
+            "false_negatives": 133
           },
           "labels": [
             0,
@@ -295,203 +331,70 @@
         "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
         "description": "ContextAssembler compare-rankings dataset using the random-picking strategy",
         "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T01:52:19.937399",
+        "batch_size": 8,
+        "timestamp": "2026-04-16T00:34:16.454700",
         "model": {
           "model_name": "qwen3-8b-thinking-sc5",
           "model_type": "qwen-3",
           "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.6,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
           "use_quantization": true,
           "is_thinking_enabled": true,
           "self_consistency_samples": 5,
-          "enable_logprobs": false
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
         },
         "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 2171.2919993400574,
-          "avg_time_per_sample": 7.982691174044328,
-          "tokens_used_total": 9660462,
-          "tokens_used_avg": 35516.404411764706,
+          "total_samples": 500,
+          "total_time_seconds": 6266.406845808029,
+          "avg_time_per_sample": 12.532813691616058,
+          "tokens_used_total": 19806792,
+          "tokens_used_avg": 39613.584,
           "processing_time_stats": {
-            "count": 272,
-            "min": 1.5963749669930514,
-            "max": 1.5963749669930514,
-            "mean": 1.5963749669930516,
-            "variance": 4.948573944190849e-32,
-            "std": 2.224539040833145e-16
-          },
-          "tokens_used_stats": {
-            "count": 272,
-            "min": 6156.0,
-            "max": 73824.0,
-            "mean": 35516.404411764706,
-            "variance": 379290546.8173974,
-            "std": 19475.38309809071
-          },
-          "confidence_stats": null
-        },
-        "extra_metadata": {}
-      },
-      "metrics": {
-        "task_type": "binary",
-        "accuracy": 0.5220588235294118,
-        "summary": {
-          "accuracy": 0.5220588235294118,
-          "precision": 0.5135135135135135,
-          "recall": 0.8382352941176471,
-          "f1_score": 0.6368715083798883,
-          "specificity": 0.20588235294117646
-        },
-        "details": {
-          "confusion_matrix": {
-            "true_positives": 114,
-            "true_negatives": 28,
-            "false_positives": 108,
-            "false_negatives": 22
-          },
-          "labels": [
-            0,
-            1
-          ]
-        }
-      },
-      "is_success": true
-    },
-    {
-      "benchmark_info": {
-        "experiment_name": "vllm_compare_rankings",
-        "task_type": "binary_vulnerability",
-        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_first.json",
-        "description": "ContextAssembler compare-rankings dataset using the security-first strategy",
-        "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T02:24:50.254805",
-        "model": {
-          "model_name": "qwen3-8b-thinking-sc5",
-          "model_type": "qwen-3",
-          "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
-          "use_quantization": true,
-          "is_thinking_enabled": true,
-          "self_consistency_samples": 5,
-          "enable_logprobs": false
-        },
-        "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 1914.6075587272644,
-          "avg_time_per_sample": 7.038998377673766,
-          "tokens_used_total": 9366203,
-          "tokens_used_avg": 34434.569852941175,
-          "processing_time_stats": {
-            "count": 272,
-            "min": 1.4076678496949813,
-            "max": 1.4076678496949813,
-            "mean": 1.4076678496949813,
+            "count": 500,
+            "min": 2.5063930960655214,
+            "max": 2.5063930960655214,
+            "mean": 2.5063930960655214,
             "variance": 0.0,
             "std": 0.0
           },
           "tokens_used_stats": {
-            "count": 272,
-            "min": 5914.0,
-            "max": 70451.0,
-            "mean": 34434.569852941175,
-            "variance": 344677806.30506563,
-            "std": 18565.500432389796
+            "count": 500,
+            "min": 3038.0,
+            "max": 90708.0,
+            "mean": 39613.584,
+            "variance": 484388806.86868125,
+            "std": 22008.834745816992
           },
-          "confidence_stats": null
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
         },
         "extra_metadata": {}
       },
       "metrics": {
         "task_type": "binary",
-        "accuracy": 0.5330882352941176,
+        "accuracy": 0.562,
         "summary": {
-          "accuracy": 0.5330882352941176,
-          "precision": 0.5213270142180095,
-          "recall": 0.8088235294117647,
-          "f1_score": 0.6340057636887608,
-          "specificity": 0.25735294117647056
+          "accuracy": 0.562,
+          "precision": 0.5828877005347594,
+          "recall": 0.436,
+          "f1_score": 0.49885583524027455,
+          "specificity": 0.688
         },
         "details": {
           "confusion_matrix": {
-            "true_positives": 110,
-            "true_negatives": 35,
-            "false_positives": 101,
-            "false_negatives": 26
-          },
-          "labels": [
-            0,
-            1
-          ]
-        }
-      },
-      "is_success": true
-    },
-    {
-      "benchmark_info": {
-        "experiment_name": "vllm_compare_rankings",
-        "task_type": "binary_vulnerability",
-        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_score_only.json",
-        "description": "ContextAssembler compare-rankings dataset using the security-score-only strategy",
-        "cwe_type": null,
-        "batch_size": 10,
-        "timestamp": "2026-04-03T02:58:18.188673",
-        "model": {
-          "model_name": "qwen3-8b-thinking-sc5",
-          "model_type": "qwen-3",
-          "backend": "vllm",
-          "max_output_tokens": 8192,
-          "temperature": 0.9,
-          "use_quantization": true,
-          "is_thinking_enabled": true,
-          "self_consistency_samples": 5,
-          "enable_logprobs": false
-        },
-        "stats": {
-          "total_samples": 272,
-          "total_time_seconds": 1972.2349441051483,
-          "avg_time_per_sample": 7.250863765092457,
-          "tokens_used_total": 9397388,
-          "tokens_used_avg": 34549.220588235294,
-          "processing_time_stats": {
-            "count": 272,
-            "min": 1.450039973679711,
-            "max": 1.450039973679711,
-            "mean": 1.4500399736797112,
-            "variance": 4.948573944190849e-32,
-            "std": 2.224539040833145e-16
-          },
-          "tokens_used_stats": {
-            "count": 272,
-            "min": 6673.0,
-            "max": 66763.0,
-            "mean": 34549.220588235294,
-            "variance": 343863906.1504232,
-            "std": 18543.567783747098
-          },
-          "confidence_stats": null
-        },
-        "extra_metadata": {}
-      },
-      "metrics": {
-        "task_type": "binary",
-        "accuracy": 0.5,
-        "summary": {
-          "accuracy": 0.5,
-          "precision": 0.5,
-          "recall": 0.75,
-          "f1_score": 0.6,
-          "specificity": 0.25
-        },
-        "details": {
-          "confusion_matrix": {
-            "true_positives": 102,
-            "true_negatives": 34,
-            "false_positives": 102,
-            "false_negatives": 34
+            "true_positives": 109,
+            "true_negatives": 172,
+            "false_positives": 78,
+            "false_negatives": 141
           },
           "labels": [
             0,
@@ -503,8 +406,8 @@
     }
   ],
   "summary": {
-    "total_experiments": 7,
-    "successful_experiments": 7,
+    "total_experiments": 5,
+    "successful_experiments": 5,
     "failed_experiments": 0
   },
   "output_dir": "results/context_assembler_compare_rankings_experiments/vllm_compare_rankings"

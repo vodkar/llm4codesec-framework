@@ -172,3 +172,6 @@ castle_processed/
 
 llm_models/
 benchmarks/benchmarks/case_comparisons/
+benchmarks/PrimeVul/primevul.jsonl
+benchmark_report*.json
+metrics_summary*.json

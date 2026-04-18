@@ -18,7 +18,7 @@
                 "gemma3-4b"
             ],
             "prompts": [
-                "basic_security",
+                "strict_exploitable_security",
                 "task1_specific"
             ],
             "sample_limit": 10
@@ -133,7 +133,7 @@
                 "gemma3-27b"
             ],
             "prompts": [
-                "detailed_analysis",
+                "detailed_security",
                 "step_by_step",
                 "task3_specific"
             ],

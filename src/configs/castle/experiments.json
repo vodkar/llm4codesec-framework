@@ -18,7 +18,7 @@
                 "deepseek-coder-v2-lite-16b"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 10
         },
@@ -31,7 +31,7 @@
                 "qwen3-8b-gguf"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 3
         },
@@ -45,8 +45,8 @@
                 "qwen3-8b-gguf-q8"
             ],
             "prompts": [
-                "basic_security",
-                "detailed_analysis"
+                "strict_exploitable_security",
+                "detailed_security"
             ],
             "sample_limit": 3
         },
@@ -61,7 +61,6 @@
                 "gemma3-4b"
             ],
             "prompts": [
-                "multiclass_basic",
                 "multiclass_detailed"
             ],
             "sample_limit": 10
@@ -75,7 +74,7 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "detailed_analysis"
+                "detailed_security"
             ],
             "sample_limit": 100
         },
@@ -152,7 +151,7 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "detailed_analysis"
+                "detailed_security"
             ],
             "sample_limit": 100
         },
@@ -190,7 +189,7 @@
                 "gemma3-27b"
             ],
             "prompts": [
-                "detailed_analysis"
+                "detailed_security"
             ],
             "sample_limit": 100
         },

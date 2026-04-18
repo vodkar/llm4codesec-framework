@@ -13,10 +13,7 @@ JitVul is integrated into the unified benchmark CLI and uses the same configurat
 
 ### Binary
 
-- `basic_security`
-- `detailed_analysis`
 - `cwe_focused`
-- `context_aware`
 - `step_by_step`
 
 ### Multiclass

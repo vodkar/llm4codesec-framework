@@ -103,7 +103,7 @@ docker run --gpus all \
   llm4codesec-benchmark:latest castle \
   --model qwen3-4b \
   --dataset binary_all \
-  --prompt basic_security
+  --prompt step_by_step
 
 # Run JitVul benchmark
 docker run --gpus all \
@@ -112,7 +112,7 @@ docker run --gpus all \
   llm4codesec-benchmark:latest jitvul \
   --model llama3.2-3B \
   --dataset binary_all \
-  --prompt context_aware
+  --prompt step_by_step
 
 # Run CVEFixes benchmark
 docker run --gpus all \
@@ -121,7 +121,7 @@ docker run --gpus all \
   llm4codesec-benchmark:latest cvefixes \
   --model deepseek-coder-v2 \
   --dataset binary_c_file \
-  --prompt detailed_analysis
+  --prompt step_by_step
 ```
 
 ## Available Benchmark Types

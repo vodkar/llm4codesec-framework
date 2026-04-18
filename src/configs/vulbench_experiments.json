@@ -94,19 +94,19 @@
             "description": "Race-Condition: Specific vulnerability detection"
         }
     },
-    "prompt_strategies": {
-        "basic_security": {
-            "name": "Basic Security Analysis",
+    "prompts": {
+        "strict_exploitable_security": {
+            "name": "Strict Exploitable Security Analysis",
             "system_prompt": "You are an expert security analyst specializing in static code analysis of C/C++ programs. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided C/C++ code carefully\n- Consider common vulnerability patterns (buffer overflow, integer overflow, null pointer dereference, etc.)\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision on concrete security risks, not coding style issues",
             "user_prompt": "Analyze this C/C++ code for security vulnerabilities:\n\n{code}"
         },
-        "detailed_analysis": {
+        "detailed_security": {
             "name": "Detailed Security Analysis",
             "system_prompt": "You are a senior cybersecurity expert with deep knowledge of C/C++ vulnerabilities and common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of C/C++ code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for null pointer dereferences and uninitialized variables\n- Consider memory management issues (use-after-free, double-free)\n- Evaluate input sanitization and bounds checking\n\nResponse Format: Respond with only \"VULNERABLE\" or \"SAFE\"",
             "user_prompt": "Please analyze the following C/C++ code for security vulnerabilities:\n\n```c\n{code}\n```"
         },
-        "context_aware": {
-            "name": "Context-Aware Analysis",
+        "context_aware_security": {
+            "name": "Context-Aware Security Analysis",
             "system_prompt": "You are an experienced security code reviewer working on a critical C/C++ system. Your responsibility is to identify potential security vulnerabilities that could be exploited in production.\n\nContext: You are reviewing C/C++ code that will be deployed in a security-sensitive environment. The code may contain subtle vulnerabilities that could lead to system compromise.\n\nAnalysis approach:\n- Consider both obvious and subtle vulnerability patterns\n- Think about how an attacker might exploit the code\n- Pay attention to edge cases and error conditions\n- Consider the full execution context and memory safety\n\nRespond with only \"VULNERABLE\" or \"SAFE\"",
             "user_prompt": "Review this production C/C++ code for security vulnerabilities:\n\n{code}\n\nIs this code vulnerable to security exploits?"
         },
@@ -114,11 +114,6 @@
             "name": "Step-by-Step Analysis",
             "system_prompt": "You are a methodical security analyst who follows a systematic approach to C/C++ vulnerability detection.\n\nAnalysis Steps:\n1. Read through the code to understand its purpose\n2. Identify all input sources and data flows\n3. Check for proper input validation and bounds checking\n4. Look for memory management issues\n5. Examine error handling and edge cases\n6. Determine if vulnerabilities exist\n\nFinal Answer: After your analysis, respond with only \"VULNERABLE\" or \"SAFE\"",
             "user_prompt": "Systematically analyze this C/C++ code for security vulnerabilities:\n\n{code}"
-        },
-        "multiclass_basic": {
-            "name": "Basic Multiclass Vulnerability Analysis",
-            "system_prompt": "You are an expert security analyst specializing in vulnerability classification in C/C++ programs. Your task is to analyze code snippets and identify the specific type of vulnerability present, or determine if the code is safe.\n\nInstructions:\n- Analyze the provided C/C++ code carefully for security vulnerabilities\n- If vulnerable, identify the specific vulnerability type\n- If safe, respond with \"SAFE\"\n- Common vulnerability types include: Integer-Overflow, Buffer-Overflow, Null-Pointer-Dereference, Use-After-Free, Double-Free, Memory-Leak, etc.\n- Respond with only the vulnerability type (e.g., \"Integer-Overflow\") or \"SAFE\" - no additional explanation",
-            "user_prompt": "Classify the vulnerability type in this C/C++ code:\n\n{code}"
         },
         "multiclass_detailed": {
             "name": "Detailed Multiclass Vulnerability Analysis",
@@ -274,7 +269,7 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "context_aware"
+                "context_aware_security"
             ],
             "sample_limit": 10
         },
@@ -300,9 +295,9 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "basic_security",
-                "detailed_analysis",
-                "context_aware",
+                "strict_exploitable_security",
+                "detailed_security",
+                "context_aware_security",
                 "step_by_step"
             ],
             "sample_limit": 100
@@ -316,7 +311,6 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "multiclass_basic",
                 "multiclass_detailed",
                 "multiclass_comprehensive"
             ],
@@ -341,7 +335,7 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "detailed_analysis"
+                "detailed_security"
             ],
             "sample_limit": 50
         },
@@ -387,7 +381,7 @@
                 "gemma3-27b"
             ],
             "prompts": [
-                "detailed_analysis",
+                "detailed_security",
                 "step_by_step"
             ],
             "sample_limit": 100

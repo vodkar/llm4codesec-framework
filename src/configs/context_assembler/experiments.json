@@ -16,7 +16,7 @@
                 "qwen3-8b-gguf"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 3
         },
@@ -33,7 +33,7 @@
                 "qwen35-4b"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": null
         },

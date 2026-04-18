@@ -96,39 +96,27 @@ python run_castle_experiments.py --plan small_models_multiclass
 
 ### Binary Classification Prompts
 
-### 1. Basic Security (`basic_security`)
-
-Simple, direct security analysis prompt for binary vulnerability detection.
-
-### 2. Detailed Analysis (`detailed_analysis`)
-
-Comprehensive security analysis with specific guidelines for binary classification.
-
-### 3. Context-Aware (`context_aware`)
-
-Production environment focused analysis for binary classification.
-
-### 4. Step-by-Step (`step_by_step`)
+### 1. Step-by-Step (`step_by_step`)
 
 Systematic analysis approach with defined steps for binary classification.
 
 ### CWE-Specific Prompts
 
-### 5. CWE-Focused (`cwe_focused`)
+### 2. CWE-Focused (`cwe_focused`)
 
 Specialized prompt for CWE-specific vulnerability detection in binary classification tasks.
 
 ### Multiclass Classification Prompts
 
-### 6. Multiclass Basic (`multiclass_basic`)
+### 3. Multiclass Basic (`multiclass_basic`)
 
 Simple, direct vulnerability classification prompt that identifies specific CWE types or marks code as safe.
 
-### 7. Multiclass Detailed (`multiclass_detailed`)
+### 4. Multiclass Detailed (`multiclass_detailed`)
 
 Comprehensive multiclass analysis with detailed CWE pattern descriptions and systematic vulnerability type identification.
 
-### 8. Multiclass Comprehensive (`multiclass_comprehensive`)
+### 5. Multiclass Comprehensive (`multiclass_comprehensive`)
 
 Production-level context-aware multiclass analysis considering exploitation patterns and edge cases for precise CWE classification.
 
@@ -261,7 +249,7 @@ Edit `castle_experiments.json` to:
 
 **Important**: Ensure prompt strategies match task types:
 
-- Use binary prompts (`basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`) for binary classification
+- Use binary prompts (`step_by_step`) for binary classification
 - Use multiclass prompts (`multiclass_basic`, `multiclass_detailed`, `multiclass_comprehensive`) for multiclass classification
 - Use CWE-focused prompts (`cwe_focused`) for CWE-specific detection
 
@@ -369,7 +357,7 @@ The CASTLE integration now properly separates different task types to ensure opt
 #### Binary Classification Tasks
 
 - **Datasets**: `binary_all`, `cwe_*` (for CWE-specific binary detection)
-- **Prompts**: `basic_security`, `detailed_analysis`, `context_aware`, `step_by_step`, `cwe_focused`
+- **Prompts**: `step_by_step`, `cwe_focused`
 - **Output Format**: "VULNERABLE" or "SAFE"
 - **Use Cases**: General vulnerability detection, specific CWE presence detection
 

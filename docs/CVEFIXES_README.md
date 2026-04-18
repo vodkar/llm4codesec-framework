@@ -114,10 +114,7 @@ The CVEFixes configuration follows a unified structure with comprehensive multi-
 
 ### Binary Classification Prompts
 
-- `basic_security` - Basic vulnerability detection across languages
-- `detailed_analysis` - Comprehensive security analysis with language-specific patterns
 - `cwe_focused` - Focused analysis for specific CWE types
-- `context_aware` - Production context-aware security review
 - `step_by_step` - Methodical systematic analysis
 
 ### Multiclass Classification Prompts  
@@ -302,22 +299,6 @@ PYTHONPATH=src python -m cli run-plan cvefixes --plan language_comparison_binary
 PYTHONPATH=src python -m cli run-plan cvefixes --plan language_comparison_multiclass
 ```
 
-### Custom Experiments
-
-```bash
-# Java-specific method-level analysis
-PYTHONPATH=src python -m cli run cvefixes \
-  --model deepseek-coder-v2-lite-16b \
-  --dataset multiclass_java_method \
-  --prompt multiclass_comprehensive \
-  --sample-limit 500
-
-# Python file-level binary classification
-PYTHONPATH=src python -m cli run cvefixes \
-  --model qwen3-30b \
-  --dataset binary_python_file \
-  --prompt context_aware
-```
 
 ## Conclusion
 

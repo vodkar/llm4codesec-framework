@@ -33,13 +33,13 @@
             "description": "Task 5: Trigger point location identification"
         }
     },
-    "prompt_strategies": {
-        "basic_security": {
-            "name": "Basic Security Analysis",
+    "prompts": {
+        "strict_exploitable_security": {
+            "name": "Strict Exploitable Security Analysis",
             "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Base your decision on concrete security risks, not coding style issues",
             "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
         },
-        "detailed_analysis": {
+        "detailed_security": {
             "name": "Detailed Security Analysis",
             "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, double-free patterns\n- Consider null pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices",
             "user_prompt": "Please analyze the following code for security vulnerabilities:\n\n```c\n{code}\n```"
@@ -205,7 +205,7 @@
                 "gemma3-4b"
             ],
             "prompts": [
-                "basic_security",
+                "strict_exploitable_security",
                 "task1_specific"
             ],
             "sample_limit": 10
@@ -320,7 +320,7 @@
                 "gemma3-27b"
             ],
             "prompts": [
-                "detailed_analysis",
+                "detailed_security",
                 "step_by_step",
                 "task3_specific"
             ],

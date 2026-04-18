@@ -34,15 +34,15 @@ docker run -it -v $(pwd)/results:/app/results llm4codesec-benchmark:cpu bash
 ```bash
 # Test CASTLE benchmark (small sample)
 docker run --gpus all -v $(pwd)/results:/app/results llm4codesec-benchmark:latest \
-  castle --model qwen3-4b --dataset binary_all --prompt basic_security --sample-limit 10
+  castle --model qwen3-4b --dataset binary_all --prompt step_by_step --sample-limit 10
 
 # Test JitVul benchmark
 docker run --gpus all -v $(pwd)/results:/app/results llm4codesec-benchmark:latest \
-  jitvul --model llama3.2-3B --dataset binary_all --prompt context_aware --sample-limit 10
+  jitvul --model llama3.2-3B --dataset binary_all --prompt step_by_step --sample-limit 10
 
 # Test CVEFixes benchmark
 docker run --gpus all -v $(pwd)/results:/app/results llm4codesec-benchmark:latest \
-  cvefixes --model deepseek-coder-v2 --dataset binary_c_file --prompt detailed_analysis --sample-limit 10
+  cvefixes --model deepseek-coder-v2 --dataset binary_c_file --prompt step_by_step --sample-limit 10
 ```
 
 ### Production Runs

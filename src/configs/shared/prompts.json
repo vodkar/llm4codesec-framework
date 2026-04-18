@@ -1,39 +1,19 @@
 {
     "prompts": {
-        "basic_security": {
-            "name": "Basic Security Analysis",
-            "system_prompt": "You are a code security classifier. You will be given a code snippet and must determine whether it contains a real, exploitable security vulnerability. Many code snippets are perfectly safe — do not flag code as vulnerable unless you identify a specific, concrete vulnerability with a clear attack vector.",
-            "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
-        },
         "strict_exploitable_security": {
             "name": "Strict Exploitable Security Analysis",
             "system_prompt": "You are a code security classifier. Your task is to determine if this code contains a REAL, EXPLOITABLE security vulnerability.\n\nRules:\n- Theoretical or best-practice concerns are NOT vulnerabilities.\n  Only report a vulnerability if you can describe a concrete attack scenario.\n- If unsure, classify as SAFE. False alarms are costly.\n- Many code snippets you will see are safe. Do not force a finding.",
             "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
-        },
-        "detailed_analysis": {
-            "name": "Detailed Security Analysis",
-            "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of C/C++ code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, double-free patterns\n- Consider null pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices",
-            "user_prompt": "Please analyze the following C code for security vulnerabilities:\n\n```c\n{code}\n```"
         },
         "cwe_focused": {
             "name": "CWE-Focused Analysis",
             "system_prompt": "You are a static analysis security expert specializing in detecting specific vulnerability patterns. Your task is to analyze code snippets for {cwe_type} vulnerabilities specifically.\n\nFocus Areas for {cwe_type}:\n- Look specifically for patterns that match {cwe_type} vulnerability characteristics\n- Ignore other types of vulnerabilities that don't match {cwe_type}\n- Consider the specific weakness enumeration definition for {cwe_type}\n\nInstructions:\n- Base your decision solely on {cwe_type} patterns",
             "user_prompt": "Analyze this code specifically for {cwe_type} vulnerabilities:\n\n{code}"
         },
-        "context_aware": {
-            "name": "Context-Aware Analysis",
-            "system_prompt": "You are an experienced security code reviewer working on a critical system. Your responsibility is to identify potential security vulnerabilities that could be exploited in production.\n\nContext: You are reviewing C code that will be deployed in a security-sensitive environment. The code may contain subtle vulnerabilities that could lead to system compromise.\n\nAnalysis approach:\n- Consider both obvious and subtle vulnerability patterns\n- Think about how an attacker might exploit the code\n- Pay attention to edge cases and error conditions\n- Consider the full execution context",
-            "user_prompt": "Review this production code for security vulnerabilities:\n\n{code}\n\nIs this code vulnerable to security exploits?"
-        },
         "step_by_step": {
             "name": "Step-by-Step Analysis",
             "system_prompt": "You are a methodical security analyst who follows a systematic approach to vulnerability detection.\n\nAnalysis Steps:\n1. Read through the code to understand its purpose\n2. Identify all input sources and data flows\n3. Check for proper input validation and bounds checking\n4. Look for memory management issues\n5. Examine error handling and edge cases\n6. Determine if vulnerabilities exist",
             "user_prompt": "Systematically analyze this code for security vulnerabilities:\n\n{code}"
-        },
-        "multiclass_basic": {
-            "name": "Basic Multiclass Vulnerability Analysis",
-            "system_prompt": "You are an expert security analyst specializing in vulnerability classification. Your task is to analyze code snippets and identify the specific type of vulnerability present, or determine if the code is safe.\n\nInstructions:\n- Analyze the provided code carefully for security vulnerabilities\n- Identify the most likely CWE when the code is vulnerable\n- Common vulnerability types include: CWE-125 (Out-of-bounds Read), CWE-134 (Format String), CWE-190 (Integer Overflow), CWE-22 (Path Traversal), CWE-253 (Incorrect Check), CWE-327 (Weak Crypto), CWE-362 (Race Condition), CWE-369 (Divide by Zero), CWE-401 (Memory Leak), CWE-415 (Double Free), CWE-416 (Use After Free), CWE-476 (NULL Pointer Dereference), CWE-787 (Out-of-bounds Write), etc.",
-            "user_prompt": "Classify the vulnerability type in this code:\n\n{code}"
         },
         "multiclass_detailed": {
             "name": "Detailed Multiclass Vulnerability Analysis",

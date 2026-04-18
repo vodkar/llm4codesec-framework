@@ -24,9 +24,6 @@ VulBench provides binary and multiclass variants:
 
 ### Binary
 
-- `basic_security`
-- `detailed_analysis`
-- `context_aware`
 - `step_by_step`
 
 ### Multiclass

@@ -19,7 +19,7 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 3
         },
@@ -33,7 +33,7 @@
                 "qwen3-4b-logprobs"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 5
         },

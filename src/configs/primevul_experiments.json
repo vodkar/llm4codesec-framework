@@ -54,13 +54,13 @@
             "description": "CWE-787: Out-of-bounds Write"
         }
     },
-    "prompt_strategies": {
-        "basic_security": {
-            "name": "Basic Security Analysis",
+    "prompts": {
+        "strict_exploitable_security": {
+            "name": "Strict Exploitable Security Analysis",
             "system_prompt": "You are an expert security analyst specializing in static code analysis. Your task is to analyze code snippets and determine if they contain security vulnerabilities.\n\nInstructions:\n- Analyze the provided code carefully\n- Consider common vulnerability patterns (injection, buffer overflow, race conditions, etc.)\n- Respond with only \"VULNERABLE\" or \"SAFE\" - no additional explanation\n- Base your decision on concrete security risks, not coding style issues",
             "user_prompt": "Analyze this code for security vulnerabilities:\n\n{code}"
         },
-        "detailed_analysis": {
+        "detailed_security": {
             "name": "Detailed Security Analysis",
             "system_prompt": "You are a senior cybersecurity expert with deep knowledge of common weakness enumeration (CWE) patterns. Your task is to perform thorough static analysis of C/C++ code to identify potential security vulnerabilities.\n\nAnalysis Guidelines:\n- Examine the code for buffer overflows, memory corruption, input validation issues\n- Check for proper bounds checking, integer overflow/underflow conditions\n- Look for race conditions, use-after-free, double-free patterns\n- Consider null pointer dereferences and uninitialized variables\n- Evaluate input sanitization and output encoding practices\n\nResponse Format: Respond with only \"VULNERABLE\" or \"SAFE\"",
             "user_prompt": "Please analyze the following C/C++ code for security vulnerabilities:\n\n```c\n{code}\n```"
@@ -74,11 +74,6 @@
             "name": "Step-by-Step Analysis",
             "system_prompt": "You are a methodical security analyst who follows a systematic approach to vulnerability detection in C/C++ code.\n\nAnalysis Steps:\n1. Read through the code to understand its purpose\n2. Identify all input sources and data flows\n3. Check for proper input validation and bounds checking\n4. Look for memory management issues\n5. Examine error handling and edge cases\n6. Determine if vulnerabilities exist\n\nFinal Answer: After your analysis, respond with only \"VULNERABLE\" or \"SAFE\"",
             "user_prompt": "Systematically analyze this C/C++ code for security vulnerabilities:\n\n{code}"
-        },
-        "multiclass_basic": {
-            "name": "Basic Multiclass Vulnerability Analysis",
-            "system_prompt": "You are an expert security analyst specializing in vulnerability classification for C/C++ code. Your task is to analyze code snippets and identify the specific type of vulnerability present, or determine if the code is safe.\n\nInstructions:\n- Analyze the provided code carefully for security vulnerabilities\n- If vulnerable, identify the specific CWE (Common Weakness Enumeration) type\n- If safe, respond with \"NONE\"\n- Common vulnerability types: CWE-119, CWE-120, CWE-125, CWE-190, CWE-476, CWE-787, and others\n- Respond with only the CWE identifier (e.g., \"CWE-125\") or \"NONE\" - no additional explanation",
-            "user_prompt": "Classify the vulnerability type in this C/C++ code:\n\n{code}"
         },
         "multiclass_detailed": {
             "name": "Detailed Multiclass Vulnerability Analysis",
@@ -191,7 +186,7 @@
                 "llama3.2-3B"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 10
         },
@@ -210,8 +205,8 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "basic_security",
-                "detailed_analysis",
+                "strict_exploitable_security",
+                "detailed_security",
                 "step_by_step"
             ],
             "sample_limit": 100
@@ -231,7 +226,6 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "multiclass_basic",
                 "multiclass_detailed"
             ],
             "sample_limit": 100
@@ -269,7 +263,7 @@
                 "qwen3-30b"
             ],
             "prompts": [
-                "detailed_analysis",
+                "detailed_security",
                 "step_by_step"
             ],
             "sample_limit": 50

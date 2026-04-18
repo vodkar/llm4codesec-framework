@@ -19,7 +19,7 @@
                 "gemma3-4b"
             ],
             "prompts": [
-                "basic_security"
+                "strict_exploitable_security"
             ],
             "sample_limit": 5
         },
@@ -67,9 +67,9 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "basic_security",
-                "detailed_analysis",
-                "context_aware",
+                "strict_exploitable_security",
+                "detailed_security",
+                "context_aware_security",
                 "step_by_step"
             ],
             "sample_limit": null
@@ -83,7 +83,6 @@
                 "qwen3-4b"
             ],
             "prompts": [
-                "multiclass_basic",
                 "multiclass_detailed",
                 "multiclass_comprehensive"
             ],
@@ -148,7 +147,7 @@
                 "deepseek-r1-distill-qwen2.5-7b"
             ],
             "prompts": [
-                "detailed_analysis"
+                "detailed_security"
             ],
             "sample_limit": 200
         },
@@ -186,7 +185,7 @@
                 "gemma3-27b"
             ],
             "prompts": [
-                "detailed_analysis",
+                "detailed_security",
                 "step_by_step"
             ],
             "sample_limit": 100

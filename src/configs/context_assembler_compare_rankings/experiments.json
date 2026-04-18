@@ -50,7 +50,10 @@
                 "qwen3-8b-thinking-sc5"
             ],
             "prompts": [
-                "strict_exploitable_security"
+                "strict_exploitable_security",
+                "python_strategy",
+                "python_thinking_strategy",
+                "python_verify_strategy"
             ],
             "sample_limit": null
         },

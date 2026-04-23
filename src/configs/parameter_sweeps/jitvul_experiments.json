@@ -141,7 +141,8 @@
                 "qwen3-4b-nt-combo-t12-rp110-pp150",
                 "qwen3-4b-nt-combo-t09-tp070-pp100-rp120",
                 "qwen3-4b-nt-combo-minp005-rp110",
-                "qwen3-4b-nt-combo-minp005-rp110-pp150"
+                "qwen3-4b-nt-combo-minp005-rp110-pp150",
+                "qwen3-4b-nt-combo-t03-minp010-rp120-pp150"
             ],
             "prompts": [
                 "step_by_step"
@@ -161,7 +162,8 @@
                 "qwen3-4b-combo-t12-rp110-pp150",
                 "qwen3-4b-combo-t09-tp070-pp100-rp120",
                 "qwen3-4b-combo-minp005-rp110",
-                "qwen3-4b-combo-minp005-rp110-pp150"
+                "qwen3-4b-combo-minp005-rp110-pp150",
+                "qwen3-4b-combo-t03-minp010-rp120-pp150"
             ],
             "prompts": [
                 "step_by_step"

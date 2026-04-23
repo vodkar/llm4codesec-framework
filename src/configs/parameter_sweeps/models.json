@@ -873,6 +873,34 @@
             "repetition_penalty": 1.1,
             "presence_penalty": 1.5,
             "is_thinking_enabled": false
+        },
+        "qwen3-4b-combo-t03-minp010-rp120-pp150": {
+            "model_identifier": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens": 12288,
+            "context_length": 24576,
+            "temperature": 0.3,
+            "batch_size": 20,
+            "use_quantization": true,
+            "min_p": 0.1,
+            "repetition_penalty": 1.2,
+            "presence_penalty": 1.5,
+            "is_thinking_enabled": true
+        },
+        "qwen3-4b-nt-combo-t03-minp010-rp120-pp150": {
+            "model_identifier": "Qwen/Qwen3-4B",
+            "model_type": "qwen-3",
+            "backend": "vllm",
+            "max_output_tokens": 4096,
+            "context_length": 20480,
+            "temperature": 0.3,
+            "batch_size": 20,
+            "use_quantization": true,
+            "min_p": 0.1,
+            "repetition_penalty": 1.2,
+            "presence_penalty": 1.5,
+            "is_thinking_enabled": false
         }
     }
 }

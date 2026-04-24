@@ -147,7 +147,8 @@
                 "qwen3-4b-combo-t03-tk080-rp130-minp010",
                 "qwen3-4b-combo-t03-tk020-rp130-minp005",
                 "qwen3-4b-combo-t09-rp120",
-                "qwen3-4b-combo-t03-rp120-minp010"
+                "qwen3-4b-combo-t03-rp120-minp010",
+                "qwen3-4b-combo-t03-rp120-pp150"
             ],
             "prompts": [
                 "step_by_step"
@@ -173,7 +174,8 @@
                 "qwen3-4b-combo-t03-tk080-rp130-minp010",
                 "qwen3-4b-combo-t03-tk020-rp130-minp005",
                 "qwen3-4b-combo-t09-rp120",
-                "qwen3-4b-combo-t03-rp120-minp010"
+                "qwen3-4b-combo-t03-rp120-minp010",
+                "qwen3-4b-combo-t03-rp120-pp150"
             ],
             "prompts": [
                 "step_by_step"

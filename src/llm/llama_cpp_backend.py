@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Final, cast
 
@@ -62,6 +63,7 @@ class LlamaCppLLM(ILLMInference):
         n_threads: int | None = self._get_int_env("LLAMA_CPP_N_THREADS")
         n_batch: int | None = self._get_int_env("LLAMA_CPP_N_BATCH")
         n_gpu_layers: int | None = self._get_int_env("LLAMA_CPP_N_GPU_LAYERS")
+        flash_attn: bool | None = self._get_bool_env("LLAMA_CPP_FLASH_ATTN")
 
         LOGGER.info(
             "Initializing llama.cpp with context window n_ctx=%d for model %s",
@@ -78,6 +80,8 @@ class LlamaCppLLM(ILLMInference):
         common_kwargs: dict[str, Any] = {
             key: value for key, value in raw_kwargs.items() if value is not None
         }
+        if flash_attn is not None:
+            common_kwargs["flash_attn"] = flash_attn
 
         if self._is_hf_reference(model_ref):
             self.model = self._load_from_huggingface(model_ref, common_kwargs)
@@ -315,7 +319,9 @@ class LlamaCppLLM(ILLMInference):
         confidence: float | None
 
         try:
-            response_text, token_count, confidence = self._generate_chat(system_prompt, user_prompt)
+            response_text, token_count, confidence = self._generate_chat(
+                system_prompt, user_prompt
+            )
         except (ValueError, TypeError, KeyError, AttributeError) as exc:
             LOGGER.warning(
                 "Chat completion failed (%s); falling back to text prompt",
@@ -362,9 +368,7 @@ class LlamaCppLLM(ILLMInference):
             )
         return results
 
-    def generate_batch_responses(
-        self, prompts: list[str]
-    ) -> list[InferenceResult]:
+    def generate_batch_responses(self, prompts: list[str]) -> list[InferenceResult]:
         """
         Generate responses for a batch of formatted prompts.
         """
@@ -391,13 +395,19 @@ class LlamaCppLLM(ILLMInference):
 
             response_text: str = self._extract_completion_text(output)
             token_count: int = self._extract_usage_tokens(output)
-            confidence: float | None = self._extract_completion_logprobs(output) if self.config.enable_logprobs else None
-            results.append(InferenceResult(
-                response_text=response_text,
-                tokens_used=token_count,
-                duration=duration,
-                confidence=confidence,
-            ))
+            confidence: float | None = (
+                self._extract_completion_logprobs(output)
+                if self.config.enable_logprobs
+                else None
+            )
+            results.append(
+                InferenceResult(
+                    response_text=response_text,
+                    tokens_used=token_count,
+                    duration=duration,
+                    confidence=confidence,
+                )
+            )
             self._maybe_log_generation_progress(
                 completed=index,
                 total=total_generations,
@@ -443,7 +453,9 @@ class LlamaCppLLM(ILLMInference):
 
         elapsed_seconds: float = time.time() - started_at
         percent_complete: float = (completed / total) * 100 if total else 0.0
-        average_seconds_per_generation: float = elapsed_seconds / completed if completed else 0.0
+        average_seconds_per_generation: float = (
+            elapsed_seconds / completed if completed else 0.0
+        )
         eta_seconds: float = average_seconds_per_generation * max(total - completed, 0)
 
         LOGGER.info(
@@ -455,8 +467,18 @@ class LlamaCppLLM(ILLMInference):
             eta_seconds,
         )
 
-    def _generate_chat(self, system_prompt: str, user_prompt: str) -> tuple[str, int, float | None]:
-        """Generate response using chat completion if supported."""
+    def _generate_chat(
+        self, system_prompt: str, user_prompt: str
+    ) -> tuple[str, int, float | None]:
+        """Generate response using the model's chat template.
+
+        When the GGUF ships an embedded chat template we render it ourselves so
+        that ``is_thinking_enabled`` can be threaded into the template (mirroring
+        the vLLM backend).  ``llama_cpp.create_chat_completion`` does not forward
+        ``enable_thinking`` into the Jinja render, so without this the thinking
+        toggle has no effect.  Falls back to ``create_chat_completion`` only when
+        no embedded template is available.
+        """
         if not self.model:
             raise RuntimeError("llama.cpp model not loaded")
 
@@ -464,6 +486,59 @@ class LlamaCppLLM(ILLMInference):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
+
+        rendered_prompt: str | None = self._render_chat_prompt(messages)
+        if rendered_prompt is not None:
+            return self._generate_from_rendered_prompt(rendered_prompt)
+        return self._generate_chat_completion(messages)
+
+    def _generate_from_rendered_prompt(
+        self, prompt: str
+    ) -> tuple[str, int, float | None]:
+        """Run completion on a prompt produced by the model's chat template."""
+        if not self.model:
+            raise RuntimeError("llama.cpp model not loaded")
+
+        generation_kwargs: dict[str, Any] = dict(
+            self._build_generation_kwargs(self.model.__call__)
+        )
+        eos_token: str = self._get_chat_special_tokens()[1]
+        if eos_token:
+            generation_kwargs["stop"] = [eos_token]
+        if self.config.enable_logprobs:
+            generation_kwargs["logprobs"] = 1
+        response: CreateCompletionResponse = self.model(  # type: ignore[assignment]
+            prompt,
+            **generation_kwargs,
+        )
+        response_text: str = self._extract_completion_text(response)
+        token_count: int = self._extract_usage_tokens(response)
+        confidence: float | None = (
+            self._extract_completion_logprobs(response)
+            if self.config.enable_logprobs
+            else None
+        )
+        return response_text, token_count, confidence
+
+    def _generate_chat_completion(
+        self, messages: list[ChatCompletionRequestMessage]
+    ) -> tuple[str, int, float | None]:
+        """Generate via ``create_chat_completion`` (no embedded template found).
+
+        This path cannot honour ``is_thinking_enabled`` because the binding does
+        not thread ``enable_thinking`` into the chat template; it exists only as
+        a fallback for GGUFs without an embedded ``tokenizer.chat_template``.
+        """
+        if not self.model:
+            raise RuntimeError("llama.cpp model not loaded")
+
+        if self.config.is_thinking_enabled:
+            self._warn_unsupported_sampling_param(
+                "is_thinking_enabled",
+                "no embedded chat template found; thinking cannot be toggled "
+                "via create_chat_completion",
+            )
+
         generation_kwargs: dict[str, int | float] = self._build_generation_kwargs(
             self.model.create_chat_completion
         )
@@ -482,8 +557,95 @@ class LlamaCppLLM(ILLMInference):
                 content = message.get("content")
         response_text: str = (content or "").strip()
         token_count: int = self._extract_usage_tokens(response)
-        confidence: float | None = self._extract_chat_logprobs(response) if self.config.enable_logprobs else None
+        confidence: float | None = (
+            self._extract_chat_logprobs(response)
+            if self.config.enable_logprobs
+            else None
+        )
         return response_text, token_count, confidence
+
+    def _render_chat_prompt(
+        self, messages: list[ChatCompletionRequestMessage]
+    ) -> str | None:
+        """Render the GGUF's embedded chat template with thinking control.
+
+        Returns ``None`` when the model has no embedded template or jinja2 is
+        unavailable, so callers can fall back to ``create_chat_completion``.
+        """
+        if not self.model:
+            raise RuntimeError("llama.cpp model not loaded")
+
+        template: str | None = self._get_chat_template()
+        if not template:
+            return None
+
+        try:
+            from jinja2 import BaseLoader
+            from jinja2.sandbox import ImmutableSandboxedEnvironment
+        except ImportError:
+            LOGGER.warning("jinja2 unavailable; cannot apply enable_thinking")
+            return None
+
+        def raise_exception(message: str) -> None:
+            raise ValueError(message)
+
+        def strftime_now(fmt: str) -> str:
+            return datetime.now().strftime(fmt)
+
+        environment = ImmutableSandboxedEnvironment(
+            loader=BaseLoader(),
+            trim_blocks=True,
+            lstrip_blocks=True,
+        ).from_string(template)
+
+        bos_token, eos_token = self._get_chat_special_tokens()
+        try:
+            rendered: str = environment.render(
+                messages=messages,
+                bos_token=bos_token,
+                eos_token=eos_token,
+                add_generation_prompt=True,
+                enable_thinking=self.config.is_thinking_enabled,
+                raise_exception=raise_exception,
+                strftime_now=strftime_now,
+            )
+        except Exception:
+            LOGGER.exception(
+                "Failed to render embedded chat template for %s; falling back",
+                self.config.model_name,
+            )
+            return None
+        return rendered
+
+    def _get_chat_template(self) -> str | None:
+        """Return the model's embedded ``tokenizer.chat_template`` if present."""
+        metadata: dict[str, Any] = getattr(self.model, "metadata", {}) or {}
+        template = metadata.get("tokenizer.chat_template")
+        if isinstance(template, str) and template:
+            return template
+        return None
+
+    def _get_chat_special_tokens(self) -> tuple[str, str]:
+        """Return ``(bos_token, eos_token)`` text for the loaded model."""
+        if not self.model:
+            return "", ""
+        return (
+            self._token_text(self.model.token_bos()),
+            self._token_text(self.model.token_eos()),
+        )
+
+    def _token_text(self, token_id: int | None) -> str:
+        """Resolve a token id to its raw text, returning '' on any failure."""
+        if token_id is None or token_id == -1:
+            return ""
+        inner = getattr(self.model, "_model", None)
+        token_get_text = getattr(inner, "token_get_text", None)
+        if not callable(token_get_text):
+            return ""
+        try:
+            return str(token_get_text(token_id))
+        except Exception:
+            return ""
 
     def _generate_completion(
         self, system_prompt: str, user_prompt: str
@@ -504,7 +666,11 @@ class LlamaCppLLM(ILLMInference):
         )
         response_text: str = self._extract_completion_text(response)
         token_count: int = self._extract_usage_tokens(response)
-        confidence: float | None = self._extract_completion_logprobs(response) if self.config.enable_logprobs else None
+        confidence: float | None = (
+            self._extract_completion_logprobs(response)
+            if self.config.enable_logprobs
+            else None
+        )
         return response_text, token_count, confidence
 
     def _build_generation_kwargs(self, target: Any) -> dict[str, int | float]:
@@ -610,7 +776,9 @@ class LlamaCppLLM(ILLMInference):
             return None
 
     @staticmethod
-    def _extract_completion_logprobs(response: CreateCompletionResponse) -> float | None:
+    def _extract_completion_logprobs(
+        response: CreateCompletionResponse,
+    ) -> float | None:
         """Compute geometric-mean per-token probability from text completion logprobs.
 
         llama_cpp returns response["choices"][0]["logprobs"]["token_logprobs"] as a list
@@ -637,6 +805,18 @@ class LlamaCppLLM(ILLMInference):
         if raw_value is None:
             return None
         return int(raw_value)
+
+    @staticmethod
+    def _get_bool_env(env_name: str) -> bool | None:
+        """Fetch a boolean from environment variables when present.
+
+        Treats ``1``, ``true``, ``yes`` (case-insensitive) as ``True``;
+        ``0``, ``false``, ``no`` as ``False``.  Returns ``None`` when unset.
+        """
+        raw_value = os.getenv(env_name)
+        if raw_value is None:
+            return None
+        return raw_value.strip().lower() in ("1", "true", "yes")
 
     def count_input_tokens(self, text: str) -> int:
         """Count llama.cpp tokens for input text."""

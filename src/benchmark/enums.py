@@ -18,6 +18,7 @@ class ModelType(Enum):
     # Qwen models
     QWEN_3 = "qwen-3"
     QWEN_3_5 = "qwen-3.5"
+    QWEN_3_6 = "qwen-3.6"
 
     # DeepSeek models
     DEEPSEEK_CODER_V2 = "deepseek-coder-v2"
@@ -48,6 +49,7 @@ class BackendFrameworks(StrEnum):
     ONLINE = "online"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+
 
 class BinaryDecisionMode(StrEnum):
     FINAL_ANSWER_LOGPROBS = "final_answer_logprobs"

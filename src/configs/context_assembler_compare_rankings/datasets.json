@@ -23,7 +23,27 @@
         "context_assembler_compare_random_picking": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
             "task_type": "binary_vulnerability",
-            "description": "ContextAssembler compare-rankings dataset using the random-picking strategy"
+            "description": "ContextAssembler compare-rankings dataset using the random-picking strategy (hyperparameter-tuned weights)"
+        },
+        "context_assembler_compare_current_default": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the current ranking strategy with manually set default coefficients (no hyperparameter tuning)"
+        },
+        "context_assembler_compare_multiplicative_boost_default": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the multiplicative-boost strategy with manually set default coefficients (no hyperparameter tuning)"
+        },
+        "context_assembler_compare_cpg_structural": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)"
+        },
+        "context_assembler_compare_evidence_budgeted": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the evidence-budgeted ranking strategy (hyperparameter-tuned weights)"
         },
         "context_assembler_compare_security_first": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_first.json",

@@ -53,14 +53,22 @@ DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
         "context_assembler_compare_random_picking.json",
         "ContextAssembler Compare Rankings - Random Picking",
     ),
-    # "cleanvul_context_benchmark_security_first.json": (
-    #     "context_assembler_compare_security_first.json",
-    #     "ContextAssembler Compare Rankings - Security First",
-    # ),
-    # "cleanvul_context_benchmark_security_score_only.json": (
-    #     "context_assembler_compare_security_score_only.json",
-    #     "ContextAssembler Compare Rankings - Security Score Only",
-    # ),
+    "cleanvul_context_benchmark_current_default.json": (
+        "context_assembler_compare_current_default.json",
+        "ContextAssembler Compare Rankings - Current (Default, Manual Coefficients)",
+    ),
+    "cleanvul_context_benchmark_multiplicative_boost_default.json": (
+        "context_assembler_compare_multiplicative_boost_default.json",
+        "ContextAssembler Compare Rankings - Multiplicative Boost (Default, Manual Coefficients)",
+    ),
+    "cleanvul_context_benchmark_cpg_structural.json": (
+        "context_assembler_compare_cpg_structural.json",
+        "ContextAssembler Compare Rankings - CPG Structural",
+    ),
+    "cleanvul_context_benchmark_evidence_budgeted.json": (
+        "context_assembler_compare_evidence_budgeted.json",
+        "ContextAssembler Compare Rankings - Evidence Budgeted",
+    ),
 }
 
 EXCLUDED_SOURCE_FILES: Final[set[str]] = {"cleanvul_entries.json"}

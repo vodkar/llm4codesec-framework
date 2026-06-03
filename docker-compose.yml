@@ -31,6 +31,7 @@ services:
       - VLLM_CACHE_ROOT=/app/.cache/huggingface
 
       - CUDA_LAUNCH_BLOCKING=1
+      - LLAMA_CPP_FLASH_ATTN=1
 
     env_file:
       - .env
@@ -42,8 +43,8 @@ services:
       - ./benchmarks:/app/benchmarks
       
       # Optional: Cache directories for models (to avoid re-downloading)
-      - huggingface_cache:/app/.cache/huggingface
-      - torch_cache:/app/.cache/torch
+      - /var/opt/torch_cache:/app/.cache/torch
+      - /var/opt/huggingface_cache:/app/.cache/huggingface
       
       
     working_dir: /app
@@ -82,12 +83,6 @@ services:
     
     profiles:
       - cpu-only
-
-volumes:
-  huggingface_cache:
-    driver: local
-  torch_cache:
-    driver: local
 
 networks:
   default:

@@ -459,13 +459,25 @@ class LlamaCppLLM(ILLMInference):
         eta_seconds: float = average_seconds_per_generation * max(total - completed, 0)
 
         LOGGER.info(
-            "llama.cpp generation progress: %d/%d (%.1f%%) elapsed=%.1fs eta=%.1fs",
+            "llama.cpp generation progress: %d/%d (%.1f%%) elapsed=%s eta=%s",
             completed,
             total,
             percent_complete,
-            elapsed_seconds,
-            eta_seconds,
+            self._format_duration(elapsed_seconds),
+            self._format_duration(eta_seconds),
         )
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        """Format a duration in seconds as a human-readable ``Hh Mm Ss`` string."""
+        total_seconds: int = int(seconds)
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, secs = divmod(remainder, 60)
+        if hours:
+            return f"{hours}h {minutes}m {secs}s"
+        if minutes:
+            return f"{minutes}m {secs}s"
+        return f"{secs}s"
 
     def _generate_chat(
         self, system_prompt: str, user_prompt: str

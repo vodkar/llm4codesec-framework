@@ -1,3 +1,14 @@
+# 🛡️ LLM4CodeSec — Vulnerability Detection Benchmark
+
+<p align="left">
+    ✨ &nbsp;<a href="#features">Features</a>
+    | ⚡️&nbsp;<a href="#️-comprehensive-experiment-very-quickstart">Quickstart</a>
+    | 📦&nbsp;<a href="#installation">Installation</a>
+    | 📊&nbsp;<a href="#metrics">Metrics</a>
+    | 📚&nbsp;<a href="#documentation">Datasets</a>
+    | 📜&nbsp;<a href="#citation">Citation</a>
+</p>
+
 # FEEL FREE TO CONTACT ME IF YOU HAVE ANY QUESTION
 
 I will help you there:
@@ -270,16 +281,21 @@ Additional documentation can be found in [docs/](docs/) directory
 
 - [CASTLE](docs/CASTLE_README.md)
 - [CVEFixes](docs/CVEFIXES_README.md)
+- [ContextAssembler Dataset](https://github.com/vodkar/context-assembler-dataset)
 
-## Citation (NOT PUBLISHED YET ⚠️)
+## Citation
 
 If you use this framework in your research, please cite:
 
 ```bibtex
-@misc{llm4codesec-framework,
-    title={...},
-    author={Kirill Gladkikh},
-    year={2025},
-    url={https://github.com/vodkar/llm4codesec-framework}
+@article{gladkikh2026llm4codesec,
+    title={LLM4CodeSec: A Framework for Evaluating the Effectiveness of Large Language Models in Source Code Vulnerability Detection},
+    author={Gladkikh, Kirill I. and Zakharov, Aleksei A. and Zakharova, Irina G.},
+    journal={International Journal of Open Information Technologies},
+    volume={14},
+    number={3},
+    pages={94--100},
+    year={2026},
+    url={https://cyberleninka.ru/article/n/llm4codesec-a-framework-for-evaluating-the-effectiveness-of-large-language-models-in-source-code-vulnerability-detection}
 }
 ```

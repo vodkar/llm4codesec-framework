@@ -15,10 +15,10 @@
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the dummy ranking strategy"
         },
-        "context_assembler_compare_multiplicative_boost": {
-            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_boost.json",
+        "context_assembler_compare_multiplicative_amplification": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_amplification.json",
             "task_type": "binary_vulnerability",
-            "description": "ContextAssembler compare-rankings dataset using the multiplicative-boost strategy"
+            "description": "ContextAssembler compare-rankings dataset using the multiplicative-amplification strategy"
         },
         "context_assembler_compare_random_picking": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
@@ -30,10 +30,10 @@
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the current ranking strategy with manually set default coefficients (no hyperparameter tuning)"
         },
-        "context_assembler_compare_multiplicative_boost_default": {
-            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_boost_default.json",
+        "context_assembler_compare_multiplicative_amplification_default": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_amplification_default.json",
             "task_type": "binary_vulnerability",
-            "description": "ContextAssembler compare-rankings dataset using the multiplicative-boost strategy with manually set default coefficients (no hyperparameter tuning)"
+            "description": "ContextAssembler compare-rankings dataset using the multiplicative-amplification strategy with manually set default coefficients (no hyperparameter tuning)"
         },
         "context_assembler_compare_cpg_structural": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
@@ -44,6 +44,26 @@
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_evidence_budgeted.json",
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the evidence-budgeted ranking strategy (hyperparameter-tuned weights)"
+        },
+        "context_assembler_compare_current_last": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_current_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the current ranking strategy with the last (final) hyperparameter-tuning values"
+        },
+        "context_assembler_compare_cpg_structural_last": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy with the last (final) hyperparameter-tuning values"
+        },
+        "context_assembler_compare_evidence_budgeted_last": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_evidence_budgeted_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the evidence-budgeted ranking strategy with the last (final) hyperparameter-tuning values"
+        },
+        "context_assembler_compare_multiplicative_amplification_last": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_multiplicative_amplification_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the multiplicative-amplification strategy with the last (final) hyperparameter-tuning values"
         },
         "context_assembler_compare_security_first": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_security_first.json",
@@ -59,6 +79,231 @@
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
             "task_type": "binary_vulnerability",
             "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation"
+        },
+        "context_assembler_compare_current_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current strategy at 1k context budget"
+        },
+        "context_assembler_compare_depth_repeats_context_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 1k context budget"
+        },
+        "context_assembler_compare_dummy_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 1k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 1k context budget"
+        },
+        "context_assembler_compare_random_picking_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Random Picking strategy at 1k context budget"
+        },
+        "context_assembler_compare_current_default_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current (Default, Manual Coefficients) strategy at 1k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_default_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost (Default, Manual Coefficients) strategy at 1k context budget"
+        },
+        "context_assembler_compare_cpg_structural_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 1k context budget"
+        },
+        "context_assembler_compare_evidence_budgeted_1k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Evidence Budgeted strategy at 1k context budget"
+        },
+        "context_assembler_compare_current_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current strategy at 2k context budget"
+        },
+        "context_assembler_compare_depth_repeats_context_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 2k context budget"
+        },
+        "context_assembler_compare_dummy_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 2k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 2k context budget"
+        },
+        "context_assembler_compare_random_picking_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Random Picking strategy at 2k context budget"
+        },
+        "context_assembler_compare_current_default_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current (Default, Manual Coefficients) strategy at 2k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_default_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost (Default, Manual Coefficients) strategy at 2k context budget"
+        },
+        "context_assembler_compare_cpg_structural_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 2k context budget"
+        },
+        "context_assembler_compare_evidence_budgeted_2k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/2k/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Evidence Budgeted strategy at 2k context budget"
+        },
+        "context_assembler_compare_current_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current strategy at 4k context budget"
+        },
+        "context_assembler_compare_depth_repeats_context_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 4k context budget"
+        },
+        "context_assembler_compare_dummy_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 4k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 4k context budget"
+        },
+        "context_assembler_compare_random_picking_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Random Picking strategy at 4k context budget"
+        },
+        "context_assembler_compare_current_default_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current (Default, Manual Coefficients) strategy at 4k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_default_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost (Default, Manual Coefficients) strategy at 4k context budget"
+        },
+        "context_assembler_compare_cpg_structural_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 4k context budget"
+        },
+        "context_assembler_compare_evidence_budgeted_4k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/4k/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Evidence Budgeted strategy at 4k context budget"
+        },
+        "context_assembler_compare_current_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current strategy at 8k context budget"
+        },
+        "context_assembler_compare_depth_repeats_context_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 8k context budget"
+        },
+        "context_assembler_compare_dummy_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 8k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 8k context budget"
+        },
+        "context_assembler_compare_random_picking_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Random Picking strategy at 8k context budget"
+        },
+        "context_assembler_compare_current_default_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current (Default, Manual Coefficients) strategy at 8k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_default_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost (Default, Manual Coefficients) strategy at 8k context budget"
+        },
+        "context_assembler_compare_cpg_structural_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 8k context budget"
+        },
+        "context_assembler_compare_evidence_budgeted_8k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/8k/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Evidence Budgeted strategy at 8k context budget"
+        },
+        "context_assembler_compare_current_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_current.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current strategy at 16k context budget"
+        },
+        "context_assembler_compare_depth_repeats_context_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 16k context budget"
+        },
+        "context_assembler_compare_dummy_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 16k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_multiplicative_boost.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 16k context budget"
+        },
+        "context_assembler_compare_random_picking_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Random Picking strategy at 16k context budget"
+        },
+        "context_assembler_compare_current_default_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Current (Default, Manual Coefficients) strategy at 16k context budget"
+        },
+        "context_assembler_compare_multiplicative_boost_default_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_multiplicative_boost_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost (Default, Manual Coefficients) strategy at 16k context budget"
+        },
+        "context_assembler_compare_cpg_structural_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 16k context budget"
+        },
+        "context_assembler_compare_evidence_budgeted_16k": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "ContextAssembler compare-rankings dataset using the Evidence Budgeted strategy at 16k context budget"
         }
     }
 }

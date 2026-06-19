@@ -45,9 +45,9 @@ DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
         "context_assembler_compare_dummy.json",
         "ContextAssembler Compare Rankings - Dummy",
     ),
-    "cleanvul_context_benchmark_multiplicative_boost.json": (
-        "context_assembler_compare_multiplicative_boost.json",
-        "ContextAssembler Compare Rankings - Multiplicative Boost",
+    "cleanvul_context_benchmark_multiplicative_amplification.json": (
+        "context_assembler_compare_multiplicative_amplification.json",
+        "ContextAssembler Compare Rankings - Multiplicative amplification",
     ),
     "cleanvul_context_benchmark_random_picking.json": (
         "context_assembler_compare_random_picking.json",
@@ -57,9 +57,9 @@ DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
         "context_assembler_compare_current_default.json",
         "ContextAssembler Compare Rankings - Current (Default, Manual Coefficients)",
     ),
-    "cleanvul_context_benchmark_multiplicative_boost_default.json": (
-        "context_assembler_compare_multiplicative_boost_default.json",
-        "ContextAssembler Compare Rankings - Multiplicative Boost (Default, Manual Coefficients)",
+    "cleanvul_context_benchmark_multiplicative_amplification_default.json": (
+        "context_assembler_compare_multiplicative_amplification_default.json",
+        "ContextAssembler Compare Rankings - Multiplicative amplification (Default, Manual Coefficients)",
     ),
     "cleanvul_context_benchmark_cpg_structural.json": (
         "context_assembler_compare_cpg_structural.json",
@@ -68,6 +68,29 @@ DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
     "cleanvul_context_benchmark_evidence_budgeted.json": (
         "context_assembler_compare_evidence_budgeted.json",
         "ContextAssembler Compare Rankings - Evidence Budgeted",
+    ),
+}
+
+# Optional variants holding the last (final) hyperparameter-tuning values. They
+# are only present in the top-level compare-rankings folder, so they are
+# processed when found and silently skipped otherwise (e.g. for context-size
+# sub-folders that do not ship them).
+OPTIONAL_DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
+    "cleanvul_context_benchmark_current_last.json": (
+        "context_assembler_compare_current_last.json",
+        "ContextAssembler Compare Rankings - Current (Last Tuning Values)",
+    ),
+    "cleanvul_context_benchmark_cpg_structural_last.json": (
+        "context_assembler_compare_cpg_structural_last.json",
+        "ContextAssembler Compare Rankings - CPG Structural (Last Tuning Values)",
+    ),
+    "cleanvul_context_benchmark_evidence_budgeted_last.json": (
+        "context_assembler_compare_evidence_budgeted_last.json",
+        "ContextAssembler Compare Rankings - Evidence Budgeted (Last Tuning Values)",
+    ),
+    "cleanvul_context_benchmark_multiplicative_amplification_last.json": (
+        "context_assembler_compare_multiplicative_amplification_last.json",
+        "ContextAssembler Compare Rankings - Multiplicative amplification (Last Tuning Values)",
     ),
 }
 
@@ -160,6 +183,24 @@ def build_compare_rankings_datasets(
     for source_name, (output_name, dataset_name) in DATASET_VARIANTS.items():
         source_path: Path = source_dir / source_name
         output_path: Path = output_dir / output_name
+        LOGGER.info("Processing %s -> %s", source_path, output_path)
+        _write_processed_dataset(
+            source_path=source_path,
+            output_path=output_path,
+            dataset_name=dataset_name,
+            sample_limit=sample_limit,
+        )
+        written_files.append(output_path)
+
+    for source_name, (output_name, dataset_name) in OPTIONAL_DATASET_VARIANTS.items():
+        if source_name not in discovered_files:
+            LOGGER.info(
+                "Skipping optional compare-rankings variant (not present): %s",
+                source_name,
+            )
+            continue
+        source_path = source_dir / source_name
+        output_path = output_dir / output_name
         LOGGER.info("Processing %s -> %s", source_path, output_path)
         _write_processed_dataset(
             source_path=source_path,

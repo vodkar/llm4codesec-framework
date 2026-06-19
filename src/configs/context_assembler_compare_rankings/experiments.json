@@ -43,20 +43,44 @@
                 "context_assembler_compare_current",
                 "context_assembler_compare_depth_repeats_context",
                 "context_assembler_compare_dummy",
-                "context_assembler_compare_multiplicative_boost",
+                "context_assembler_compare_multiplicative_amplification",
                 "context_assembler_compare_random_picking",
                 "context_assembler_compare_current_default",
-                "context_assembler_compare_multiplicative_boost_default",
+                "context_assembler_compare_multiplicative_amplification_default",
+                "context_assembler_compare_cpg_structural",
+                "context_assembler_compare_evidence_budgeted",
+                "context_assembler_compare_current_last",
+                "context_assembler_compare_cpg_structural_last",
+                "context_assembler_compare_evidence_budgeted_last",
+                "context_assembler_compare_multiplicative_amplification_last"
+            ],
+            "models": [
+                "qwen3-8b-thinking-sc5"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ]
+        },
+        "self_consistency": {
+            "description": "Full compare-rankings evaluation across all ranking strategies and requested vLLM models",
+            "datasets": [
+                "context_assembler_compare_current",
+                "context_assembler_compare_depth_repeats_context",
+                "context_assembler_compare_dummy",
+                "context_assembler_compare_multiplicative_amplification",
+                "context_assembler_compare_random_picking",
+                "context_assembler_compare_current_default",
+                "context_assembler_compare_multiplicative_amplification_default",
                 "context_assembler_compare_cpg_structural",
                 "context_assembler_compare_evidence_budgeted"
             ],
             "models": [
-                "qwen3.6-27b-gguf-thinking"
+                "qwen3-8b-thinking-sc15"
             ],
             "prompts": [
                 "strict_exploitable_security"
             ],
-            "sample_limit": 100
+            "sample_limit": 500
         },
         "big_models_compare_rankings": {
             "description": "Full compare-rankings evaluation across all ranking strategies and requested big models",
@@ -64,10 +88,10 @@
                 "context_assembler_compare_current",
                 "context_assembler_compare_depth_repeats_context",
                 "context_assembler_compare_dummy",
-                "context_assembler_compare_multiplicative_boost",
+                "context_assembler_compare_multiplicative_amplification",
                 "context_assembler_compare_random_picking",
                 "context_assembler_compare_current_default",
-                "context_assembler_compare_multiplicative_boost_default",
+                "context_assembler_compare_multiplicative_amplification_default",
                 "context_assembler_compare_cpg_structural",
                 "context_assembler_compare_evidence_budgeted"
             ],
@@ -133,6 +157,27 @@
                 "strict_exploitable_security"
             ],
             "sample_limit": 100
+        },
+        "context_sizes_qwen3_8b": {
+            "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on qwen3-8b-thinking (no self-consistency)",
+            "datasets": [
+                "context_assembler_compare_current_1k",
+                "context_assembler_compare_depth_repeats_context_1k",
+                "context_assembler_compare_dummy_1k",
+                "context_assembler_compare_multiplicative_amplification_1k",
+                "context_assembler_compare_random_picking_1k",
+                "context_assembler_compare_current_default_1k",
+                "context_assembler_compare_multiplicative_amplification_default_1k",
+                "context_assembler_compare_cpg_structural_1k",
+                "context_assembler_compare_evidence_budgeted_1k"
+            ],
+            "models": [
+                "qwen3-8b-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 400
         }
     },
     "output_settings": {

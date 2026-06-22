@@ -14,6 +14,9 @@ _BINARY_PATTERN: Final[re.Pattern[str]] = re.compile(
 _BINARY_FALLBACK_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"\b(YES|NO|TRUE|FALSE|FOUND|DETECTED|NONE|CLEAN)\b", re.IGNORECASE
 )
+_IS_VULNERABLE_JSON_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r'"is_vulnerable"\s*:\s*(true|false)', re.IGNORECASE
+)
 _VULDETECTBENCH_BINARY_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"\b(YES|NO)\b", re.IGNORECASE
 )
@@ -55,6 +58,14 @@ def _extract_final_answer_payload(response: str) -> str | None:
     if not matches:
         return None
     return matches[-1].strip()
+
+
+def _extract_is_vulnerable_json(response: str) -> int | None:
+    """Extract the last ``{"is_vulnerable": <bool>}`` verdict if present."""
+    matches: list[str] = _IS_VULNERABLE_JSON_PATTERN.findall(response)
+    if not matches:
+        return None
+    return 1 if matches[-1].lower() == "true" else 0
 
 
 def _extract_prefixed_payload(text: str) -> str | None:
@@ -167,6 +178,10 @@ class BinaryResponseParser(IResponseParser):
     def parse_response(self, response: str) -> int:
         """Parse binary classification response."""
         response_text: str = response.strip()
+
+        json_match: int | None = _extract_is_vulnerable_json(response_text)
+        if json_match is not None:
+            return json_match
 
         explicit_payload: str | None = _extract_final_answer_payload(response_text)
         if explicit_payload is not None:

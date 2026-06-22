@@ -158,6 +158,27 @@
             ],
             "sample_limit": 100
         },
+        "compare_prompts_qwen3_8b": {
+            "description": "Compare prompt formulations on the CPG-structural dataset using qwen3-8b-thinking (JSON is_vulnerable output)",
+            "datasets": [
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "qwen3-8b-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security",
+                "python_strategy",
+                "python_thinking_strategy",
+                "python_verify_strategy",
+                "step_by_step",
+                "token_aware_security",
+                "context_aware_security",
+                "detailed_security",
+                "python_exploit_chain"
+            ],
+            "sample_limit": 200
+        },
         "context_sizes_qwen3_8b": {
             "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on qwen3-8b-thinking (no self-consistency)",
             "datasets": [

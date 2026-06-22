@@ -8,12 +8,16 @@ from benchmark.config import ExperimentConfig
 from benchmark.enums import TaskType
 
 _BINARY_RESPONSE_CONTRACT: Final[str] = (
-    "\nIMPORTANT output rule:\n"
-    "- You may think step by step if needed.\n"
-    "- DO NOT USE the final label anywhere except the last non-empty line.\n"
-    "- The last non-empty line must be EXACTLY ONE OF:\n"
-    "  [[FINAL_ANSWER: VULNERABLE]]\n"
-    "  [[FINAL_ANSWER: SAFE]]"
+    "\nResponse format:\n"
+    "- You may reason step by step first.\n"
+    "- After your analysis, output your verdict as a single JSON object on the last"
+    " line and nothing after it.\n"
+    "- The last line must be EXACTLY one of:\n"
+    '  {"is_vulnerable": true}\n'
+    '  {"is_vulnerable": false}\n'
+    "- Use true only if the code contains a real, exploitable vulnerability; otherwise"
+    " use false.\n"
+    "- Do not wrap the JSON in markdown or add any text after it."
 )
 
 _MULTICLASS_RESPONSE_CONTRACT: Final[str] = (

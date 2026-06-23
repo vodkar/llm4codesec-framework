@@ -107,15 +107,15 @@
         "qwen3-8b-thinking": {
             "model_identifier": "Qwen/Qwen3-8B",
             "model_type": "qwen-3",
-            "max_output_tokens": 10000,
-            "context_length": 32768,
-            "batch_size": 15,
+            "max_output_tokens": 8000,
+            "context_length": 11000,
+            "batch_size": 30,
             "temperature": 0.9,
             "repetition_penalty": 1.2,
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.91
+            "gpu_memory_utilization": 0.95
         },
         "qwen3-8b-thinking-sc15": {
             "model_identifier": "Qwen/Qwen3-8B",
@@ -128,7 +128,7 @@
             "repetition_penalty": 1.2,
             "backend": "vllm",
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.91,
+            "gpu_memory_utilization": 0.95,
             "self_consistency_samples": 15
         },
         "qwen3-8b-thinking-sc5": {
@@ -142,7 +142,7 @@
             "repetition_penalty": 1.2,
             "backend": "vllm",
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.91,
+            "gpu_memory_utilization": 0.95,
             "self_consistency_samples": 5
         },
         "qwen3-8b-thinking-sc5-final-answer-logprobs": {
@@ -155,7 +155,7 @@
             "use_quantization": true,
             "backend": "vllm",
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.91,
+            "gpu_memory_utilization": 0.95,
             "self_consistency_samples": 5,
             "enable_logprobs": true,
             "binary_decision_mode": "final_answer_logprobs",

@@ -58,7 +58,7 @@
                 "qwen3-8b-thinking-sc5"
             ],
             "prompts": [
-                "strict_exploitable_security"
+                "python_exploit_chain"
             ]
         },
         "self_consistency": {

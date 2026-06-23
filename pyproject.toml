@@ -3,12 +3,11 @@ name = "llm4codesec-llm-benchmark"
 version = "0.1.0"
 description = ""
 authors = [{ name = "vodkar", email = "boombarah@gmail.com" }]
-requires-python = ">=3.13,<4"
+requires-python = ">=3.12,<3.14"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "pandas>=2.0.0",
@@ -20,26 +19,22 @@ dependencies = [
     "tiktoken>=0.9.0",
     "protobuf>=6.31.1,<7",
     "pydantic>=2.12.5",
-    "typer>=0.16.1,<0.17",
-    "huggingface-hub[hf_xet]>=0.34.0,<1.0",
+    "typer>=0.25.0",
+    "huggingface-hub[hf_xet]>=1.20.1",
 ]
 
 [project.optional-dependencies]
 hf = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "torchaudio>=2.0.0",
+    "torch>=2.2.0",
     "transformers>=4.51.0",
     "tokenizers>=0.14.0",
     "accelerate>=0.24.0",
     "bitsandbytes>=0.49.1",
     "datasets>=2.14.0",
-    "huggingface-hub[hf_xet]>=0.34.0,<1.0",
+    "huggingface-hub[hf_xet]>=1.20.1",
 ]
 vllm = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "torchaudio>=2.0.0",
+    "torch>=2.2.0",
     "vllm>=0.18.0",
     "ninja>=1.11.1.4,<2",
     "fbgemm-gpu>=1.4.1",
@@ -84,12 +79,19 @@ notebooks = [
 
 [tool.uv]
 package = false
+# This project targets Linux/CUDA only (Docker + local Arch). vllm, fbgemm-gpu
+# and the cu132 torch wheels are not built for Windows/macOS, so restrict the
+# locked environments to Linux to keep resolution solvable.
+environments = ["sys_platform == 'linux'"]
 default-groups = [
     "dev",
     "analytics",
 ]
 
 [[tool.uv.index]]
+# cu130 wheels (CUDA 13.0) are forward-compatible with the CUDA 13.2 Docker
+# runtime. vllm nightly and fbgemm-gpu are not published for cu132 yet, so we
+# pin the wheel indexes to cu130 (the newest complete CUDA 13.x index).
 name = "vllm-nightly"
 url = "https://wheels.vllm.ai/nightly/cu130"
 explicit = true
@@ -107,9 +109,6 @@ torch = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]
 torchvision = [
-  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
-]
-torchaudio = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]
 fbgemm-gpu = [

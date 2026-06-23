@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for LLM4CodeSec Benchmark with NVIDIA CUDA support
-FROM nvcr.io/nvidia/cuda:13.0.2-devel-ubuntu24.04
+FROM nvcr.io/nvidia/cuda:13.0.3-devel-ubuntu24.04
 
 # Set environment variables for non-interactive builds
 ENV DEBIAN_FRONTEND=noninteractive
@@ -54,5 +54,5 @@ CMD []
 LABEL maintainer="llm4codesec-benchmark"
 LABEL description="LLM4CodeSec Benchmark with NVIDIA CUDA support for vulnerability detection"
 LABEL version="0.1.0"
-LABEL cuda.version="13.0.2"
+LABEL cuda.version="13.0.3"
 LABEL python.version="3.13"

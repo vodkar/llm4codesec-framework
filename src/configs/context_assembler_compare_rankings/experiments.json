@@ -298,7 +298,12 @@
                 "context_assembler_compare_cpg_structural_16k"
             ],
             "models": [
-                "qwen3-14b-gguf-thinking"
+                "gemma4-12b-it-thinking",
+                "qwen3-8b-thinking",
+                "qwen3-4b-thinking",
+                "gemma4-e4b-it",
+                "qwen3-30b-a3b-instruct-gguf",
+                "gemma4-26b-a4b-gguf-thinking"
             ],
             "prompts": [
                 "strict_exploitable_security"

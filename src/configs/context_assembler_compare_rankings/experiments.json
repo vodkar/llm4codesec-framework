@@ -179,6 +179,96 @@
             ],
             "sample_limit": 200
         },
+        "new_models_smoke_test": {
+            "description": "Tiny smoke test to verify every newly added thinking-enabled model loads and runs before the full comparison",
+            "datasets": [
+                "context_assembler_compare_smoke_test"
+            ],
+            "models": [
+                "llama32-3b-claude-distill-gguf-thinking",
+                "qwopus35-9b-coder-mtp-gguf-thinking",
+                "llama31-8b-code-gguf-thinking",
+                "lfm2.5-8b-a1b-gguf-thinking",
+                "gemma4-12b-it-gguf-thinking",
+                "gemma4-12b-coder-fable-gguf-thinking",
+                "qwopus35-9b-coder-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 2
+        },
+        "qwopus_gpu_recheck": {
+            "description": "Measure llama.cpp GPU offload per-sample speed for the Qwopus MTP GGUF on the real cpg_structural dataset",
+            "datasets": [
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "qwopus35-9b-coder-mtp-gguf-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 8
+        },
+        "gemma4_spec_recheck": {
+            "description": "Measure prompt-lookup speculative-decoding speedup for gemma4-12b-it on the real cpg_structural dataset (toggle via LLAMA_CPP_PROMPT_LOOKUP)",
+            "datasets": [
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "gemma4-12b-it-gguf-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 6
+        },
+        "gemma4_vllm_recheck": {
+            "description": "Measure vLLM continuous-batching throughput for the gemma4-12b-it Q4 GGUF on the real cpg_structural dataset, vs the sequential llama.cpp baseline",
+            "datasets": [
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 30
+        },
+        "gemma4_24k_smoke": {
+            "description": "Stability smoke for gemma4-12b-it on vLLM at 24k context: largest (16k) cpg_structural prompts + 8k output exercise the full 24576-token window",
+            "datasets": [
+                "context_assembler_compare_cpg_structural_16k"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 4
+        },
+        "new_models_compare_cpg_structural": {
+            "description": "Compare the effectiveness of the newly added thinking-enabled models against qwen3-8b-thinking on the CPG-structural compare-rankings dataset",
+            "datasets": [
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "qwopus35-9b-coder-mtp-gguf-thinking",
+                "qwopus35-9b-coder-thinking",
+                "llama31-8b-code-gguf-thinking",
+                "gemma4-12b-coder-fable-gguf-thinking",
+                "gemma4-12b-it-gguf-thinking",
+                "llama32-3b-claude-distill-gguf-thinking",
+                "lfm2.5-8b-a1b-gguf-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 700
+        },
         "context_sizes_qwen3_8b": {
             "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on qwen3-8b-thinking (no self-consistency)",
             "datasets": [
@@ -194,6 +284,21 @@
             ],
             "models": [
                 "qwen3-8b-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 400
+        },
+        "context_sizes": {
+            "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on gemma4-12b-it-thinking (no self-consistency)",
+            "datasets": [
+                "context_assembler_compare_depth_repeats_context_16k",
+                "context_assembler_compare_multiplicative_boost_16k",
+                "context_assembler_compare_cpg_structural_16k"
+            ],
+            "models": [
+                "qwen3-14b-gguf-thinking"
             ],
             "prompts": [
                 "strict_exploitable_security"

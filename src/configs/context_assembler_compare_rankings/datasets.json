@@ -96,7 +96,7 @@
             "description": "ContextAssembler compare-rankings dataset using the Dummy strategy at 1k context budget"
         },
         "context_assembler_compare_multiplicative_boost_1k": {
-            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_multiplicative_boost.json",
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/context_assembler_compare_multiplicative_amplification.json",
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 1k context budget"
         },

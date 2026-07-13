@@ -1,0 +1,13 @@
+{
+  "plan_name": "gemma4_spec_recheck",
+  "description": "Measure prompt-lookup speculative-decoding speedup for gemma4-12b-it on the real cpg_structural dataset (toggle via LLAMA_CPP_PROMPT_LOOKUP)",
+  "start_time": "2026-06-25T18:45:58.984455",
+  "end_time": "2026-06-25T18:47:06.218861",
+  "experiments": [],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 0,
+    "failed_experiments": 1
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/gemma4_spec_recheck"
+}

@@ -30,8 +30,32 @@ services:
       - HF_HOME=/app/.cache/huggingface
       - VLLM_CACHE_ROOT=/app/.cache/huggingface
 
-      - CUDA_LAUNCH_BLOCKING=1
+      # NOTE: CUDA_LAUNCH_BLOCKING serializes every CUDA kernel launch (debug
+      # only) and cripples GPU throughput for both vLLM and llama.cpp. Keep 0.
+      - CUDA_LAUNCH_BLOCKING=0
+      # Spawn (not fork) vLLM engine-core workers. Mixed-backend plans load
+      # llama.cpp/HF models in the parent process, which initializes CUDA
+      # there; a forked EngineCore then dies with "CUDA error: initialization
+      # error". Spawned workers start clean regardless of parent CUDA state.
+      - VLLM_WORKER_MULTIPROC_METHOD=spawn
       - LLAMA_CPP_FLASH_ATTN=1
+      # Allocate sliding-window KV at window size instead of full n_ctx for
+      # iSWA models (gemma-4: 25 of 30 layers are SWA). Saves ~4.3 GB VRAM at
+      # 22k ctx, which is what lets gemma4-26b-a4b IQ4_XS fully offload on the
+      # 16 GB card. No effect on models without SWA layers (qwen etc.).
+      - LLAMA_CPP_SWA_FULL=0
+      # Offload all model layers to the GPU. Without this llama.cpp defaults to
+      # n_gpu_layers=0 (full CPU inference) — ~10-30x slower. -1 = all layers.
+      - LLAMA_CPP_N_GPU_LAYERS=-1
+      # Prompt-lookup speculative decoding (opt-in). DISABLED by default: it is
+      # lossless and free, but llama-cpp-python 0.3.31 forces logits_all=True
+      # when a draft model is set, which allocates an n_ctx*vocab float32 score
+      # buffer on the HOST. For 262k-vocab models (gemma) at n_ctx=13k that is
+      # ~13.6 GB RAM — does not fit this 15 GB host. Safe to enable only for
+      # small-vocab models on a high-RAM host.
+      - LLAMA_CPP_PROMPT_LOOKUP=0
+      - LLAMA_CPP_DRAFT_MAX_NGRAM=3
+      - LLAMA_CPP_DRAFT_PRED_TOKENS=10
 
     env_file:
       - .env

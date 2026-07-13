@@ -1,0 +1,94 @@
+{
+  "plan_name": "gemma4_24k_smoke",
+  "description": "Stability smoke for gemma4-12b-it on vLLM at 24k context: largest (16k) cpg_structural prompts + 8k output exercise the full 24576-token window",
+  "start_time": "2026-06-25T21:26:23.390686",
+  "end_time": "2026-06-25T21:36:32.356423",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "gemma4_24k_smoke",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 16k context budget",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-06-25T21:36:32.354468",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 4,
+          "total_time_seconds": 38.73442506790161,
+          "avg_time_per_sample": 9.683606266975403,
+          "tokens_used_total": 19141,
+          "tokens_used_avg": 4785.25,
+          "processing_time_stats": {
+            "count": 4,
+            "min": 9.618775725364685,
+            "max": 9.618775725364685,
+            "mean": 9.618775725364685,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 4,
+            "min": 2650.0,
+            "max": 6879.0,
+            "mean": 4785.25,
+            "variance": 5777516.916666666,
+            "std": 2403.646587305768
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5,
+        "summary": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1_score": 0.5,
+          "specificity": 0.5
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 1,
+            "true_negatives": 1,
+            "false_positives": 1,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/gemma4_24k_smoke"
+}

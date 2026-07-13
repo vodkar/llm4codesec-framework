@@ -33,6 +33,10 @@ class ModelType(Enum):
 
     # Gemma models
     GEMMA_3 = "gemma-3"
+    GEMMA_4 = "gemma-4"
+
+    # Liquid Foundation Models
+    LFM2_5 = "lfm2.5"
 
     # nemotron
     NEMOTRON_NANO_V2 = "nemotron-nano-v2"

@@ -110,6 +110,16 @@ class VllmLLM(ILLMInference):
         if max_num_batched_tokens is not None:
             llm_kwargs["max_num_batched_tokens"] = max_num_batched_tokens
 
+        # Text-only use of a multimodal checkpoint: disabling image inputs frees
+        # the vision-encoder activation that vLLM otherwise reserves during
+        # memory profiling, leaving more VRAM for the KV cache (higher batch
+        # concurrency -> higher GPU utilization).
+        if self.config.limit_mm_per_prompt is not None:
+            llm_kwargs["limit_mm_per_prompt"] = self.config.limit_mm_per_prompt
+
+        if self.config.hf_overrides is not None:
+            llm_kwargs["hf_overrides"] = self.config.hf_overrides
+
         if quantization is not None:
             llm_kwargs["quantization"] = quantization
 

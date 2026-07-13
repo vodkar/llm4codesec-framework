@@ -1,0 +1,94 @@
+{
+  "plan_name": "gemma4_vllm_recheck",
+  "description": "Measure vLLM continuous-batching throughput for the gemma4-12b-it Q4 GGUF on the real cpg_structural dataset, vs the sequential llama.cpp baseline",
+  "start_time": "2026-06-25T21:43:02.809625",
+  "end_time": "2026-06-25T21:47:20.708985",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "gemma4_vllm_recheck",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-06-25T21:47:20.706165",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 30,
+          "total_time_seconds": 37.84403729438782,
+          "avg_time_per_sample": 1.2614679098129273,
+          "tokens_used_total": 49601,
+          "tokens_used_avg": 1653.3666666666666,
+          "processing_time_stats": {
+            "count": 30,
+            "min": 1.2484344164530436,
+            "max": 1.2484344164530436,
+            "mean": 1.2484344164530436,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 30,
+            "min": 878.0,
+            "max": 3129.0,
+            "mean": 1653.3666666666666,
+            "variance": 361099.6885057472,
+            "std": 600.9157083200165
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5333333333333333,
+        "summary": {
+          "accuracy": 0.5333333333333333,
+          "precision": 0.5333333333333333,
+          "recall": 0.5333333333333333,
+          "f1_score": 0.5333333333333333,
+          "specificity": 0.5333333333333333
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 8,
+            "true_negatives": 8,
+            "false_positives": 7,
+            "false_negatives": 7
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/gemma4_vllm_recheck"
+}

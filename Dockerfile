@@ -27,14 +27,21 @@ WORKDIR /app
 # Disable development dependencies
 ENV UV_NO_DEV=1
 
-RUN uv python install 3.13 --default
+RUN uv python install 3.12 --default
 
 COPY pyproject.toml uv.lock ./
 
-# Build llama-cpp-python with CUDA (GPU) support
-ENV CMAKE_ARGS="-DGGML_CUDA=on"
+# Build llama-cpp-python with CUDA (GPU) support.
+# CMAKE_CUDA_ARCHITECTURES must be pinned: there is no GPU visible during
+# `docker build`, so ggml's arch autodetection falls back to sm_75-only
+# (Turing) and every kernel gets driver-JIT'd from 7.5 PTX on this sm_120
+# (Blackwell) card — which crashes MoE models mid-run with
+# "CUDA error: invalid argument" in mul_mat_vec_q.
+ENV CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=120"
 
-RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=3600 uv sync --locked --extra vllm --extra llama-cpp
+# uv's wheel cache is NOT keyed on CMAKE_ARGS, so a cached llama-cpp-python
+# build with the wrong CUDA arch would be silently reused — evict it first.
+RUN --mount=type=cache,target=/root/.cache/uv UV_HTTP_TIMEOUT=3600 uv cache clean llama-cpp-python && UV_HTTP_TIMEOUT=3600 uv sync --locked --extra vllm --extra llama-cpp
 
 # Install flash attention
 # RUN uv pip install ninja setuptools && \

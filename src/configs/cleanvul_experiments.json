@@ -61,6 +61,31 @@
             "dataset_path": "datasets_processed/cleanvul/score3/cleanvul_java_binary.json",
             "task_type": "binary_vulnerability",
             "description": "Binary classification: Java (score>=3)"
+        },
+        "ctx_py_0k_1k": {
+            "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_0k_1k.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul Python binary — code token count in [0k, 1k)"
+        },
+        "ctx_py_1k_2k": {
+            "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_1k_2k.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul Python binary — code token count in [1k, 2k)"
+        },
+        "ctx_py_2k_4k": {
+            "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_2k_4k.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul Python binary — code token count in [2k, 4k)"
+        },
+        "ctx_py_4k_8k": {
+            "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_4k_8k.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul Python binary — code token count in [4k, 8k)"
+        },
+        "ctx_py_8k_16k": {
+            "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_8k_16k.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul Python binary — code token count in [8k, 16k)"
         }
     },
     "prompts": {
@@ -152,6 +177,31 @@
             "temperature": 0.1,
             "batch_size": 2,
             "use_quantization": true
+        },
+        "gemma4-12b": {
+            "model_identifier": "google/gemma-4-12B-it-qat-w4a16-ct",
+            "model_type": "gemma-4",
+            "backend": "vllm",
+            "max_output_tokens": 2048,
+            "context_length": 24576,
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 64,
+            "min_p": 0.01,
+            "repetition_penalty": 1.0,
+            "batch_size": 32,
+            "use_quantization": false,
+            "vllm_quantization": "none",
+            "kv_cache_dtype": "fp8",
+            "gpu_memory_utilization": 0.96,
+            "max_num_seqs": 16,
+            "max_num_batched_tokens": 4096,
+            "enable_prefix_caching": true,
+            "enforce_eager": false,
+            "limit_mm_per_prompt": {
+                "image": 0
+            },
+            "is_thinking_enabled": true
         }
     },
     "experiment_plans": {
@@ -255,6 +305,28 @@
                 "step_by_step"
             ],
             "sample_limit": 50
+        },
+        "context_size_comparison": {
+            "description": "accuracy vs context size on CleanVul Python (binary), 1k-16k token buckets",
+            "datasets": [
+                "ctx_py_0k_1k",
+                "ctx_py_1k_2k",
+                "ctx_py_2k_4k",
+                "ctx_py_4k_8k",
+                "ctx_py_8k_16k"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking",
+                "qwen3-8b-thinking",
+                "qwen3-4b-thinking",
+                "gemma4-e4b-it",
+                "qwen3-30b-a3b-instruct-gguf",
+                "gemma4-26b-a4b-gguf-thinking"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 200
         }
     },
     "output_settings": {

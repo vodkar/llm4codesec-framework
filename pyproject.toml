@@ -21,6 +21,7 @@ dependencies = [
     "pydantic>=2.12.5",
     "typer>=0.25.0",
     "huggingface-hub[hf_xet]>=1.20.1",
+    "transformers>=5.12.1",
 ]
 
 [project.optional-dependencies]
@@ -65,6 +66,7 @@ analytics = [
     "seaborn>=0.13.2,<0.14",
     "plotly>=6.2.0,<7",
     "jinja2>=3.1.6",
+    "statsmodels>=0.14.4,<0.15",
 ]
 notebooks = [
     "ipykernel>=6.29.5,<7",

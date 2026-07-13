@@ -21,6 +21,10 @@ class ModelConfig(BaseModel):
     batch_size: int
     max_output_tokens: int
     context_length: int | None = None
+    n_gpu_layers: int | None = None
+    """llama.cpp only: layers to offload to GPU. Overrides the
+    LLAMA_CPP_N_GPU_LAYERS env default; set per model when its weights do not
+    fully fit VRAM alongside the KV/compute buffers."""
     temperature: float
     top_p: float | None = None
     top_k: int | None = None
@@ -37,6 +41,8 @@ class ModelConfig(BaseModel):
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
     enable_prefix_caching: bool | None = None
+    limit_mm_per_prompt: dict[str, int] | None = None
+    hf_overrides: dict[str, object] | None = None
     self_consistency_samples: int = 1
     enable_logprobs: bool = False
     binary_decision_mode: BinaryDecisionMode = BinaryDecisionMode.TEXT
@@ -117,6 +123,7 @@ class ExperimentConfig(BaseModel):
     use_quantization: bool = True
     is_thinking_enabled: bool = False
     context_length: int | None = None
+    n_gpu_layers: int | None = None
     cwe_type: str | None = None
     tokenizer_identifier: str | None = None
     hf_config_path: str | None = None
@@ -127,6 +134,8 @@ class ExperimentConfig(BaseModel):
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
     enable_prefix_caching: bool | None = None
+    limit_mm_per_prompt: dict[str, int] | None = None
+    hf_overrides: dict[str, object] | None = None
     self_consistency_samples: int = 1
     enable_logprobs: bool = False
     binary_decision_mode: BinaryDecisionMode = BinaryDecisionMode.TEXT
@@ -259,6 +268,7 @@ class ExperimentConfig(BaseModel):
             use_quantization=model_config.use_quantization,
             is_thinking_enabled=model_config.is_thinking_enabled,
             context_length=model_config.context_length,
+            n_gpu_layers=model_config.n_gpu_layers,
             tokenizer_identifier=model_config.tokenizer_identifier,
             hf_config_path=model_config.hf_config_path,
             vllm_quantization=model_config.vllm_quantization,
@@ -268,6 +278,8 @@ class ExperimentConfig(BaseModel):
             enforce_eager=model_config.enforce_eager,
             max_num_batched_tokens=model_config.max_num_batched_tokens,
             enable_prefix_caching=model_config.enable_prefix_caching,
+            limit_mm_per_prompt=model_config.limit_mm_per_prompt,
+            hf_overrides=model_config.hf_overrides,
             self_consistency_samples=model_config.self_consistency_samples,
             enable_logprobs=model_config.enable_logprobs,
             binary_decision_mode=model_config.binary_decision_mode,

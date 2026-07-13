@@ -1,0 +1,574 @@
+{
+  "plan_name": "new_models_compare_cpg_structural",
+  "description": "Compare the effectiveness of the newly added thinking-enabled models against qwen3-8b-thinking on the CPG-structural compare-rankings dataset",
+  "start_time": "2026-06-23T22:27:00.802674",
+  "end_time": "2026-06-25T17:35:52.043860",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-24T12:24:40.694899",
+        "model": {
+          "model_name": "qwopus35-9b-coder-mtp-gguf-thinking",
+          "model_type": "qwen-3.5",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 50252.19687175751,
+          "avg_time_per_sample": 71.7888526739393,
+          "tokens_used_total": 4418148,
+          "tokens_used_avg": 6311.64,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 1.789438009262085,
+            "max": 191.43384909629822,
+            "mean": 71.78855307170323,
+            "variance": 1992.342930316117,
+            "std": 44.6356688122416
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 904.0,
+            "max": 14968.0,
+            "mean": 6311.64,
+            "variance": 8541078.365207437,
+            "std": 2922.5123379050838
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5371428571428571,
+        "summary": {
+          "accuracy": 0.5371428571428571,
+          "precision": 0.5528455284552846,
+          "recall": 0.38857142857142857,
+          "f1_score": 0.4563758389261745,
+          "specificity": 0.6857142857142857
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 136,
+            "true_negatives": 240,
+            "false_positives": 110,
+            "false_negatives": 214
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-06-24T17:24:32.208525",
+        "model": {
+          "model_name": "qwopus35-9b-coder-thinking",
+          "model_type": "qwen-3.5",
+          "backend": "vllm",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 17719.294425725937,
+          "avg_time_per_sample": 25.313277751037052,
+          "tokens_used_total": 3711699,
+          "tokens_used_avg": 5302.427142857143,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 25.31274398463113,
+            "max": 25.31274398463113,
+            "mean": 25.312743984631133,
+            "variance": 1.2639831385515496e-29,
+            "std": 3.555254053582598e-15
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 958.0,
+            "max": 14968.0,
+            "mean": 5302.427142857143,
+            "variance": 7736485.343754343,
+            "std": 2781.453818375265
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.54,
+        "summary": {
+          "accuracy": 0.54,
+          "precision": 0.5503597122302158,
+          "recall": 0.43714285714285717,
+          "f1_score": 0.4872611464968153,
+          "specificity": 0.6428571428571429
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 153,
+            "true_negatives": 225,
+            "false_positives": 125,
+            "false_negatives": 197
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-24T18:06:57.281715",
+        "model": {
+          "model_name": "llama31-8b-code-gguf-thinking",
+          "model_type": "llama-3",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 2539.333790063858,
+          "avg_time_per_sample": 3.6276197000912256,
+          "tokens_used_total": 975875,
+          "tokens_used_avg": 1394.107142857143,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 0.5749785900115967,
+            "max": 11.386606454849243,
+            "mean": 3.6275764622007096,
+            "variance": 1.67284214380111,
+            "std": 1.2933839893090953
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 536.0,
+            "max": 7217.0,
+            "mean": 1394.107142857143,
+            "variance": 353461.2288473329,
+            "std": 594.5260539684807
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5142857142857142,
+        "summary": {
+          "accuracy": 0.5142857142857142,
+          "precision": 0.5086805555555556,
+          "recall": 0.8371428571428572,
+          "f1_score": 0.6328293736501079,
+          "specificity": 0.19142857142857142
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 293,
+            "true_negatives": 67,
+            "false_positives": 283,
+            "false_negatives": 57
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-24T19:14:13.193790",
+        "model": {
+          "model_name": "gemma4-12b-coder-fable-gguf-thinking",
+          "model_type": "gemma-4",
+          "backend": "llama_cpp",
+          "context_length": 13000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 4020.7136414051056,
+          "avg_time_per_sample": 5.743876630578722,
+          "tokens_used_total": 1077140,
+          "tokens_used_avg": 1538.7714285714285,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 1.3747844696044922,
+            "max": 46.99936389923096,
+            "mean": 5.7438342220442635,
+            "variance": 6.610983424810377,
+            "std": 2.5711832732830184
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 506.0,
+            "max": 3243.0,
+            "mean": 1538.7714285714285,
+            "variance": 381848.1393827917,
+            "std": 617.9386210480711
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5728571428571428,
+        "summary": {
+          "accuracy": 0.5728571428571428,
+          "precision": 0.5858585858585859,
+          "recall": 0.49714285714285716,
+          "f1_score": 0.5378670788253478,
+          "specificity": 0.6485714285714286
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 174,
+            "true_negatives": 227,
+            "false_positives": 123,
+            "false_negatives": 176
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-25T14:12:10.110526",
+        "model": {
+          "model_name": "gemma4-12b-it-gguf-thinking",
+          "model_type": "gemma-4",
+          "backend": "llama_cpp",
+          "context_length": 13000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 68265.21006536484,
+          "avg_time_per_sample": 97.52172866480691,
+          "tokens_used_total": 4575045,
+          "tokens_used_avg": 6535.778571428571,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 4.0228986740112305,
+            "max": 160.17902374267578,
+            "mean": 97.52145104885102,
+            "variance": 3193.138208722809,
+            "std": 56.50785970750272
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 748.0,
+            "max": 10673.0,
+            "mean": 6535.778571428571,
+            "variance": 8079788.261342735,
+            "std": 2842.49683576653
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6042857142857143,
+        "summary": {
+          "accuracy": 0.6042857142857143,
+          "precision": 0.5953002610966057,
+          "recall": 0.6514285714285715,
+          "f1_score": 0.6221009549795361,
+          "specificity": 0.5571428571428572
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 228,
+            "true_negatives": 195,
+            "false_positives": 155,
+            "false_negatives": 122
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-25T15:54:41.028867",
+        "model": {
+          "model_name": "llama32-3b-claude-distill-gguf-thinking",
+          "model_type": "llama-3",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 6146.59527182579,
+          "avg_time_per_sample": 8.780850388322557,
+          "tokens_used_total": 1489429,
+          "tokens_used_avg": 2127.7557142857145,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 1.9664766788482666,
+            "max": 110.31054997444153,
+            "mean": 8.780799258436476,
+            "variance": 330.11443622306075,
+            "std": 18.16905160494242
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 897.0,
+            "max": 10148.0,
+            "mean": 2127.7557142857145,
+            "variance": 2294900.0046167993,
+            "std": 1514.892737000478
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5228571428571429,
+        "summary": {
+          "accuracy": 0.5228571428571429,
+          "precision": 0.5147058823529411,
+          "recall": 0.8,
+          "f1_score": 0.6263982102908278,
+          "specificity": 0.24571428571428572
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 280,
+            "true_negatives": 86,
+            "false_positives": 264,
+            "false_negatives": 70
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_compare_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-25T17:35:51.998301",
+        "model": {
+          "model_name": "lfm2.5-8b-a1b-gguf-thinking",
+          "model_type": "lfm2.5",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 700,
+          "total_time_seconds": 6061.761070728302,
+          "avg_time_per_sample": 8.659658672469003,
+          "tokens_used_total": 2062164,
+          "tokens_used_avg": 2945.9485714285715,
+          "processing_time_stats": {
+            "count": 700,
+            "min": 0.6769101619720459,
+            "max": 58.09548735618591,
+            "mean": 8.659617901870183,
+            "variance": 51.51791016960177,
+            "std": 7.177597799375622
+          },
+          "tokens_used_stats": {
+            "count": 700,
+            "min": 646.0,
+            "max": 9664.0,
+            "mean": 2945.9485714285715,
+            "variance": 1776429.8571510322,
+            "std": 1332.8277672494044
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5528571428571428,
+        "summary": {
+          "accuracy": 0.5528571428571428,
+          "precision": 0.5978835978835979,
+          "recall": 0.32285714285714284,
+          "f1_score": 0.41929499072356213,
+          "specificity": 0.7828571428571428
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 113,
+            "true_negatives": 274,
+            "false_positives": 76,
+            "false_negatives": 237
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 7,
+    "successful_experiments": 7,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/new_models_compare_cpg_structural"
+}

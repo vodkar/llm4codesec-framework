@@ -62,8 +62,22 @@ class LlamaCppLLM(ILLMInference):
         n_ctx: int = self._resolve_context_length()
         n_threads: int | None = self._get_int_env("LLAMA_CPP_N_THREADS")
         n_batch: int | None = self._get_int_env("LLAMA_CPP_N_BATCH")
-        n_gpu_layers: int | None = self._get_int_env("LLAMA_CPP_N_GPU_LAYERS")
+        # Per-model config beats the env default: large GGUFs need partial
+        # offload tuned to the model's size vs. VRAM, not one global value.
+        n_gpu_layers: int | None = (
+            self.config.n_gpu_layers
+            if self.config.n_gpu_layers is not None
+            else self._get_int_env("LLAMA_CPP_N_GPU_LAYERS")
+        )
         flash_attn: bool | None = self._get_bool_env("LLAMA_CPP_FLASH_ATTN")
+        # swa_full=False lets iSWA models (gemma) allocate sliding-window KV
+        # at window size instead of full n_ctx — saves multiple GB of VRAM at
+        # the cost of not being able to rewind the cache past the window.
+        swa_full: bool | None = self._get_bool_env("LLAMA_CPP_SWA_FULL")
+        # Verbose llama.cpp logging is off by default, but the GGML log channel
+        # is the only place CUDA runtime errors (e.g. "out of memory" vs
+        # "illegal memory access") are printed before ggml_abort fires.
+        verbose: bool = self._get_bool_env("LLAMA_CPP_VERBOSE") or False
 
         LOGGER.info(
             "Initializing llama.cpp with context window n_ctx=%d for model %s",
@@ -80,15 +94,60 @@ class LlamaCppLLM(ILLMInference):
         common_kwargs: dict[str, Any] = {
             key: value for key, value in raw_kwargs.items() if value is not None
         }
+        common_kwargs["verbose"] = verbose
         if flash_attn is not None:
             common_kwargs["flash_attn"] = flash_attn
+        if swa_full is not None:
+            common_kwargs["swa_full"] = swa_full
+
+        draft_model: Any = self._build_draft_model()
+        if draft_model is not None:
+            common_kwargs["draft_model"] = draft_model
 
         if self._is_hf_reference(model_ref):
             self.model = self._load_from_huggingface(model_ref, common_kwargs)
         else:
             resolved_path: str = str(Path(model_ref).expanduser())
             LOGGER.info("Loading llama.cpp model from local path: %s", resolved_path)
-            self.model = Llama(model_path=resolved_path, verbose=False, **common_kwargs)
+            self.model = Llama(model_path=resolved_path, **common_kwargs)
+
+    def _build_draft_model(self) -> Any:
+        """Build a speculative-decoding draft model from environment settings.
+
+        Speculative decoding lets a cheap "draft" propose several tokens that the
+        full model verifies in one pass — lossless (the verified output keeps the
+        target model's distribution) but much faster when drafts are accepted.
+
+        ``LLAMA_CPP_PROMPT_LOOKUP=1`` enables prompt-lookup decoding, which needs
+        no extra model/VRAM: it drafts by matching recent n-grams against the
+        existing context.  This is ideal for code-security reasoning, where the
+        model echoes identifiers, code lines and CWE phrasing from the prompt.
+
+        Returns:
+            A ``LlamaDraftModel`` instance, or ``None`` when disabled.
+        """
+        if not self._get_bool_env("LLAMA_CPP_PROMPT_LOOKUP"):
+            return None
+        try:
+            from llama_cpp.llama_speculative import LlamaPromptLookupDecoding
+        except ImportError:
+            LOGGER.warning(
+                "LLAMA_CPP_PROMPT_LOOKUP set but llama_cpp.llama_speculative is "
+                "unavailable; speculative decoding disabled"
+            )
+            return None
+
+        max_ngram: int = self._get_int_env("LLAMA_CPP_DRAFT_MAX_NGRAM") or 2
+        num_pred: int = self._get_int_env("LLAMA_CPP_DRAFT_PRED_TOKENS") or 10
+        LOGGER.info(
+            "Enabling prompt-lookup speculative decoding "
+            "(max_ngram_size=%d, num_pred_tokens=%d)",
+            max_ngram,
+            num_pred,
+        )
+        return LlamaPromptLookupDecoding(
+            max_ngram_size=max_ngram, num_pred_tokens=num_pred
+        )
 
     def _resolve_context_length(self) -> int:
         """Resolve llama.cpp context length from env or model configuration."""
@@ -139,7 +198,6 @@ class LlamaCppLLM(ILLMInference):
                 repo_id=repo_id,
                 filename=filename,
                 local_dir=str(model_dir),
-                verbose=False,
                 **kwargs,
             ),
         )
@@ -592,11 +650,34 @@ class LlamaCppLLM(ILLMInference):
             return None
 
         try:
-            from jinja2 import BaseLoader
+            from jinja2 import BaseLoader, nodes
+            from jinja2.ext import Extension
             from jinja2.sandbox import ImmutableSandboxedEnvironment
         except ImportError:
             LOGGER.warning("jinja2 unavailable; cannot apply enable_thinking")
             return None
+
+        class _AssistantTrackerExtension(Extension):
+            """Render HuggingFace ``{% generation %}…{% endgeneration %}`` blocks.
+
+            These assistant-masking blocks (used e.g. by LFM2.5's chat template)
+            are a transformers-specific Jinja extension that plain jinja2 does
+            not recognise. For prompt rendering we only need the block body, so
+            this extension emits it verbatim.
+            """
+
+            tags = {"generation"}
+
+            def parse(self, parser: Any) -> Any:
+                lineno = next(parser.stream).lineno
+                body = parser.parse_statements(
+                    ["name:endgeneration"], drop_needle=True
+                )
+                call = self.call_method("_passthrough", [], lineno=lineno)
+                return nodes.CallBlock(call, [], [], body).set_lineno(lineno)
+
+            def _passthrough(self, caller: Any) -> str:
+                return cast(str, caller())
 
         def raise_exception(message: str) -> None:
             raise ValueError(message)
@@ -604,14 +685,15 @@ class LlamaCppLLM(ILLMInference):
         def strftime_now(fmt: str) -> str:
             return datetime.now().strftime(fmt)
 
-        environment = ImmutableSandboxedEnvironment(
-            loader=BaseLoader(),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        ).from_string(template)
-
         bos_token, eos_token = self._get_chat_special_tokens()
         try:
+            environment = ImmutableSandboxedEnvironment(
+                loader=BaseLoader(),
+                extensions=[_AssistantTrackerExtension],
+                trim_blocks=True,
+                lstrip_blocks=True,
+            ).from_string(template)
+
             rendered: str = environment.render(
                 messages=messages,
                 bos_token=bos_token,
@@ -627,6 +709,11 @@ class LlamaCppLLM(ILLMInference):
                 self.config.model_name,
             )
             return None
+        # llama_cpp tokenizes completion prompts with add_bos=True, so a
+        # template-emitted leading BOS would be doubled — which measurably
+        # degrades gemma-family models (rambling, never emitting <turn|>).
+        if bos_token and rendered.startswith(bos_token):
+            rendered = rendered[len(bos_token) :]
         return rendered
 
     def _get_chat_template(self) -> str | None:

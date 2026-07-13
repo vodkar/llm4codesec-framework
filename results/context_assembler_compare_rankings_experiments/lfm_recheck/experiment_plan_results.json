@@ -1,0 +1,94 @@
+{
+  "plan_name": "lfm_recheck",
+  "description": "Re-run only LFM2.5 to verify the chat-template generation-tag fix",
+  "start_time": "2026-06-23T15:26:30.039371",
+  "end_time": "2026-06-23T15:28:07.190836",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "lfm_recheck",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T15:28:07.189641",
+        "model": {
+          "model_name": "lfm2.5-8b-a1b-gguf-thinking",
+          "model_type": "lfm2.5",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 85.25851368904114,
+          "avg_time_per_sample": 85.25851368904114,
+          "tokens_used_total": 558,
+          "tokens_used_avg": 558.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 85.25822305679321,
+            "max": 85.25822305679321,
+            "mean": 85.25822305679321,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 558.0,
+            "max": 558.0,
+            "mean": 558.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.0,
+        "summary": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/lfm_recheck"
+}

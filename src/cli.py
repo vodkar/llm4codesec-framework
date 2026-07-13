@@ -223,6 +223,11 @@ def run_plan(
         "--output-dir",
         help="Output directory base for plan results.",
     ),
+    skip_existing: bool = typer.Option(
+        False,
+        "--skip-existing",
+        help="Skip experiments whose output dir already has a benchmark report.",
+    ),
     verbose: bool = typer.Option(
         False, "--verbose", "-v", help="Enable verbose logging."
     ),
@@ -247,6 +252,7 @@ def run_plan(
         plan_name=plan,
         config=config_data,
         output_base_dir=selected_output_dir,
+        skip_existing=skip_existing,
     )
 
     summary: str = create_experiment_summary(results)

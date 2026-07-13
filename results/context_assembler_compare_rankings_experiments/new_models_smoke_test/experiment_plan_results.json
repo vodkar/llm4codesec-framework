@@ -1,0 +1,494 @@
+{
+  "plan_name": "new_models_smoke_test",
+  "description": "Tiny smoke test to verify every newly added thinking-enabled model loads and runs before the full comparison",
+  "start_time": "2026-06-23T14:11:38.732751",
+  "end_time": "2026-06-23T15:24:11.193770",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T14:12:28.720118",
+        "model": {
+          "model_name": "llama32-3b-claude-distill-gguf-thinking",
+          "model_type": "llama-3",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 47.2676727771759,
+          "avg_time_per_sample": 47.2676727771759,
+          "tokens_used_total": 1195,
+          "tokens_used_avg": 1195.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 47.26738476753235,
+            "max": 47.26738476753235,
+            "mean": 47.26738476753235,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 1195.0,
+            "max": 1195.0,
+            "mean": 1195.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 1.0,
+        "summary": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 1,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 0
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T14:21:19.355555",
+        "model": {
+          "model_name": "qwopus35-9b-coder-mtp-gguf-thinking",
+          "model_type": "qwen-3.5",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 61.30933618545532,
+          "avg_time_per_sample": 61.30933618545532,
+          "tokens_used_total": 1489,
+          "tokens_used_avg": 1489.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 61.307740688323975,
+            "max": 61.307740688323975,
+            "mean": 61.307740688323975,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 1489.0,
+            "max": 1489.0,
+            "mean": 1489.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.0,
+        "summary": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T14:28:50.920481",
+        "model": {
+          "model_name": "llama31-8b-code-gguf-thinking",
+          "model_type": "llama-3",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 2.8949241638183594,
+          "avg_time_per_sample": 2.8949241638183594,
+          "tokens_used_total": 753,
+          "tokens_used_avg": 753.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 2.8935418128967285,
+            "max": 2.8935418128967285,
+            "mean": 2.8935418128967285,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 753.0,
+            "max": 753.0,
+            "mean": 753.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 1.0,
+        "summary": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 1,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 0
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T14:49:33.277176",
+        "model": {
+          "model_name": "gemma4-12b-it-gguf-thinking",
+          "model_type": "gemma-4",
+          "backend": "llama_cpp",
+          "context_length": 13000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 44.1198992729187,
+          "avg_time_per_sample": 44.1198992729187,
+          "tokens_used_total": 671,
+          "tokens_used_avg": 671.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 44.1185085773468,
+            "max": 44.1185085773468,
+            "mean": 44.1185085773468,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 671.0,
+            "max": 671.0,
+            "mean": 671.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.0,
+        "summary": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T14:59:55.107110",
+        "model": {
+          "model_name": "gemma4-12b-coder-fable-gguf-thinking",
+          "model_type": "gemma-4",
+          "backend": "llama_cpp",
+          "context_length": 13000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 2.2018685340881348,
+          "avg_time_per_sample": 2.2018685340881348,
+          "tokens_used_total": 564,
+          "tokens_used_avg": 564.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 2.200483798980713,
+            "max": 2.200483798980713,
+            "mean": 2.200483798980713,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 564.0,
+            "max": 564.0,
+            "mean": 564.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.0,
+        "summary": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "new_models_smoke_test",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
+        "description": "Shortest-sample smoke-test dataset for quick local llama.cpp validation",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-06-23T15:24:11.187445",
+        "model": {
+          "model_name": "qwopus35-9b-coder-thinking",
+          "model_type": "qwen-3.5",
+          "backend": "vllm",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 1,
+          "total_time_seconds": 10.759764909744263,
+          "avg_time_per_sample": 10.759764909744263,
+          "tokens_used_total": 1043,
+          "tokens_used_avg": 1043.0,
+          "processing_time_stats": {
+            "count": 1,
+            "min": 10.728004932403564,
+            "max": 10.728004932403564,
+            "mean": 10.728004932403564,
+            "variance": null,
+            "std": null
+          },
+          "tokens_used_stats": {
+            "count": 1,
+            "min": 1043.0,
+            "max": 1043.0,
+            "mean": 1043.0,
+            "variance": null,
+            "std": null
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.0,
+        "summary": {
+          "accuracy": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 0,
+            "false_positives": 0,
+            "false_negatives": 1
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 7,
+    "successful_experiments": 6,
+    "failed_experiments": 1
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/new_models_smoke_test"
+}

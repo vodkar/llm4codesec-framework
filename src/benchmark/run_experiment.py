@@ -1,5 +1,7 @@
 import json
 import logging
+import multiprocessing
+import tempfile
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -258,6 +260,84 @@ def run_single_experiment(
     return report
 
 
+def _isolated_experiment_worker(
+    config_data: dict[str, Any],
+    model_key: str,
+    dataset_key: str,
+    prompt_key: str,
+    experiment_name: str,
+    sample_limit: int | None,
+    result_path: str,
+) -> None:
+    """Child-process entry point for one plan experiment (spawn context).
+
+    Rebuilds the ExperimentConfig from plain config data and runs the
+    experiment in a pristine process. GPU state that cannot be released
+    in-process — llama.cpp's CUDA primary context, vLLM parent-side
+    allocations that accumulate across engines (~300MB/experiment observed),
+    allocator caches — dies with this process instead of poisoning the
+    next experiment. Writes the ShortExperimentReport JSON to *result_path*.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s +0000 - %(name)s - %(levelname)s - %(message)s",
+    )
+    experiment_config = ExperimentConfig.from_file(
+        config=config_data,
+        model_key=model_key,
+        dataset_key=dataset_key,
+        prompt_key=prompt_key,
+        experiment_name=experiment_name,
+        sample_limit=sample_limit,
+    )
+    report = run_single_experiment(experiment_config)
+    Path(result_path).write_text(
+        report.short_summary.model_dump_json(), encoding="utf-8"
+    )
+
+
+def _run_experiment_isolated(
+    config_data: dict[str, Any],
+    experiment_config: ExperimentConfig,
+    plan_output_dir: Path,
+) -> ShortExperimentReport:
+    """Run one experiment in a spawned subprocess and return its short report.
+
+    Raises RuntimeError when the child exits non-zero (crash, OOM-kill,
+    unhandled exception) or produces no result file.
+    """
+    ctx = multiprocessing.get_context("spawn")
+    with tempfile.NamedTemporaryFile(
+        suffix=".json", dir=plan_output_dir, delete=False
+    ) as handle:
+        result_path = Path(handle.name)
+    try:
+        proc = ctx.Process(
+            target=_isolated_experiment_worker,
+            kwargs={
+                "config_data": config_data,
+                "model_key": experiment_config.model_name,
+                "dataset_key": experiment_config.dataset_name,
+                "prompt_key": experiment_config.prompt_identifier,
+                "experiment_name": experiment_config.experiment_name,
+                "sample_limit": experiment_config.sample_limit,
+                "result_path": str(result_path),
+            },
+        )
+        proc.start()
+        proc.join()
+        if proc.exitcode != 0:
+            raise RuntimeError(
+                f"Experiment subprocess exited with code {proc.exitcode}"
+            )
+        payload = result_path.read_text(encoding="utf-8")
+        if not payload:
+            raise RuntimeError("Experiment subprocess produced no result")
+        return ShortExperimentReport.model_validate_json(payload)
+    finally:
+        result_path.unlink(missing_ok=True)
+
+
 def create_experiment_summary(results: ExperimentPlanResult) -> str:
     """
     Create a human-readable summary of experiment results.
@@ -322,6 +402,9 @@ def run_experiment_plan(
         config=config,
         output_base_dir=output_base_dir,
     )
+    # Plain config dict handed to per-experiment child processes, which
+    # rebuild their own ExperimentConfig from it (no pickling of live objects).
+    config_data: dict[str, Any] = normalize_config_schema(load_config_dict(config))
     plan = ExperimentsPlanConfig.from_file(config, plan_name)
     _LOGGER.info(f"Starting experiment plan: {plan_name}")
     _LOGGER.info(f"Description: {plan.description}")
@@ -339,10 +422,6 @@ def run_experiment_plan(
     experiment_count = 0
     successful_experiments = 0
     failed_experiments = 0
-
-    dataset_loader = _make_dataset_loader(
-        plan.experiments[0].dataset_path if plan.experiments else Path()
-    )
 
     # Run all experiments
     experiments: list[ShortExperimentReport] = []
@@ -368,11 +447,12 @@ def run_experiment_plan(
             continue
 
         try:
-            result = run_single_experiment(
-                experiment_config,
-                BenchmarkRunner(
-                    config=experiment_config, dataset_loader=dataset_loader
-                ),
+            # Each experiment runs in its own spawned process: CUDA contexts
+            # and backend memory residue cannot leak into the next experiment.
+            short_report = _run_experiment_isolated(
+                config_data=config_data,
+                experiment_config=experiment_config,
+                plan_output_dir=plan_output_dir,
             )
         except Exception as exc:
             failed_experiments += 1
@@ -385,9 +465,9 @@ def run_experiment_plan(
             )
             continue
 
-        experiments.append(result.short_summary)
+        experiments.append(short_report)
 
-        if result.is_success:
+        if short_report.is_success:
             successful_experiments += 1
             _LOGGER.info("✓ Experiment completed successfully")
         else:

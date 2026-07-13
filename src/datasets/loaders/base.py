@@ -1,5 +1,4 @@
 import json
-import logging
 import random
 from abc import ABC, abstractmethod
 from collections import defaultdict
@@ -67,7 +66,7 @@ class JsonDatasetLoader:
 
         # Apply sample limit if specified
         if sample_limit and sample_limit < len(samples):
-            random.shuffle(samples)
+            # random.shuffle(samples)
             samples = samples[:sample_limit]
             _LOGGER.info(f"Limited to {sample_limit} samples")
 

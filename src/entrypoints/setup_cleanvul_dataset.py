@@ -2,14 +2,21 @@
 """
 CleanVul Dataset Setup Script
 
-Generates processed JSON benchmark files from CleanVul CSV source files.
-Run this once before executing CleanVul experiments.
+Generates processed JSON benchmark files from a single CleanVul CSV source.
+Supports optional filtering by vulnerability score and by per-sample token
+count (used to build context-size buckets).
 
-Usage (inside Docker):
+Usage (host, with token buckets):
+    PYTHONPATH=src uv run python src/entrypoints/setup_cleanvul_dataset.py \\
+        --source benchmarks/CleanVul/vulnerability_score_2.csv \\
+        --output-dir datasets_processed/cleanvul/context_sizes \\
+        --languages py --tasks binary \\
+        --min-tokens 1000 --max-tokens 2000 --name-suffix _1k_2k
+
+Usage (inside Docker, standard per-language generation):
     python entrypoints/setup_cleanvul_dataset.py \\
-        --source-score4 benchmarks/CleanVul/vulnerability_score_4.csv \\
-        --source-score3 benchmarks/CleanVul/vulnerability_score_3.csv \\
-        --output-dir datasets_processed/cleanvul
+        --source benchmarks/CleanVul/vulnerability_score_4.csv \\
+        --output-dir datasets_processed/cleanvul/score4
 """
 
 import argparse
@@ -22,6 +29,18 @@ from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 
+_TASKS = {
+    "binary": [("binary", TaskType.BINARY_VULNERABILITY)],
+    "multiclass": [("multiclass", TaskType.MULTICLASS_VULNERABILITY)],
+    "both": [
+        ("binary", TaskType.BINARY_VULNERABILITY),
+        ("multiclass", TaskType.MULTICLASS_VULNERABILITY),
+    ],
+}
+
+_DEFAULT_TOKENIZER = "google/gemma-4-12B-it-qat-w4a16-ct"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate processed CleanVul benchmark JSON files",
@@ -29,14 +48,9 @@ def main() -> None:
         epilog=__doc__,
     )
     parser.add_argument(
-        "--source-score4",
-        default="benchmarks/CleanVul/vulnerability_score_4.csv",
-        help="Path to vulnerability_score_4.csv (score=4 only, highest quality)",
-    )
-    parser.add_argument(
-        "--source-score3",
-        default="benchmarks/CleanVul/vulnerability_score_3.csv",
-        help="Path to vulnerability_score_3.csv (score>=3, larger dataset)",
+        "--source",
+        required=True,
+        help="Path to a CleanVul CSV (with a vulnerability_score column)",
     )
     parser.add_argument(
         "--output-dir",
@@ -44,10 +58,36 @@ def main() -> None:
         help="Output directory for processed JSON files",
     )
     parser.add_argument(
+        "--languages",
+        default=None,
+        help="Comma-separated extensions to generate (e.g. 'py' or 'c,cpp'). "
+        "Default: all supported languages.",
+    )
+    parser.add_argument(
+        "--tasks",
+        choices=list(_TASKS),
+        default="both",
+        help="Which task variants to generate (default: both)",
+    )
+    parser.add_argument("--min-score", type=int, default=None)
+    parser.add_argument("--max-score", type=int, default=None)
+    parser.add_argument("--min-tokens", type=int, default=None)
+    parser.add_argument("--max-tokens", type=int, default=None)
+    parser.add_argument(
+        "--tokenizer",
+        default=_DEFAULT_TOKENIZER,
+        help="HF tokenizer id for token counting (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--name-suffix",
+        default="",
+        help="Suffix appended to output filenames (e.g. '_1k_2k')",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=None,
-        help="Limit the number of groups per dataset (useful for testing)",
+        help="Limit the number of commit groups scanned per language",
     )
     parser.add_argument(
         "--log-level",
@@ -60,59 +100,39 @@ def main() -> None:
     setup_logging(args.verbose)
     logging.getLogger().setLevel(args.log_level)
 
+    source = Path(args.source)
+    if not source.exists():
+        raise FileNotFoundError(f"Source CSV not found: {source}")
+
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    sources = [
-        ("score4", Path(args.source_score4)),
-        ("score3", Path(args.source_score3)),
-    ]
+    if args.languages:
+        exts = [e.strip().lower() for e in args.languages.split(",") if e.strip()]
+    else:
+        exts = list(EXTENSION_TO_LANGUAGE)
 
-    for score_label, source_path in sources:
-        if not source_path.exists():
-            _LOGGER.warning("Source not found, skipping %s: %s", score_label, source_path)
-            continue
+    unknown = [e for e in exts if e not in EXTENSION_TO_LANGUAGE]
+    if unknown:
+        raise ValueError(f"Unknown language extensions: {unknown}")
 
-        _LOGGER.info("Processing %s from %s …", score_label, source_path)
-
-        # Quick stats across all languages
-        stats_loader = CleanVulDatasetLoader(source_path=source_path)
-        stats = stats_loader.get_dataset_stats()
-        _LOGGER.info(
-            "%s stats — groups=%d  with_vuln=%d  with_safe=%d  "
-            "CWEs=%d  extensions=%s",
-            score_label,
-            stats["total_groups"],
-            stats["groups_with_vulnerable"],
-            stats["groups_with_safe"],
-            len(stats["cwe_distribution"]),
-            stats["extension_distribution"],
+    for ext in exts:
+        lang = EXTENSION_TO_LANGUAGE[ext]
+        loader = CleanVulDatasetLoader(
+            source_path=source,
+            programming_language=lang,
+            min_score=args.min_score,
+            max_score=args.max_score,
+            min_tokens=args.min_tokens,
+            max_tokens=args.max_tokens,
+            tokenizer_id=args.tokenizer,
         )
-
-        score_dir = output_dir / score_label
-        score_dir.mkdir(parents=True, exist_ok=True)
-
-        for ext, lang in EXTENSION_TO_LANGUAGE.items():
-            loader = CleanVulDatasetLoader(
-                source_path=source_path,
-                programming_language=lang,
-            )
-
-            # binary classification
-            out_path = score_dir / f"cleanvul_{ext}_binary.json"
-            _LOGGER.info("  Generating %s / %s binary …", score_label, ext)
+        for task_label, task_type in _TASKS[args.tasks]:
+            out_path = output_dir / f"cleanvul_{ext}_{task_label}{args.name_suffix}.json"
+            _LOGGER.info("Generating %s (%s) …", out_path.name, lang)
             loader.create_dataset_json(
                 str(out_path),
-                task_type=TaskType.BINARY_VULNERABILITY,
-                limit=args.limit,
-            )
-
-            # multiclass (CWE identification)
-            out_path = score_dir / f"cleanvul_{ext}_multiclass.json"
-            _LOGGER.info("  Generating %s / %s multiclass …", score_label, ext)
-            loader.create_dataset_json(
-                str(out_path),
-                task_type=TaskType.MULTICLASS_VULNERABILITY,
+                task_type=task_type,
                 limit=args.limit,
             )
 

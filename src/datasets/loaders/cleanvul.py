@@ -77,9 +77,21 @@ class CleanVulDatasetLoader(IDatasetLoader):
     Values should match :data:`EXTENSION_TO_LANGUAGE` values, e.g. ``"C"``
     or ``"Python"``.  ``None`` means all languages."""
 
+    min_tokens: int | None = None
+    """Keep only samples whose ``code`` token count is >= this value."""
+    max_tokens: int | None = None
+    """Keep only samples whose ``code`` token count is < this value (half-open)."""
+    min_score: int | None = None
+    """Keep only rows whose ``vulnerability_score`` is >= this value."""
+    max_score: int | None = None
+    """Keep only rows whose ``vulnerability_score`` is <= this value."""
+    tokenizer_id: str | None = None
+    """HF tokenizer id used to count tokens when token filtering is active."""
+
     __logger: logging.Logger = PrivateAttr(
         default_factory=lambda: logging.getLogger(__name__)
     )
+    __tokenizer: Any = PrivateAttr(default=None)
 
     # ------------------------------------------------------------------ #
     # helpers                                                              #
@@ -100,6 +112,40 @@ class CleanVulDatasetLoader(IDatasetLoader):
     def _is_test_row(value: Any) -> bool:
         """Return True when the ``is_test`` column value is truthy."""
         return str(value).strip().lower() in {"true", "1", "yes"}
+
+    def _score_in_range(self, raw: Any) -> bool:
+        """Return True when ``raw`` score is within [min_score, max_score]."""
+        try:
+            score = int(float(str(raw).strip()))
+        except (ValueError, TypeError):
+            return False
+        if self.min_score is not None and score < self.min_score:
+            return False
+        if self.max_score is not None and score > self.max_score:
+            return False
+        return True
+
+    def _get_tokenizer(self) -> Any:
+        if self.__tokenizer is None:
+            if not self.tokenizer_id:
+                raise ValueError(
+                    "tokenizer_id must be set to filter CleanVul by token count"
+                )
+            from transformers import AutoTokenizer
+
+            self.__tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_id)
+        return self.__tokenizer
+
+    def _count_tokens(self, code: str) -> int:
+        """Count tokens of *code* using the configured tokenizer."""
+        return len(self._get_tokenizer().encode(code))
+
+    def _token_in_range(self, n: int) -> bool:
+        if self.min_tokens is not None and n < self.min_tokens:
+            return False
+        if self.max_tokens is not None and n >= self.max_tokens:
+            return False
+        return True
 
     # ------------------------------------------------------------------ #
     # first pass: read CSV and group by commit_url                         #
@@ -154,6 +200,11 @@ class CleanVulDatasetLoader(IDatasetLoader):
                 if not commit_url:
                     self.__logger.debug("Skipping row %d: empty commit_url", row_num)
                     continue
+
+                # --- optional score filter ---
+                if self.min_score is not None or self.max_score is not None:
+                    if not self._score_in_range(row.get("vulnerability_score", "")):
+                        continue
 
                 func_before = row.get("func_before", "").strip()
                 func_after = row.get("func_after", "").strip()
@@ -373,10 +424,19 @@ class CleanVulDatasetLoader(IDatasetLoader):
         groups = self._read_groups()
         samples: list[BenchmarkSample] = []
 
+        token_filtering = self.min_tokens is not None or self.max_tokens is not None
         for count, (commit_url, group) in enumerate(groups.items()):
             if limit is not None and count >= limit:
                 break
-            samples.extend(self._group_to_samples(commit_url, group, task_type, target_cwe))
+            for sample in self._group_to_samples(
+                commit_url, group, task_type, target_cwe
+            ):
+                if token_filtering:
+                    n_tokens = self._count_tokens(sample.code)
+                    sample.metadata["code_tokens"] = n_tokens
+                    if not self._token_in_range(n_tokens):
+                        continue
+                samples.append(sample)
 
         n_groups = min(len(groups), limit) if limit else len(groups)
         lang_label = self.programming_language or "all languages"

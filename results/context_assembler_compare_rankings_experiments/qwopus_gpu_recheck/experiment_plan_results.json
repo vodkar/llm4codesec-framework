@@ -1,0 +1,94 @@
+{
+  "plan_name": "qwopus_gpu_recheck",
+  "description": "Measure llama.cpp GPU offload per-sample speed for the Qwopus MTP GGUF on the real cpg_structural dataset",
+  "start_time": "2026-06-23T16:03:28.225705",
+  "end_time": "2026-06-23T16:13:05.366344",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "qwopus_gpu_recheck",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-06-23T16:13:05.364889",
+        "model": {
+          "model_name": "qwopus35-9b-coder-mtp-gguf-thinking",
+          "model_type": "qwen-3.5",
+          "backend": "llama_cpp",
+          "context_length": 16384,
+          "max_output_tokens": 8192,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 8,
+          "total_time_seconds": 574.039591550827,
+          "avg_time_per_sample": 71.75494894385338,
+          "tokens_used_total": 47578,
+          "tokens_used_avg": 5947.25,
+          "processing_time_stats": {
+            "count": 8,
+            "min": 18.585071802139282,
+            "max": 191.45862245559692,
+            "mean": 71.75454941391945,
+            "variance": 3533.480481512639,
+            "std": 59.44308606989242
+          },
+          "tokens_used_stats": {
+            "count": 8,
+            "min": 1813.0,
+            "max": 10253.0,
+            "mean": 5947.25,
+            "variance": 9645344.785714285,
+            "std": 3105.6955397646893
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5,
+        "summary": {
+          "accuracy": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 1.0
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 4,
+            "false_positives": 0,
+            "false_negatives": 4
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/qwopus_gpu_recheck"
+}

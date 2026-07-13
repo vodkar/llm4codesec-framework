@@ -1,0 +1,1614 @@
+{
+  "plan_name": "context_size_comparison",
+  "description": "accuracy vs context size on CleanVul Python (binary), 1k-16k token buckets",
+  "start_time": "2026-07-08T08:26:02.709462",
+  "end_time": "2026-07-08T09:35:52.304102",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_0k_1k.json",
+        "description": "CleanVul Python binary — code token count in [0k, 1k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T08:32:07.622544",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 200,
+          "total_time_seconds": 164.5850031375885,
+          "avg_time_per_sample": 0.8229250156879425,
+          "tokens_used_total": 253771,
+          "tokens_used_avg": 1268.86,
+          "processing_time_stats": {
+            "count": 200,
+            "min": 0.8211990201473236,
+            "max": 0.8211990201473236,
+            "mean": 0.8211990201473236,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 200,
+            "min": 627.0,
+            "max": 8906.0,
+            "mean": 1268.86,
+            "variance": 396695.3772864322,
+            "std": 629.8375800842882
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.52,
+        "summary": {
+          "accuracy": 0.52,
+          "precision": 0.5588235294117647,
+          "recall": 0.19,
+          "f1_score": 0.28358208955223885,
+          "specificity": 0.85
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 19,
+            "true_negatives": 85,
+            "false_positives": 15,
+            "false_negatives": 81
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_1k_2k.json",
+        "description": "CleanVul Python binary — code token count in [1k, 2k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T08:36:07.560922",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 89,
+          "total_time_seconds": 103.21375226974487,
+          "avg_time_per_sample": 1.1597050816825267,
+          "tokens_used_total": 209162,
+          "tokens_used_avg": 2350.1348314606744,
+          "processing_time_stats": {
+            "count": 89,
+            "min": 1.1583630342162057,
+            "max": 1.1583630342162057,
+            "mean": 1.158363034216206,
+            "variance": 4.986407710558953e-32,
+            "std": 2.2330265807999136e-16
+          },
+          "tokens_used_stats": {
+            "count": 89,
+            "min": 1816.0,
+            "max": 3271.0,
+            "mean": 2350.1348314606744,
+            "variance": 109361.23161389171,
+            "std": 330.69809738474714
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5393258426966292,
+        "summary": {
+          "accuracy": 0.5393258426966292,
+          "precision": 0.6086956521739131,
+          "recall": 0.30434782608695654,
+          "f1_score": 0.4057971014492754,
+          "specificity": 0.7906976744186046
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 14,
+            "true_negatives": 34,
+            "false_positives": 9,
+            "false_negatives": 32
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_2k_4k.json",
+        "description": "CleanVul Python binary — code token count in [2k, 4k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T08:39:43.464419",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 55,
+          "total_time_seconds": 80.34452152252197,
+          "avg_time_per_sample": 1.4608094822276723,
+          "tokens_used_total": 201472,
+          "tokens_used_avg": 3663.1272727272726,
+          "processing_time_stats": {
+            "count": 55,
+            "min": 1.458813324841586,
+            "max": 1.458813324841586,
+            "mean": 1.458813324841586,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 55,
+            "min": 2791.0,
+            "max": 4793.0,
+            "mean": 3663.1272727272726,
+            "variance": 392922.85387205397,
+            "std": 626.8355875921962
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.509090909090909,
+        "summary": {
+          "accuracy": 0.509090909090909,
+          "precision": 0.4666666666666667,
+          "recall": 0.2692307692307692,
+          "f1_score": 0.3414634146341463,
+          "specificity": 0.7241379310344828
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 7,
+            "true_negatives": 21,
+            "false_positives": 8,
+            "false_negatives": 19
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_4k_8k.json",
+        "description": "CleanVul Python binary — code token count in [4k, 8k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T08:43:10.918905",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 32,
+          "total_time_seconds": 70.36156868934631,
+          "avg_time_per_sample": 2.1987990215420723,
+          "tokens_used_total": 201730,
+          "tokens_used_avg": 6304.0625,
+          "processing_time_stats": {
+            "count": 32,
+            "min": 2.1954853609204292,
+            "max": 2.1954853609204292,
+            "mean": 2.1954853609204292,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 32,
+            "min": 4872.0,
+            "max": 8040.0,
+            "mean": 6304.0625,
+            "variance": 827972.8346774193,
+            "std": 909.9301262610329
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5,
+        "summary": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1_score": 0.5,
+          "specificity": 0.5
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 8,
+            "true_negatives": 8,
+            "false_positives": 8,
+            "false_negatives": 8
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_8k_16k.json",
+        "description": "CleanVul Python binary — code token count in [8k, 16k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T08:46:19.583177",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 13,
+          "total_time_seconds": 53.47115111351013,
+          "avg_time_per_sample": 4.11316547027001,
+          "tokens_used_total": 153754,
+          "tokens_used_avg": 11827.23076923077,
+          "processing_time_stats": {
+            "count": 13,
+            "min": 4.105151451550997,
+            "max": 4.105151451550997,
+            "mean": 4.105151451550996,
+            "variance": 8.545993139894294e-31,
+            "std": 9.244454088746557e-16
+          },
+          "tokens_used_stats": {
+            "count": 13,
+            "min": 8933.0,
+            "max": 16680.0,
+            "mean": 11827.23076923077,
+            "variance": 7742763.025641025,
+            "std": 2782.5820788686583
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.46153846153846156,
+        "summary": {
+          "accuracy": 0.46153846153846156,
+          "precision": 0.5,
+          "recall": 0.2857142857142857,
+          "f1_score": 0.36363636363636365,
+          "specificity": 0.6666666666666666
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 2,
+            "true_negatives": 4,
+            "false_positives": 2,
+            "false_negatives": 5
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_0k_1k.json",
+        "description": "CleanVul Python binary — code token count in [0k, 1k)",
+        "cwe_type": null,
+        "batch_size": 10,
+        "timestamp": "2026-07-08T08:51:17.806401",
+        "model": {
+          "model_name": "qwen3-8b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 200,
+          "total_time_seconds": 203.34500241279602,
+          "avg_time_per_sample": 1.0167250120639801,
+          "tokens_used_total": 344367,
+          "tokens_used_avg": 1721.835,
+          "processing_time_stats": {
+            "count": 200,
+            "min": 1.0164554250240325,
+            "max": 1.0164554250240325,
+            "mean": 1.0164554250240325,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 200,
+            "min": 890.0,
+            "max": 4408.0,
+            "mean": 1721.835,
+            "variance": 361866.3193718593,
+            "std": 601.5532556406451
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.465,
+        "summary": {
+          "accuracy": 0.465,
+          "precision": 0.45569620253164556,
+          "recall": 0.36,
+          "f1_score": 0.4022346368715084,
+          "specificity": 0.57
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 36,
+            "true_negatives": 57,
+            "false_positives": 43,
+            "false_negatives": 64
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_1k_2k.json",
+        "description": "CleanVul Python binary — code token count in [1k, 2k)",
+        "cwe_type": null,
+        "batch_size": 10,
+        "timestamp": "2026-07-08T08:54:29.571449",
+        "model": {
+          "model_name": "qwen3-8b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 89,
+          "total_time_seconds": 118.83044910430908,
+          "avg_time_per_sample": 1.335173585441675,
+          "tokens_used_total": 237583,
+          "tokens_used_avg": 2669.4719101123596,
+          "processing_time_stats": {
+            "count": 89,
+            "min": 1.3347255031714278,
+            "max": 1.3347255031714278,
+            "mean": 1.3347255031714276,
+            "variance": 4.986407710558953e-32,
+            "std": 2.2330265807999136e-16
+          },
+          "tokens_used_stats": {
+            "count": 89,
+            "min": 1752.0,
+            "max": 4241.0,
+            "mean": 2669.4719101123596,
+            "variance": 242995.88840653727,
+            "std": 492.9461313435143
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.550561797752809,
+        "summary": {
+          "accuracy": 0.550561797752809,
+          "precision": 0.56,
+          "recall": 0.6086956521739131,
+          "f1_score": 0.5833333333333334,
+          "specificity": 0.4883720930232558
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 28,
+            "true_negatives": 21,
+            "false_positives": 22,
+            "false_negatives": 18
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_2k_4k.json",
+        "description": "CleanVul Python binary — code token count in [2k, 4k)",
+        "cwe_type": null,
+        "batch_size": 10,
+        "timestamp": "2026-07-08T08:57:14.631794",
+        "model": {
+          "model_name": "qwen3-8b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 55,
+          "total_time_seconds": 94.3389949798584,
+          "avg_time_per_sample": 1.7152544541792436,
+          "tokens_used_total": 213611,
+          "tokens_used_avg": 3883.836363636364,
+          "processing_time_stats": {
+            "count": 55,
+            "min": 1.714602518081665,
+            "max": 1.714602518081665,
+            "mean": 1.7146025180816649,
+            "variance": 5.021684003143015e-32,
+            "std": 2.2409114224223625e-16
+          },
+          "tokens_used_stats": {
+            "count": 55,
+            "min": 2755.0,
+            "max": 5195.0,
+            "mean": 3883.836363636364,
+            "variance": 398215.4727272727,
+            "std": 631.0431623330314
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.38181818181818183,
+        "summary": {
+          "accuracy": 0.38181818181818183,
+          "precision": 0.38235294117647056,
+          "recall": 0.5,
+          "f1_score": 0.4333333333333333,
+          "specificity": 0.27586206896551724
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 13,
+            "true_negatives": 8,
+            "false_positives": 21,
+            "false_negatives": 13
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_4k_8k.json",
+        "description": "CleanVul Python binary — code token count in [4k, 8k)",
+        "cwe_type": null,
+        "batch_size": 10,
+        "timestamp": "2026-07-08T08:59:48.787983",
+        "model": {
+          "model_name": "qwen3-8b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 32,
+          "total_time_seconds": 81.55785775184631,
+          "avg_time_per_sample": 2.5486830547451973,
+          "tokens_used_total": 188890,
+          "tokens_used_avg": 5902.8125,
+          "processing_time_stats": {
+            "count": 32,
+            "min": 2.547529272735119,
+            "max": 2.547529272735119,
+            "mean": 2.547529272735119,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 32,
+            "min": 4683.0,
+            "max": 7933.0,
+            "mean": 5902.8125,
+            "variance": 768950.4153225806,
+            "std": 876.8981784235731
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.53125,
+        "summary": {
+          "accuracy": 0.53125,
+          "precision": 0.5263157894736842,
+          "recall": 0.625,
+          "f1_score": 0.5714285714285714,
+          "specificity": 0.4375
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 10,
+            "true_negatives": 7,
+            "false_positives": 9,
+            "false_negatives": 6
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_8k_16k.json",
+        "description": "CleanVul Python binary — code token count in [8k, 16k)",
+        "cwe_type": null,
+        "batch_size": 10,
+        "timestamp": "2026-07-08T09:02:03.708304",
+        "model": {
+          "model_name": "qwen3-8b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 13,
+          "total_time_seconds": 67.4280354976654,
+          "avg_time_per_sample": 5.186771961358877,
+          "tokens_used_total": 137000,
+          "tokens_used_avg": 10538.461538461539,
+          "processing_time_stats": {
+            "count": 13,
+            "min": 5.185571890610915,
+            "max": 5.185571890610915,
+            "mean": 5.185571890610915,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 13,
+            "min": 8382.0,
+            "max": 14217.0,
+            "mean": 10538.461538461539,
+            "variance": 4101915.2692307686,
+            "std": 2025.3185599383542
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.46153846153846156,
+        "summary": {
+          "accuracy": 0.46153846153846156,
+          "precision": 0.5,
+          "recall": 0.14285714285714285,
+          "f1_score": 0.22222222222222224,
+          "specificity": 0.8333333333333334
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 1,
+            "true_negatives": 5,
+            "false_positives": 1,
+            "false_negatives": 6
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_0k_1k.json",
+        "description": "CleanVul Python binary — code token count in [0k, 1k)",
+        "cwe_type": null,
+        "batch_size": 20,
+        "timestamp": "2026-07-08T09:06:42.251873",
+        "model": {
+          "model_name": "qwen3-4b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 200,
+          "total_time_seconds": 215.41582655906677,
+          "avg_time_per_sample": 1.077079132795334,
+          "tokens_used_total": 459806,
+          "tokens_used_avg": 2299.03,
+          "processing_time_stats": {
+            "count": 200,
+            "min": 1.0768948888778687,
+            "max": 1.0768948888778687,
+            "mean": 1.0768948888778687,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 200,
+            "min": 725.0,
+            "max": 5678.0,
+            "mean": 2299.03,
+            "variance": 1044298.3609045225,
+            "std": 1021.9091744888693
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.515,
+        "summary": {
+          "accuracy": 0.515,
+          "precision": 0.5283018867924528,
+          "recall": 0.28,
+          "f1_score": 0.3660130718954248,
+          "specificity": 0.75
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 28,
+            "true_negatives": 75,
+            "false_positives": 25,
+            "false_negatives": 72
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_1k_2k.json",
+        "description": "CleanVul Python binary — code token count in [1k, 2k)",
+        "cwe_type": null,
+        "batch_size": 20,
+        "timestamp": "2026-07-08T09:10:22.130728",
+        "model": {
+          "model_name": "qwen3-4b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 89,
+          "total_time_seconds": 160.35076713562012,
+          "avg_time_per_sample": 1.8016940127597767,
+          "tokens_used_total": 337788,
+          "tokens_used_avg": 3795.370786516854,
+          "processing_time_stats": {
+            "count": 89,
+            "min": 1.8014217280270008,
+            "max": 1.8014217280270008,
+            "mean": 1.8014217280270015,
+            "variance": 4.487766939503058e-31,
+            "std": 6.699079742399741e-16
+          },
+          "tokens_used_stats": {
+            "count": 89,
+            "min": 1929.0,
+            "max": 7553.0,
+            "mean": 3795.370786516854,
+            "variance": 971335.5768641471,
+            "std": 985.5635833695089
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.4606741573033708,
+        "summary": {
+          "accuracy": 0.4606741573033708,
+          "precision": 0.46875,
+          "recall": 0.32608695652173914,
+          "f1_score": 0.38461538461538464,
+          "specificity": 0.6046511627906976
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 15,
+            "true_negatives": 26,
+            "false_positives": 17,
+            "false_negatives": 31
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_2k_4k.json",
+        "description": "CleanVul Python binary — code token count in [2k, 4k)",
+        "cwe_type": null,
+        "batch_size": 20,
+        "timestamp": "2026-07-08T09:13:18.361574",
+        "model": {
+          "model_name": "qwen3-4b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 55,
+          "total_time_seconds": 118.54587864875793,
+          "avg_time_per_sample": 2.155379611795599,
+          "tokens_used_total": 273052,
+          "tokens_used_avg": 4964.581818181819,
+          "processing_time_stats": {
+            "count": 55,
+            "min": 2.1550053813240746,
+            "max": 2.1550053813240746,
+            "mean": 2.155005381324074,
+            "variance": 2.008673601257206e-31,
+            "std": 4.481822844844725e-16
+          },
+          "tokens_used_stats": {
+            "count": 55,
+            "min": 3043.0,
+            "max": 7025.0,
+            "mean": 4964.581818181819,
+            "variance": 898597.0626262627,
+            "std": 947.9435967536584
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.4909090909090909,
+        "summary": {
+          "accuracy": 0.4909090909090909,
+          "precision": 0.4444444444444444,
+          "recall": 0.3076923076923077,
+          "f1_score": 0.3636363636363637,
+          "specificity": 0.6551724137931034
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 8,
+            "true_negatives": 19,
+            "false_positives": 10,
+            "false_negatives": 18
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_4k_8k.json",
+        "description": "CleanVul Python binary — code token count in [4k, 8k)",
+        "cwe_type": null,
+        "batch_size": 20,
+        "timestamp": "2026-07-08T09:16:06.139929",
+        "model": {
+          "model_name": "qwen3-4b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 32,
+          "total_time_seconds": 110.57982969284058,
+          "avg_time_per_sample": 3.455619677901268,
+          "tokens_used_total": 231920,
+          "tokens_used_avg": 7247.5,
+          "processing_time_stats": {
+            "count": 32,
+            "min": 3.4550532400608063,
+            "max": 3.4550532400608063,
+            "mean": 3.4550532400608063,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 32,
+            "min": 4407.0,
+            "max": 9619.0,
+            "mean": 7247.5,
+            "variance": 1593294.7096774194,
+            "std": 1262.257782577481
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.59375,
+        "summary": {
+          "accuracy": 0.59375,
+          "precision": 0.6153846153846154,
+          "recall": 0.5,
+          "f1_score": 0.5517241379310345,
+          "specificity": 0.6875
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 8,
+            "true_negatives": 11,
+            "false_positives": 5,
+            "false_negatives": 8
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_8k_16k.json",
+        "description": "CleanVul Python binary — code token count in [8k, 16k)",
+        "cwe_type": null,
+        "batch_size": 20,
+        "timestamp": "2026-07-08T09:18:15.602529",
+        "model": {
+          "model_name": "qwen3-4b-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 32768,
+          "max_output_tokens": 16000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": true,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 13,
+          "total_time_seconds": 71.73279118537903,
+          "avg_time_per_sample": 5.517907014259925,
+          "tokens_used_total": 147560,
+          "tokens_used_avg": 11350.76923076923,
+          "processing_time_stats": {
+            "count": 13,
+            "min": 5.516740340452928,
+            "max": 5.516740340452928,
+            "mean": 5.516740340452928,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 13,
+            "min": 8739.0,
+            "max": 14900.0,
+            "mean": 11350.76923076923,
+            "variance": 4192801.692307692,
+            "std": 2047.6331928125437
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.38461538461538464,
+        "summary": {
+          "accuracy": 0.38461538461538464,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0.0,
+          "specificity": 0.8333333333333334
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 0,
+            "true_negatives": 5,
+            "false_positives": 1,
+            "false_negatives": 7
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_0k_1k.json",
+        "description": "CleanVul Python binary — code token count in [0k, 1k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T09:22:42.310215",
+        "model": {
+          "model_name": "gemma4-e4b-it",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 200,
+          "total_time_seconds": 124.72467088699341,
+          "avg_time_per_sample": 0.6236233544349671,
+          "tokens_used_total": 316632,
+          "tokens_used_avg": 1583.16,
+          "processing_time_stats": {
+            "count": 200,
+            "min": 0.6219585275650025,
+            "max": 0.6219585275650025,
+            "mean": 0.6219585275650025,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 200,
+            "min": 765.0,
+            "max": 3123.0,
+            "mean": 1583.16,
+            "variance": 236048.50693467332,
+            "std": 485.8482344669715
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.45,
+        "summary": {
+          "accuracy": 0.45,
+          "precision": 0.421875,
+          "recall": 0.27,
+          "f1_score": 0.32926829268292684,
+          "specificity": 0.63
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 27,
+            "true_negatives": 63,
+            "false_positives": 37,
+            "false_negatives": 73
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_1k_2k.json",
+        "description": "CleanVul Python binary — code token count in [1k, 2k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T09:26:25.364529",
+        "model": {
+          "model_name": "gemma4-e4b-it",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 89,
+          "total_time_seconds": 85.96072149276733,
+          "avg_time_per_sample": 0.9658508032895206,
+          "tokens_used_total": 263215,
+          "tokens_used_avg": 2957.4719101123596,
+          "processing_time_stats": {
+            "count": 89,
+            "min": 0.9645965099334717,
+            "max": 0.9645965099334717,
+            "mean": 0.9645965099334717,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 89,
+            "min": 2150.0,
+            "max": 4350.0,
+            "mean": 2957.4719101123596,
+            "variance": 160761.3884065373,
+            "std": 400.9506059435966
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.42696629213483145,
+        "summary": {
+          "accuracy": 0.42696629213483145,
+          "precision": 0.43902439024390244,
+          "recall": 0.391304347826087,
+          "f1_score": 0.4137931034482759,
+          "specificity": 0.46511627906976744
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 18,
+            "true_negatives": 20,
+            "false_positives": 23,
+            "false_negatives": 28
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_2k_4k.json",
+        "description": "CleanVul Python binary — code token count in [2k, 4k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T09:29:50.987121",
+        "model": {
+          "model_name": "gemma4-e4b-it",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 55,
+          "total_time_seconds": 71.92463684082031,
+          "avg_time_per_sample": 1.3077206698330965,
+          "tokens_used_total": 244793,
+          "tokens_used_avg": 4450.781818181818,
+          "processing_time_stats": {
+            "count": 55,
+            "min": 1.305710896578702,
+            "max": 1.305710896578702,
+            "mean": 1.305710896578702,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 55,
+            "min": 3181.0,
+            "max": 6059.0,
+            "mean": 4450.781818181818,
+            "variance": 498511.28484848497,
+            "std": 706.0533158682034
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5272727272727272,
+        "summary": {
+          "accuracy": 0.5272727272727272,
+          "precision": 0.5,
+          "recall": 0.4230769230769231,
+          "f1_score": 0.4583333333333333,
+          "specificity": 0.6206896551724138
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 11,
+            "true_negatives": 18,
+            "false_positives": 11,
+            "false_negatives": 15
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_4k_8k.json",
+        "description": "CleanVul Python binary — code token count in [4k, 8k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T09:32:56.915525",
+        "model": {
+          "model_name": "gemma4-e4b-it",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 32,
+          "total_time_seconds": 51.20748805999756,
+          "avg_time_per_sample": 1.6002340018749237,
+          "tokens_used_total": 224620,
+          "tokens_used_avg": 7019.375,
+          "processing_time_stats": {
+            "count": 32,
+            "min": 1.5966381058096886,
+            "max": 1.5966381058096886,
+            "mean": 1.5966381058096886,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 32,
+            "min": 5623.0,
+            "max": 9143.0,
+            "mean": 7019.375,
+            "variance": 741980.1129032258,
+            "std": 861.382675065633
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.375,
+        "summary": {
+          "accuracy": 0.375,
+          "precision": 0.3888888888888889,
+          "recall": 0.4375,
+          "f1_score": 0.411764705882353,
+          "specificity": 0.3125
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 7,
+            "true_negatives": 5,
+            "false_positives": 11,
+            "false_negatives": 9
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_size_comparison",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/cleanvul/context_sizes/cleanvul_py_binary_8k_16k.json",
+        "description": "CleanVul Python binary — code token count in [8k, 16k)",
+        "cwe_type": null,
+        "batch_size": 32,
+        "timestamp": "2026-07-08T09:35:50.278755",
+        "model": {
+          "model_name": "gemma4-e4b-it",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 13,
+          "total_time_seconds": 36.30669808387756,
+          "avg_time_per_sample": 2.792822929529043,
+          "tokens_used_total": 162664,
+          "tokens_used_avg": 12512.615384615385,
+          "processing_time_stats": {
+            "count": 13,
+            "min": 2.764300529773419,
+            "max": 2.764300529773419,
+            "mean": 2.7643005297734193,
+            "variance": 2.1364982849735735e-31,
+            "std": 4.622227044373279e-16
+          },
+          "tokens_used_stats": {
+            "count": 13,
+            "min": 9573.0,
+            "max": 16698.0,
+            "mean": 12512.615384615385,
+            "variance": 6570486.756410257,
+            "std": 2563.2960727177533
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.46153846153846156,
+        "summary": {
+          "accuracy": 0.46153846153846156,
+          "precision": 0.5,
+          "recall": 0.14285714285714285,
+          "f1_score": 0.22222222222222224,
+          "specificity": 0.8333333333333334
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 1,
+            "true_negatives": 5,
+            "false_positives": 1,
+            "false_negatives": 6
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 20,
+    "successful_experiments": 20,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/cleanvul_experiments/context_size_comparison"
+}

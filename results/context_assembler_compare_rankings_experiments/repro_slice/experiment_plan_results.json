@@ -1,0 +1,94 @@
+{
+  "plan_name": "repro_slice",
+  "description": "poison-sample repro",
+  "start_time": "2026-07-10T21:52:49.059232",
+  "end_time": "2026-07-10T21:56:11.612814",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "repro_slice",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/1k/repro_slice.json",
+        "description": "repro slice",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-07-10T21:56:10.957595",
+        "model": {
+          "model_name": "qwen3-30b-a3b-instruct-gguf",
+          "model_type": "qwen-3",
+          "backend": "llama_cpp",
+          "context_length": 22000,
+          "max_output_tokens": 8000,
+          "temperature": 0.7,
+          "top_p": 0.8,
+          "top_k": 20,
+          "min_p": 0.0,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": false,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 5,
+          "total_time_seconds": 188.79104447364807,
+          "avg_time_per_sample": 37.75820889472961,
+          "tokens_used_total": 27686,
+          "tokens_used_avg": 5537.2,
+          "processing_time_stats": {
+            "count": 5,
+            "min": 4.347724914550781,
+            "max": 137.57011914253235,
+            "mean": 37.757827043533325,
+            "variance": 3161.0868007245126,
+            "std": 56.223543117847996
+          },
+          "tokens_used_stats": {
+            "count": 5,
+            "min": 1928.0,
+            "max": 10829.0,
+            "mean": 5537.2,
+            "variance": 20428223.7,
+            "std": 4519.759252438121
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.8,
+        "summary": {
+          "accuracy": 0.8,
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1_score": 0.8571428571428571,
+          "specificity": 0.5
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 3,
+            "true_negatives": 1,
+            "false_positives": 1,
+            "false_negatives": 0
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/repro_slice"
+}

@@ -1,0 +1,94 @@
+{
+  "plan_name": "online_models_compare_rankings",
+  "description": "Full compare-rankings evaluation across all ranking strategies and requested online models",
+  "start_time": "2026-05-26T19:05:38.184840",
+  "end_time": "2026-05-26T19:12:44.711606",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "online_models_compare_rankings",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_random_picking.json",
+        "description": "ContextAssembler compare-rankings dataset using the random-picking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 64,
+        "timestamp": "2026-05-26T19:12:44.701178",
+        "model": {
+          "model_name": "claude-sonnet-4-6-thinking-batch",
+          "model_type": "claude",
+          "backend": "anthropic",
+          "context_length": 33768,
+          "max_output_tokens": 16384,
+          "temperature": 0.0,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": null,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 397,
+          "total_time_seconds": 260.3745675086975,
+          "avg_time_per_sample": 0.6558553337750567,
+          "tokens_used_total": 3827371,
+          "tokens_used_avg": 9640.73299748111,
+          "processing_time_stats": {
+            "count": 397,
+            "min": 0.6427514312849838,
+            "max": 0.6427514312849838,
+            "mean": 0.6427514312849836,
+            "variance": 4.942831113837464e-32,
+            "std": 2.2232478750327107e-16
+          },
+          "tokens_used_stats": {
+            "count": 397,
+            "min": 256.0,
+            "max": 23606.0,
+            "mean": 9640.73299748111,
+            "variance": 37469755.605297305,
+            "std": 6121.254414358
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5944584382871536,
+        "summary": {
+          "accuracy": 0.5944584382871536,
+          "precision": 0.5922330097087378,
+          "recall": 0.6130653266331658,
+          "f1_score": 0.6024691358024691,
+          "specificity": 0.5757575757575758
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 122,
+            "true_negatives": 114,
+            "false_positives": 84,
+            "false_negatives": 77
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 1,
+    "successful_experiments": 1,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/online_models_compare_rankings"
+}

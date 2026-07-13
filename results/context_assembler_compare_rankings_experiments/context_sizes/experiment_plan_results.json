@@ -1,0 +1,254 @@
+{
+  "plan_name": "context_sizes",
+  "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on gemma4-12b-it-thinking (no self-consistency)",
+  "start_time": "2026-07-12T09:58:33.510106",
+  "end_time": "2026-07-12T11:07:17.703343",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "context_sizes",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_depth_repeats_context.json",
+        "description": "ContextAssembler compare-rankings dataset using the Depth Repeats Context strategy at 16k context budget",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-07-12T10:26:51.808901",
+        "model": {
+          "model_name": "qwen3-14b-gguf-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 400,
+          "total_time_seconds": 1432.0943868160248,
+          "avg_time_per_sample": 3.580235967040062,
+          "tokens_used_total": 2602252,
+          "tokens_used_avg": 6505.63,
+          "processing_time_stats": {
+            "count": 400,
+            "min": 3.579810508489609,
+            "max": 3.579810508489609,
+            "mean": 3.579810508489609,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 400,
+            "min": 690.0,
+            "max": 14281.0,
+            "mean": 6505.63,
+            "variance": 18902860.328922305,
+            "std": 4347.741980490828
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5275,
+        "summary": {
+          "accuracy": 0.5275,
+          "precision": 0.5325443786982249,
+          "recall": 0.45,
+          "f1_score": 0.48780487804878053,
+          "specificity": 0.605
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 90,
+            "true_negatives": 121,
+            "false_positives": 79,
+            "false_negatives": 110
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_sizes",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_multiplicative_boost.json",
+        "description": "ContextAssembler compare-rankings dataset using the Multiplicative Boost strategy at 16k context budget",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-07-12T10:51:49.707022",
+        "model": {
+          "model_name": "qwen3-14b-gguf-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 400,
+          "total_time_seconds": 1417.4438121318817,
+          "avg_time_per_sample": 3.543609530329704,
+          "tokens_used_total": 2584620,
+          "tokens_used_avg": 6461.55,
+          "processing_time_stats": {
+            "count": 400,
+            "min": 3.5434170532226563,
+            "max": 3.5434170532226563,
+            "mean": 3.543417053222655,
+            "variance": 1.7793855004985226e-30,
+            "std": 1.3339360931088575e-15
+          },
+          "tokens_used_stats": {
+            "count": 400,
+            "min": 821.0,
+            "max": 13645.0,
+            "mean": 6461.55,
+            "variance": 18660772.393483706,
+            "std": 4319.811615508679
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5375,
+        "summary": {
+          "accuracy": 0.5375,
+          "precision": 0.5418994413407822,
+          "recall": 0.485,
+          "f1_score": 0.5118733509234829,
+          "specificity": 0.59
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 97,
+            "true_negatives": 118,
+            "false_positives": 82,
+            "false_negatives": 103
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "context_sizes",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_sizes/16k/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG Structural strategy at 16k context budget",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-07-12T11:07:16.716047",
+        "model": {
+          "model_name": "qwen3-14b-gguf-thinking",
+          "model_type": "qwen-3",
+          "backend": "vllm",
+          "context_length": 24000,
+          "max_output_tokens": 8000,
+          "temperature": 0.9,
+          "top_p": null,
+          "top_k": null,
+          "min_p": null,
+          "presence_penalty": null,
+          "repetition_penalty": 1.2,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 400,
+          "total_time_seconds": 853.1679239273071,
+          "avg_time_per_sample": 2.132919809818268,
+          "tokens_used_total": 1368919,
+          "tokens_used_avg": 3422.2975,
+          "processing_time_stats": {
+            "count": 400,
+            "min": 2.132747701406479,
+            "max": 2.132747701406479,
+            "mean": 2.1327477014064793,
+            "variance": 1.977095000553914e-31,
+            "std": 4.446453643696192e-16
+          },
+          "tokens_used_stats": {
+            "count": 400,
+            "min": 595.0,
+            "max": 13779.0,
+            "mean": 3422.2975,
+            "variance": 8872711.733327067,
+            "std": 2978.7097430476615
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.525,
+        "summary": {
+          "accuracy": 0.525,
+          "precision": 0.5274725274725275,
+          "recall": 0.48,
+          "f1_score": 0.5026178010471205,
+          "specificity": 0.57
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 96,
+            "true_negatives": 114,
+            "false_positives": 86,
+            "false_negatives": 104
+          },
+          "labels": [
+            0,
+            1
+          ]
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 3,
+    "successful_experiments": 3,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/context_sizes"
+}

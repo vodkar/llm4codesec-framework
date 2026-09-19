@@ -125,14 +125,15 @@
             "model_identifier": "Qwen/Qwen3-8B",
             "model_type": "qwen-3",
             "max_output_tokens": 8000,
-            "context_length": 11000,
-            "batch_size": 40,
+            "context_length": 14000,
+            "batch_size": 20,
             "use_quantization": true,
             "temperature": 0.9,
             "repetition_penalty": 1.2,
             "backend": "vllm",
             "is_thinking_enabled": true,
-            "gpu_memory_utilization": 0.95,
+            "gpu_memory_utilization": 0.92,
+            "max_num_seqs": 16,
             "self_consistency_samples": 15
         },
         "qwen3-8b-thinking-sc5": {

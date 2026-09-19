@@ -11,7 +11,7 @@ uv run python src/entrypoints/loaders/run_setup_context_assembler_compare_rankin
 
 run_benchmark="docker-compose run --rm llm4codesec-benchmark python"
 
-$run_benchmark cli.py run-plan context_assembler vllm_compare_rankings \
+$run_benchmark cli.py run-plan context_assembler self_consistency \
     --config-dir configs/shared \
     --experiments-config configs/context_assembler_compare_rankings/experiments.json \
     --datasets-config configs/context_assembler_compare_rankings/datasets.json

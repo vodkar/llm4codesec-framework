@@ -139,6 +139,8 @@ class BenchmarkResultProcessor(BaseModel):
             processing_time=prediction.processing_time,
             confidence=prediction.confidence,
             binary_label_confidence=prediction.binary_label_confidence,
+            answer_probability=prediction.answer_probability,
+            answer_probabilities=prediction.answer_probabilities,
         )
         return PredictionRecord(
             sample_id=str(prediction.sample_id),

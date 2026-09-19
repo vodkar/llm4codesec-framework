@@ -12,7 +12,7 @@ from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
 from logging_tools import get_logger
-from benchmark.enums import BinaryDecisionMode, TaskType
+from benchmark.enums import BINARY_TASK_TYPES, BinaryDecisionMode
 
 _LOGGER = get_logger(__name__)
 
@@ -23,11 +23,7 @@ _CHAT_TEMPLATE_TOKEN_OVERHEAD = 200  # Safety margin for chat-template special t
 def _is_binary_task(task_type: object) -> bool:
     """Return whether the configured task uses binary labels."""
 
-    return task_type in {
-        TaskType.BINARY_VULNERABILITY,
-        TaskType.BINARY_CWE_SPECIFIC,
-        TaskType.BINARY_VULNERABILITY_SPECIFIC,
-    }
+    return task_type in BINARY_TASK_TYPES
 
 
 def _majority_vote(labels: list[int | str]) -> int | str:
@@ -42,6 +38,17 @@ def _majority_vote(labels: list[int | str]) -> int | str:
         if counts[label] == max_count:
             return label
     return labels[0]  # unreachable
+
+
+def _answer_probability(label: int | str, p_vulnerable: float | None) -> float | None:
+    """Return the probability of a binary label given P(VULNERABLE); None when not derivable."""
+    if p_vulnerable is None:
+        return None
+    if label == 1:
+        return p_vulnerable
+    if label == 0:
+        return 1.0 - p_vulnerable
+    return None
 
 
 class BenchmarkRunner(BaseModel):
@@ -240,6 +247,10 @@ class BenchmarkRunner(BaseModel):
                     )
                 else:
                     predicted_label = _majority_vote(parsed_labels)
+                answer_probabilities: list[float | None] = [
+                    _answer_probability(lbl, r.binary_label_confidence)
+                    for lbl, r in zip(parsed_labels, group)
+                ]
                 vote_counts: dict[str, int] = {}
                 for lbl in parsed_labels:
                     key = str(lbl)
@@ -257,12 +268,16 @@ class BenchmarkRunner(BaseModel):
                     true_label=true_label,
                     confidence=confidence,
                     binary_label_confidence=binary_label_confidence,
+                    answer_probability=_answer_probability(
+                        predicted_label, binary_label_confidence
+                    ),
                     response_text=all_texts[0],
                     processing_time=avg_time,
                     tokens_used=total_tokens,
                     is_success=True,
                     error_message=None,
                     all_responses=all_texts,
+                    answer_probabilities=answer_probabilities,
                     vote_counts=vote_counts,
                 )
             except Exception as e:

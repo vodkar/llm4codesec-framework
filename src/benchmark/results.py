@@ -33,6 +33,10 @@ class SampleInferenceData(BaseModel):
     """Geometric-mean per-token probability averaged over N draws; None if not enabled."""
     binary_label_confidence: float | None = None
     """Mean final-answer-position P(VULNERABLE) across draws when enabled."""
+    answer_probability: float | None = None
+    """Probability of the final predicted label, from the mean P(VULNERABLE) across draws."""
+    answer_probabilities: list[float | None] = Field(default_factory=list)
+    """Probability of each draw's own answered label, aligned with responses."""
 
 
 class PredictionRecord(BaseModel):

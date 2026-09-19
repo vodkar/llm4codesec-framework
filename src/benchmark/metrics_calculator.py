@@ -1,12 +1,28 @@
+import math
 import re
 from abc import ABC, abstractmethod
 from typing import Any
 
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    classification_report,
+    confusion_matrix,
+    precision_recall_curve,
+    roc_auc_score,
+)
 
 from benchmark.enums import TaskType
 from benchmark.models import PredictionResult
 from benchmark.results import MetricsResult
+
+
+_PRECISION_AT_RECALL_LEVELS: tuple[float, ...] = (0.5, 0.8, 0.9, 0.95)
+_COVERAGE_LEVELS: tuple[float, ...] = (0.25, 0.5, 0.75)
+# Sample ID suffixes the loaders give the two halves of a pre/post commit pair
+_VULNERABLE_ID_SUFFIX: str = "_vuln"
+_FIXED_ID_SUFFIX: str = "_safe"
+_PAIR_ID_SUFFIXES: tuple[str, ...] = (_VULNERABLE_ID_SUFFIX, _FIXED_ID_SUFFIX)
 
 
 class IMetricsCalculator(ABC):
@@ -84,6 +100,18 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             "labels": [0, 1],
         }
 
+        ranking_summary, ranking_details = self._calculate_ranking_metrics(predictions)
+        summary.update(ranking_summary)
+        details["ranking_metrics"] = ranking_details
+
+        paired_summary, paired_details = self._calculate_paired_ranking_metrics(predictions)
+        summary.update(paired_summary)
+        details["paired_ranking"] = paired_details
+
+        coverage_summary, coverage_details = self._calculate_coverage_metrics(predictions)
+        summary.update(coverage_summary)
+        details["selective_prediction"] = coverage_details
+
         confidences = [p.confidence for p in predictions if p.confidence is not None]
         if confidences:
             details["confidence_stats"] = {
@@ -99,6 +127,156 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             summary=summary,
             details=details,
         )
+
+    def _calculate_ranking_metrics(
+        self, predictions: list[PredictionResult]
+    ) -> tuple[dict[str, float | int | str | None], dict[str, Any]]:
+        """Calculate threshold-free metrics (ROC AUC, PR AUC, P@R) from P(VULNERABLE) scores."""
+        summary: dict[str, float | int | str | None] = {"roc_auc": None, "pr_auc": None}
+        for level in _PRECISION_AT_RECALL_LEVELS:
+            summary[f"precision_at_recall_{round(level * 100)}"] = None
+
+        score_source: str | None = None
+        scored: list[tuple[int, float]] = []
+        for source in ("binary_label_confidence", "vote_fraction"):
+            scored = [
+                (int(pred.true_label), score)
+                for pred in predictions
+                if (score := self._get_vulnerable_score(pred, source)) is not None
+            ]
+            if scored:
+                score_source = source
+                break
+
+        details: dict[str, Any] = {
+            "score_source": score_source,
+            "scored_samples": len(scored),
+            "total_samples": len(predictions),
+        }
+        if not scored:
+            details["skipped_reason"] = "no per-sample P(VULNERABLE) scores available"
+            return summary, details
+
+        y_true: list[int] = [label for label, _ in scored]
+        y_score: list[float] = [score for _, score in scored]
+        if len(set(y_true)) < 2:
+            details["skipped_reason"] = "scored samples contain a single class"
+            return summary, details
+
+        summary["roc_auc"] = float(roc_auc_score(y_true, y_score))
+        summary["pr_auc"] = float(average_precision_score(y_true, y_score))
+        precisions, recalls, _ = precision_recall_curve(y_true, y_score)
+        for level in _PRECISION_AT_RECALL_LEVELS:
+            summary[f"precision_at_recall_{round(level * 100)}"] = float(
+                precisions[recalls >= level].max()
+            )
+        return summary, details
+
+    def _calculate_coverage_metrics(
+        self, predictions: list[PredictionResult]
+    ) -> tuple[dict[str, float | int | str | None], dict[str, Any]]:
+        """Calculate accuracy on the most confident fraction of samples (accuracy@coverage)."""
+        summary: dict[str, float | int | str | None] = {
+            f"accuracy_at_coverage_{round(level * 100)}": None for level in _COVERAGE_LEVELS
+        }
+        scored: list[PredictionResult] = sorted(
+            (pred for pred in predictions if pred.answer_probability is not None),
+            key=lambda pred: pred.answer_probability or 0.0,
+            reverse=True,
+        )
+        details: dict[str, Any] = {
+            "score_source": "answer_probability",
+            "scored_samples": len(scored),
+            "total_samples": len(predictions),
+            "levels": [],
+        }
+        if not scored:
+            details["skipped_reason"] = "no per-sample answer probabilities available"
+            return summary, details
+
+        for level in _COVERAGE_LEVELS:
+            selected: list[PredictionResult] = scored[: math.ceil(level * len(scored))]
+            correct: int = sum(
+                1 for pred in selected if pred.predicted_label == pred.true_label
+            )
+            accuracy: float = correct / len(selected)
+            summary[f"accuracy_at_coverage_{round(level * 100)}"] = accuracy
+            details["levels"].append(
+                {
+                    "coverage": level,
+                    "selected_samples": len(selected),
+                    "min_answer_probability": selected[-1].answer_probability,
+                    "accuracy": accuracy,
+                }
+            )
+        return summary, details
+
+    def _calculate_paired_ranking_metrics(
+        self, predictions: list[PredictionResult]
+    ) -> tuple[dict[str, float | int | str | None], dict[str, Any]]:
+        """Calculate how often the vulnerable half of a pre/post pair outscores its fixed half."""
+        summary: dict[str, float | int | str | None] = {
+            "paired_ranking_accuracy": None,
+            "paired_mean_score_margin": None,
+        }
+
+        halves: dict[str, dict[str, PredictionResult]] = {}
+        for pred in predictions:
+            for suffix in _PAIR_ID_SUFFIXES:
+                if pred.sample_id.endswith(suffix):
+                    halves.setdefault(pred.sample_id[: -len(suffix)], {})[suffix] = pred
+        pairs: list[tuple[PredictionResult, PredictionResult]] = [
+            (pair[_VULNERABLE_ID_SUFFIX], pair[_FIXED_ID_SUFFIX])
+            for pair in halves.values()
+            if len(pair) == len(_PAIR_ID_SUFFIXES)
+        ]
+
+        score_source: str | None = None
+        margins: list[float] = []
+        for source in ("binary_label_confidence", "vote_fraction"):
+            margins = [
+                vulnerable_score - fixed_score
+                for vulnerable, fixed in pairs
+                if (vulnerable_score := self._get_vulnerable_score(vulnerable, source)) is not None
+                and (fixed_score := self._get_vulnerable_score(fixed, source)) is not None
+            ]
+            if margins:
+                score_source = source
+                break
+
+        wins: int = sum(1 for margin in margins if margin > 0)
+        ties: int = sum(1 for margin in margins if margin == 0)
+        details: dict[str, Any] = {
+            "score_source": score_source,
+            "scored_pairs": len(margins),
+            "total_pairs": len(pairs),
+            "wins": wins,
+            "ties": ties,
+            "losses": len(margins) - wins - ties,
+            "unpaired_samples": len(predictions) - 2 * len(pairs),
+        }
+        if not pairs:
+            details["skipped_reason"] = "no pre/post sample pairs found"
+            return summary, details
+        if not margins:
+            details["skipped_reason"] = "no pair has P(VULNERABLE) scores for both halves"
+            return summary, details
+
+        # A tie counts as half a win, as in ROC AUC
+        summary["paired_ranking_accuracy"] = (wins + 0.5 * ties) / len(margins)
+        summary["paired_mean_score_margin"] = sum(margins) / len(margins)
+        return summary, details
+
+    @staticmethod
+    def _get_vulnerable_score(pred: PredictionResult, source: str) -> float | None:
+        """Return P(VULNERABLE) for a prediction from the given score source."""
+        if source == "binary_label_confidence":
+            return pred.binary_label_confidence
+        # vote_counts is populated even for a single draw; one hard label is not a score
+        total_votes: int = sum(pred.vote_counts.values())
+        if total_votes < 2:
+            return None
+        return pred.vote_counts.get("1", 0) / total_votes
 
 
 class MulticlassMetricsCalculator(IMetricsCalculator):

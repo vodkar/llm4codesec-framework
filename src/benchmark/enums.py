@@ -12,6 +12,15 @@ class TaskType(StrEnum):
     VULDETECTBENCH_SPECIFIC = "vuldetectbench_specific"
 
 
+BINARY_TASK_TYPES: frozenset[TaskType] = frozenset(
+    {
+        TaskType.BINARY_VULNERABILITY,
+        TaskType.BINARY_CWE_SPECIFIC,
+        TaskType.BINARY_VULNERABILITY_SPECIFIC,
+    }
+)
+
+
 class ModelType(Enum):
     """Enumeration of supported model types."""
 

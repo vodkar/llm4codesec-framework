@@ -4,7 +4,14 @@ from typing import Any
 
 from pydantic import BaseModel, PrivateAttr
 
-from benchmark.enums import BackendFrameworks, BinaryDecisionMode, ModelType, TaskType
+from benchmark.enums import (
+    BINARY_TASK_TYPES,
+    BackendFrameworks,
+    BinaryDecisionMode,
+    ConfidenceMethod,
+    ModelType,
+    TaskType,
+)
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
@@ -140,6 +147,8 @@ class ExperimentConfig(BaseModel):
     enable_logprobs: bool = False
     binary_decision_mode: BinaryDecisionMode = BinaryDecisionMode.TEXT
     binary_logprob_threshold: float | None = None
+    confidence_methods: list[ConfidenceMethod] = []
+    """Optional confidence estimators, set per experiment plan."""
     api_provider: str | None = None
     api_base_url: str | None = None
     api_key_env_var: str | None = None
@@ -186,6 +195,18 @@ class ExperimentConfig(BaseModel):
                     "binary_logprob_threshold calibrated on held-out data"
                 )
 
+        if self.confidence_methods and self.task_type not in BINARY_TASK_TYPES:
+            raise ValueError(
+                "confidence_methods are only supported for binary vulnerability tasks"
+            )
+        if (
+            ConfidenceMethod.SELF_VALIDATION in self.confidence_methods
+            and self.backend != BackendFrameworks.VLLM
+        ):
+            raise ValueError(
+                "confidence method 'self_validation' is only supported by the vllm backend"
+            )
+
         super().model_post_init(context)
 
     @classmethod
@@ -197,6 +218,7 @@ class ExperimentConfig(BaseModel):
         prompt_key: str,
         experiment_name: str,
         sample_limit: int | None = None,
+        confidence_methods: list[ConfidenceMethod] | list[str] | None = None,
     ) -> "ExperimentConfig":
         if isinstance(config, (Path, str)):
             config_path = Path(config)
@@ -237,6 +259,7 @@ class ExperimentConfig(BaseModel):
             output_settings=output_config,
             experiment_name=experiment_name,
             sample_limit=sample_limit,
+            confidence_methods=confidence_methods,
         )
 
     @classmethod
@@ -248,6 +271,7 @@ class ExperimentConfig(BaseModel):
         output_settings: OutputConfig,
         experiment_name: str,
         sample_limit: int | None = None,
+        confidence_methods: list[ConfidenceMethod] | list[str] | None = None,
     ) -> "ExperimentConfig":
         """Create a BenchmarkConfig from separate model, dataset, and prompt configs."""
         config = cls(
@@ -284,6 +308,7 @@ class ExperimentConfig(BaseModel):
             enable_logprobs=model_config.enable_logprobs,
             binary_decision_mode=model_config.binary_decision_mode,
             binary_logprob_threshold=model_config.binary_logprob_threshold,
+            confidence_methods=confidence_methods or [],
             api_provider=model_config.api_provider,
             api_base_url=model_config.api_base_url,
             api_key_env_var=model_config.api_key_env_var,
@@ -379,6 +404,7 @@ class ExperimentsPlanConfig(BaseModel):
                             prompt_key=prompt_key,
                             experiment_name=plan_name,
                             sample_limit=plan_config.get("sample_limit"),
+                            confidence_methods=plan_config.get("confidence_methods"),
                         )
                     )
 

@@ -281,7 +281,11 @@
             "prompts": [
                 "strict_exploitable_security"
             ],
-            "sample_limit": 40
+            "sample_limit": 40,
+            "confidence_methods": [
+                "stated_confidence",
+                "self_validation"
+            ]
         },
         "cleanvul_vs_cpg_structural": {
             "description": "Paired comparison of raw CleanVul functions (no context) vs the CPG-structural assembled context on the same 600 samples, with self-consistency N=7 and answer-probability logprobs (ROC AUC, PR AUC, precision@recall, accuracy@coverage 25/50/75)",

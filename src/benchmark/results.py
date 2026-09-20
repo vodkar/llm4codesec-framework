@@ -37,6 +37,14 @@ class SampleInferenceData(BaseModel):
     """Probability of the final predicted label, from the mean P(VULNERABLE) across draws."""
     answer_probabilities: list[float | None] = Field(default_factory=list)
     """Probability of each draw's own answered label, aligned with responses."""
+    stated_confidence: float | None = None
+    """Model-stated confidence in the final predicted label, scaled to [0, 1]."""
+    stated_confidences: list[float | None] = Field(default_factory=list)
+    """Stated confidence of each draw in its own verdict, aligned with responses."""
+    self_validation_probability: float | None = None
+    """Self-validation P(correct) for the final predicted label."""
+    self_validation_probabilities: list[float | None] = Field(default_factory=list)
+    """Self-validation P(correct) of each draw's own verdict, aligned with responses."""
 
 
 class PredictionRecord(BaseModel):
@@ -70,6 +78,8 @@ class ModelRunConfig(BaseModel):
     enable_logprobs: bool
     binary_decision_mode: BinaryDecisionMode
     binary_logprob_threshold: float | None = None
+    confidence_methods: list[str] = Field(default_factory=list)
+    """Enabled optional confidence methods; 'stated_confidence' changes the response contract."""
 
 
 class RunStats(BaseModel):

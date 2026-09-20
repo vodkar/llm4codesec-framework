@@ -141,6 +141,10 @@ class BenchmarkResultProcessor(BaseModel):
             binary_label_confidence=prediction.binary_label_confidence,
             answer_probability=prediction.answer_probability,
             answer_probabilities=prediction.answer_probabilities,
+            stated_confidence=prediction.stated_confidence,
+            stated_confidences=prediction.stated_confidences,
+            self_validation_probability=prediction.self_validation_probability,
+            self_validation_probabilities=prediction.self_validation_probabilities,
         )
         return PredictionRecord(
             sample_id=str(prediction.sample_id),
@@ -267,6 +271,7 @@ class BenchmarkResultProcessor(BaseModel):
             enable_logprobs=bool(self.config.enable_logprobs),
             binary_decision_mode=self.config.binary_decision_mode,
             binary_logprob_threshold=self.config.binary_logprob_threshold,
+            confidence_methods=[str(method) for method in self.config.confidence_methods],
         )
 
         run_stats = RunStats(

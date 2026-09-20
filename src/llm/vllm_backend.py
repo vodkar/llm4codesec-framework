@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-from benchmark.enums import BINARY_TASK_TYPES
+from benchmark.enums import BINARY_TASK_TYPES, ConfidenceMethod
 import torch
 from huggingface_hub import hf_hub_download, list_repo_files
 from tqdm import tqdm
@@ -18,8 +18,16 @@ from transformers import PreTrainedTokenizerBase
 
 from benchmark.config import ExperimentConfig
 from llm.engine_streaming import generate_streaming
-from llm.final_answer_logprobs import compute_p_vulnerable, locate_final_answer_label
+from llm.final_answer_logprobs import (
+    compute_label_probability,
+    compute_p_vulnerable,
+    compute_stated_confidence,
+    locate_final_answer_label,
+    locate_stated_confidence,
+    resolve_self_validation_token_ids,
+)
 from llm.llm import ILLMInference, InferenceResult
+from llm.self_validation import SELF_VALIDATION_PREFILL, build_self_validation_messages
 
 if TYPE_CHECKING:
     from vllm import LLM, RequestOutput, SamplingParams
@@ -548,6 +556,7 @@ class VllmLLM(ILLMInference):
             token_count: int = 0
             confidence: float | None = None
             binary_label_confidence: float | None = None
+            stated_confidence: float | None = None
 
             if output.outputs:
                 response_text = output.outputs[0].text.strip()
@@ -558,6 +567,8 @@ class VllmLLM(ILLMInference):
                         binary_label_confidence = self._compute_binary_label_confidence(
                             output
                         )
+                    if ConfidenceMethod.STATED_CONFIDENCE in self.config.confidence_methods:
+                        stated_confidence = self._compute_stated_confidence(output)
 
             results.append(InferenceResult(
                 response_text=response_text,
@@ -565,6 +576,7 @@ class VllmLLM(ILLMInference):
                 duration=per_item_duration,
                 confidence=confidence,
                 binary_label_confidence=binary_label_confidence,
+                stated_confidence=stated_confidence,
             ))
 
         return results
@@ -607,6 +619,101 @@ class VllmLLM(ILLMInference):
             label_token_ids,
             {token_id: lp.logprob for token_id, lp in logprobs_list[label_position].items()},
         )
+
+    def _compute_stated_confidence(self, output: RequestOutput) -> float | None:
+        """Compute the expected stated 0-9 confidence digit from returned top-logprobs."""
+        logprobs_list = output.outputs[0].logprobs
+        if self.tokenizer is None or not logprobs_list:
+            return None
+
+        located = locate_stated_confidence(
+            self.tokenizer, list(output.outputs[0].token_ids or [])
+        )
+        if located is None:
+            return None
+        digit_position, digit_token_ids = located
+        if digit_position >= len(logprobs_list) or not logprobs_list[digit_position]:
+            return None
+
+        return compute_stated_confidence(
+            digit_token_ids,
+            {token_id: lp.logprob for token_id, lp in logprobs_list[digit_position].items()},
+        )
+
+    def score_self_validation(
+        self, system_prompts: list[str], user_prompts: list[str], responses: list[str]
+    ) -> list[float | None]:
+        """
+        Ask the model whether each response reached the correct verdict and read P(true).
+
+        The original exchange is replayed with a follow-up question and the answer is
+        prefilled up to the true/false token, so one generated token per response is
+        enough and the shared prompt prefix is served from the prefix cache.
+
+        Args:
+            system_prompts: System prompts of the original requests.
+            user_prompts: User prompts of the original requests.
+            responses: The model's responses to those requests.
+
+        Returns:
+            P(verdict is correct) per response; None where it cannot be scored.
+        """
+        if not self.llm or not self.tokenizer:
+            raise RuntimeError("vLLM model not loaded")
+
+        scores: list[float | None] = [None] * len(responses)
+        label_token_ids: dict[bool, frozenset[int]] | None = resolve_self_validation_token_ids(
+            self.tokenizer
+        )
+        if label_token_ids is None:
+            LOGGER.warning(
+                "Skipping self-validation for %s: true/false share their first tokens",
+                self.config.model_identifier,
+            )
+            return scores
+
+        prompts: list[str] = []
+        prompt_indices: list[int] = []
+        for index, (system_prompt, user_prompt, response) in enumerate(
+            zip(system_prompts, user_prompts, responses)
+        ):
+            formatted: str | None = self._apply_chat_template(
+                build_self_validation_messages(system_prompt, user_prompt, response),
+                enable_thinking=False,
+            )
+            if formatted is None:
+                LOGGER.warning(
+                    "Skipping self-validation for %s: tokenizer has no usable chat template",
+                    self.config.model_identifier,
+                )
+                return scores
+            prompt: str = formatted + SELF_VALIDATION_PREFILL
+            # vLLM rejects the whole batch when one prompt exceeds the context window.
+            if self.count_input_tokens(prompt) + 1 > self.config.model_context_length_tokens:
+                continue
+            prompts.append(prompt)
+            prompt_indices.append(index)
+
+        if not prompts:
+            return scores
+
+        from vllm import SamplingParams
+
+        LOGGER.info("Submitting %d self-validation prompts to vLLM scheduler", len(prompts))
+        outputs: list[RequestOutput] = self.llm.generate(
+            prompts,
+            SamplingParams(max_tokens=1, temperature=0.0, logprobs=_FINAL_ANSWER_LOGPROBS_TOP_K),
+        )
+        for index, output in zip(prompt_indices, outputs):
+            logprobs_list = output.outputs[0].logprobs if output.outputs else None
+            if not logprobs_list or not logprobs_list[0]:
+                continue
+            scores[index] = compute_label_probability(
+                label_token_ids,
+                {token_id: lp.logprob for token_id, lp in logprobs_list[0].items()},
+                True,
+            )
+        return scores
 
     @staticmethod
     def _count_tokens(output: RequestOutput) -> int:
@@ -652,31 +759,42 @@ class VllmLLM(ILLMInference):
         if not self.tokenizer:
             raise RuntimeError("vLLM tokenizer not loaded")
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ]
-
-        apply_chat_template = getattr(self.tokenizer, "apply_chat_template", None)
-        has_chat_template = getattr(self.tokenizer, "chat_template", None) is not None
-        if callable(apply_chat_template) and has_chat_template:
-            try:
-                template_kwargs: dict[str, object] = {
-                    "tokenize": False,
-                    "add_generation_prompt": True,
-                }
-                if self._uses_qwen3_chat_template():
-                    template_kwargs["enable_thinking"] = self.config.is_thinking_enabled
-
-                formatted_prompt = apply_chat_template(messages, **template_kwargs)
-                return str(formatted_prompt)
-            except Exception:
-                LOGGER.exception(
-                    "vLLM chat template failed for %s, falling back",
-                    self.config.model_identifier,
-                )
+        formatted_prompt: str | None = self._apply_chat_template(
+            [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            enable_thinking=self.config.is_thinking_enabled,
+        )
+        if formatted_prompt is not None:
+            return formatted_prompt
 
         return self._format_prompt_fallback(system_prompt, user_prompt)
+
+    def _apply_chat_template(
+        self, messages: list[dict[str, str]], enable_thinking: bool
+    ) -> str | None:
+        """Render messages with the tokenizer chat template; None when unavailable."""
+        apply_chat_template = getattr(self.tokenizer, "apply_chat_template", None)
+        has_chat_template = getattr(self.tokenizer, "chat_template", None) is not None
+        if not callable(apply_chat_template) or not has_chat_template:
+            return None
+
+        try:
+            template_kwargs: dict[str, object] = {
+                "tokenize": False,
+                "add_generation_prompt": True,
+            }
+            if self._uses_qwen3_chat_template():
+                template_kwargs["enable_thinking"] = enable_thinking
+
+            return str(apply_chat_template(messages, **template_kwargs))
+        except Exception:
+            LOGGER.exception(
+                "vLLM chat template failed for %s, falling back",
+                self.config.model_identifier,
+            )
+            return None
 
     def _format_prompt_fallback(self, system_prompt: str, user_prompt: str) -> str:
         """

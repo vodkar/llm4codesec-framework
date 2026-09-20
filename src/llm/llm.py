@@ -14,6 +14,8 @@ class InferenceResult:
     None when logprobs are not enabled or not supported."""
     binary_label_confidence: float | None = field(default=None)
     """Binary P(VULNERABLE) derived from final-answer label-position logprobs."""
+    stated_confidence: float | None = field(default=None)
+    """Expected stated 0-9 confidence digit scaled to [0, 1], from its token logprobs."""
 
 
 class ILLMInference(ABC):
@@ -77,6 +79,24 @@ class ILLMInference(ABC):
     def count_input_tokens(self, text: str) -> int:
         """Count input tokens for the provided text using backend tokenizer."""
         pass
+
+    def score_self_validation(
+        self, system_prompts: list[str], user_prompts: list[str], responses: list[str]
+    ) -> list[float | None]:
+        """
+        Ask the model whether each of its responses reached the correct verdict.
+
+        Args:
+            system_prompts: System prompts of the original requests
+            user_prompts: User prompts of the original requests
+            responses: The model's responses to those requests
+
+        Returns:
+            P(verdict is correct) per response; None where it cannot be scored.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not support the self_validation confidence method"
+        )
 
     @abstractmethod
     def cleanup(self) -> None:

@@ -19,6 +19,11 @@ from benchmark.results import MetricsResult
 
 _PRECISION_AT_RECALL_LEVELS: tuple[float, ...] = (0.5, 0.8, 0.9, 0.95)
 _COVERAGE_LEVELS: tuple[float, ...] = (0.25, 0.5, 0.75)
+# Optional confidence methods: summary-key prefix -> PredictionResult score field.
+_OPTIONAL_CONFIDENCE_SOURCES: dict[str, str] = {
+    "stated_confidence": "stated_confidence",
+    "self_validation": "self_validation_probability",
+}
 # Sample ID suffixes the loaders give the two halves of a pre/post commit pair
 _VULNERABLE_ID_SUFFIX: str = "_vuln"
 _FIXED_ID_SUFFIX: str = "_safe"
@@ -108,9 +113,22 @@ class BinaryMetricsCalculator(IMetricsCalculator):
         summary.update(paired_summary)
         details["paired_ranking"] = paired_details
 
-        coverage_summary, coverage_details = self._calculate_coverage_metrics(predictions)
+        coverage_summary, coverage_details = self._calculate_coverage_metrics(
+            predictions, score_field="answer_probability", key_prefix=""
+        )
         summary.update(coverage_summary)
         details["selective_prediction"] = coverage_details
+
+        # Only methods that produced scores are reported, so runs without them keep their shape.
+        details["confidence_methods"] = {}
+        for method, score_field in _OPTIONAL_CONFIDENCE_SOURCES.items():
+            if all(getattr(pred, score_field) is None for pred in predictions):
+                continue
+            method_summary, method_details = self._calculate_coverage_metrics(
+                predictions, score_field=score_field, key_prefix=f"{method}_"
+            )
+            summary.update(method_summary)
+            details["confidence_methods"][method] = method_details
 
         confidences = [p.confidence for p in predictions if p.confidence is not None]
         if confidences:
@@ -173,39 +191,54 @@ class BinaryMetricsCalculator(IMetricsCalculator):
         return summary, details
 
     def _calculate_coverage_metrics(
-        self, predictions: list[PredictionResult]
+        self, predictions: list[PredictionResult], score_field: str, key_prefix: str
     ) -> tuple[dict[str, float | int | str | None], dict[str, Any]]:
-        """Calculate accuracy on the most confident fraction of samples (accuracy@coverage)."""
+        """Calculate selective-prediction metrics for one per-sample confidence score.
+
+        Reports accuracy on the most confident fraction of samples (accuracy@coverage)
+        and the AUROC of the score for separating correct from incorrect predictions.
+        """
+        auroc_key: str = f"{key_prefix or 'answer_probability_'}correctness_auroc"
         summary: dict[str, float | int | str | None] = {
-            f"accuracy_at_coverage_{round(level * 100)}": None for level in _COVERAGE_LEVELS
+            f"{key_prefix}accuracy_at_coverage_{round(level * 100)}": None
+            for level in _COVERAGE_LEVELS
         }
-        scored: list[PredictionResult] = sorted(
-            (pred for pred in predictions if pred.answer_probability is not None),
-            key=lambda pred: pred.answer_probability or 0.0,
+        summary[auroc_key] = None
+        scored: list[tuple[float, bool]] = sorted(
+            (
+                (score, pred.predicted_label == pred.true_label)
+                for pred in predictions
+                if (score := getattr(pred, score_field)) is not None
+            ),
+            key=lambda item: item[0],
             reverse=True,
         )
         details: dict[str, Any] = {
-            "score_source": "answer_probability",
+            "score_source": score_field,
             "scored_samples": len(scored),
             "total_samples": len(predictions),
+            "correctness_auroc": None,
             "levels": [],
         }
         if not scored:
-            details["skipped_reason"] = "no per-sample answer probabilities available"
+            details["skipped_reason"] = f"no per-sample {score_field} scores available"
             return summary, details
 
+        is_correct: list[bool] = [correct for _, correct in scored]
+        if len(set(is_correct)) == 2:
+            auroc: float = float(roc_auc_score(is_correct, [score for score, _ in scored]))
+            summary[auroc_key] = auroc
+            details["correctness_auroc"] = auroc
+
         for level in _COVERAGE_LEVELS:
-            selected: list[PredictionResult] = scored[: math.ceil(level * len(scored))]
-            correct: int = sum(
-                1 for pred in selected if pred.predicted_label == pred.true_label
-            )
-            accuracy: float = correct / len(selected)
-            summary[f"accuracy_at_coverage_{round(level * 100)}"] = accuracy
+            selected: list[tuple[float, bool]] = scored[: math.ceil(level * len(scored))]
+            accuracy: float = sum(correct for _, correct in selected) / len(selected)
+            summary[f"{key_prefix}accuracy_at_coverage_{round(level * 100)}"] = accuracy
             details["levels"].append(
                 {
                     "coverage": level,
                     "selected_samples": len(selected),
-                    "min_answer_probability": selected[-1].answer_probability,
+                    "min_answer_probability": selected[-1][0],
                     "accuracy": accuracy,
                 }
             )

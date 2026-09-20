@@ -17,6 +17,10 @@ _BINARY_FALLBACK_PATTERN: Final[re.Pattern[str]] = re.compile(
 _IS_VULNERABLE_JSON_PATTERN: Final[re.Pattern[str]] = re.compile(
     r'"is_vulnerable"\s*:\s*(true|false)', re.IGNORECASE
 )
+_STATED_CONFIDENCE_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r'"confidence"\s*:\s*"?(\d+)\b'
+)
+_STATED_CONFIDENCE_MAX: Final[int] = 9
 _VULDETECTBENCH_BINARY_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"\b(YES|NO)\b", re.IGNORECASE
 )
@@ -66,6 +70,22 @@ def _extract_is_vulnerable_json(response: str) -> int | None:
     if not matches:
         return None
     return 1 if matches[-1].lower() == "true" else 0
+
+
+def has_explicit_binary_verdict(response: str) -> bool:
+    """Return whether the response carries an explicit ``{"is_vulnerable": <bool>}`` verdict."""
+    return _extract_is_vulnerable_json(response) is not None
+
+
+def extract_stated_confidence(response: str) -> float | None:
+    """Extract the last stated 0-9 confidence digit scaled to [0, 1], if present."""
+    matches: list[str] = _STATED_CONFIDENCE_PATTERN.findall(response)
+    if not matches:
+        return None
+    stated: int = int(matches[-1])
+    if stated > _STATED_CONFIDENCE_MAX:
+        return None
+    return stated / _STATED_CONFIDENCE_MAX
 
 
 def _extract_prefixed_payload(text: str) -> str | None:

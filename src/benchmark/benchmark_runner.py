@@ -6,13 +6,18 @@ from benchmark.config import ExperimentConfig
 from benchmark.metrics_calculator import MetricsCalculatorFactory
 from benchmark.models import PredictionResult, SampleCollection
 from benchmark.prompt_generator import IPromptGenerator, get_prompt_generator
-from benchmark.response_parser import IResponseParser, ResponseParserFactory
+from benchmark.response_parser import (
+    IResponseParser,
+    ResponseParserFactory,
+    extract_stated_confidence,
+    has_explicit_binary_verdict,
+)
 from benchmark.results import BenchmarkRunResult
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
 from logging_tools import get_logger
-from benchmark.enums import BINARY_TASK_TYPES, BinaryDecisionMode
+from benchmark.enums import BINARY_TASK_TYPES, BinaryDecisionMode, ConfidenceMethod
 
 _LOGGER = get_logger(__name__)
 
@@ -49,6 +54,26 @@ def _answer_probability(label: int | str, p_vulnerable: float | None) -> float |
     if label == 0:
         return 1.0 - p_vulnerable
     return None
+
+
+def _aggregate_draw_confidences(
+    draw_labels: list[int | str],
+    predicted_label: int | str,
+    draw_confidences: list[float | None],
+) -> float | None:
+    """Average per-draw confidences into confidence in the final predicted label.
+
+    Each draw rates its own verdict, so a draw that answered the other binary
+    label counts with the complement.
+    """
+    towards_predicted: list[float] = [
+        confidence if label == predicted_label else 1.0 - confidence
+        for label, confidence in zip(draw_labels, draw_confidences)
+        if confidence is not None
+    ]
+    if not towards_predicted:
+        return None
+    return sum(towards_predicted) / len(towards_predicted)
 
 
 class BenchmarkRunner(BaseModel):
@@ -171,6 +196,36 @@ class BenchmarkRunner(BaseModel):
 
         return samples
 
+    def _score_self_validation(
+        self,
+        llm: ILLMInference,
+        system_prompts: list[str],
+        user_prompts: list[str],
+        results: list[InferenceResult],
+    ) -> list[float | None]:
+        """Run the optional self-validation pass; returns one score per result."""
+        scores: list[float | None] = [None] * len(results)
+        if ConfidenceMethod.SELF_VALIDATION not in self.config.confidence_methods:
+            return scores
+
+        # A response without an explicit verdict gives the model nothing to validate.
+        scorable: list[int] = [
+            index
+            for index, result in enumerate(results)
+            if has_explicit_binary_verdict(result.response_text)
+        ]
+        _LOGGER.info(
+            f"Self-validation pass over {len(scorable)} of {len(results)} responses"
+        )
+        validated: list[float | None] = llm.score_self_validation(
+            [system_prompts[index] for index in scorable],
+            [user_prompts[index] for index in scorable],
+            [results[index].response_text for index in scorable],
+        )
+        for index, score in zip(scorable, validated):
+            scores[index] = score
+        return scores
+
     def _process_samples_with_batch_optimization(
         self,
         samples: SampleCollection,
@@ -204,6 +259,10 @@ class BenchmarkRunner(BaseModel):
             expanded_system_prompts, expanded_user_prompts
         )
 
+        self_validation_scores: list[float | None] = self._score_self_validation(
+            llm, expanded_system_prompts, expanded_user_prompts, batch_results
+        )
+
         predictions: list[PredictionResult] = []
         errors_count = 0
 
@@ -211,6 +270,19 @@ class BenchmarkRunner(BaseModel):
             # Slice the N InferenceResults that belong to this sample
             group: list[InferenceResult] = batch_results[i * n : (i + 1) * n]
             all_texts: list[str] = [r.response_text for r in group]
+            self_validation_probabilities: list[float | None] = self_validation_scores[
+                i * n : (i + 1) * n
+            ]
+            stated_confidences: list[float | None] = (
+                [
+                    r.stated_confidence
+                    if r.stated_confidence is not None
+                    else extract_stated_confidence(r.response_text)
+                    for r in group
+                ]
+                if ConfidenceMethod.STATED_CONFIDENCE in self.config.confidence_methods
+                else [None] * len(group)
+            )
             total_tokens: int = sum(r.tokens_used for r in group)
             avg_time: float = sum(r.duration for r in group) / max(n, 1)
             raw_confidences = [r.confidence for r in group if r.confidence is not None]
@@ -271,6 +343,12 @@ class BenchmarkRunner(BaseModel):
                     answer_probability=_answer_probability(
                         predicted_label, binary_label_confidence
                     ),
+                    stated_confidence=_aggregate_draw_confidences(
+                        parsed_labels, predicted_label, stated_confidences
+                    ),
+                    self_validation_probability=_aggregate_draw_confidences(
+                        parsed_labels, predicted_label, self_validation_probabilities
+                    ),
                     response_text=all_texts[0],
                     processing_time=avg_time,
                     tokens_used=total_tokens,
@@ -278,6 +356,8 @@ class BenchmarkRunner(BaseModel):
                     error_message=None,
                     all_responses=all_texts,
                     answer_probabilities=answer_probabilities,
+                    stated_confidences=stated_confidences,
+                    self_validation_probabilities=self_validation_probabilities,
                     vote_counts=vote_counts,
                 )
             except Exception as e:

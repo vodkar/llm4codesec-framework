@@ -38,6 +38,10 @@ class PredictionResult(BaseModel):
     """Binary P(VULNERABLE) from the parsed final-answer label position when available."""
     answer_probability: float | None = None
     """Probability of predicted_label derived from binary_label_confidence; None when unavailable."""
+    stated_confidence: float | None = None
+    """Model-stated confidence in predicted_label, scaled to [0, 1]; None unless enabled."""
+    self_validation_probability: float | None = None
+    """P(verdict is correct) for predicted_label from the self-validation pass; None unless enabled."""
     response_text: str
     processing_time: float
     tokens_used: int | None = None
@@ -47,6 +51,10 @@ class PredictionResult(BaseModel):
     """All N raw response texts from self-consistency draws."""
     answer_probabilities: list[float | None] = Field(default_factory=list)
     """Probability of each draw's own answered label, aligned with all_responses."""
+    stated_confidences: list[float | None] = Field(default_factory=list)
+    """Stated confidence of each draw in its own verdict, aligned with all_responses."""
+    self_validation_probabilities: list[float | None] = Field(default_factory=list)
+    """Self-validation P(correct) of each draw's own verdict, aligned with all_responses."""
     vote_counts: dict[str, int] = Field(default_factory=dict)
     """Maps label string to vote count; a single entry with count 1 when self_consistency_samples=1."""
 

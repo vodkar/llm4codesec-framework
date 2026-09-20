@@ -28,7 +28,16 @@ _COVERAGE_KEYS = [
 ]
 
 
-def _pred(index, true_label, score=None, vote_counts=None, answer_probability=None, predicted_label=None):
+def _pred(
+    index,
+    true_label,
+    score=None,
+    vote_counts=None,
+    answer_probability=None,
+    predicted_label=None,
+    stated_confidence=None,
+    self_validation_probability=None,
+):
     if predicted_label is None:
         predicted_label = true_label if score is None else int(score > 0.5)
     return PredictionResult(
@@ -38,6 +47,8 @@ def _pred(index, true_label, score=None, vote_counts=None, answer_probability=No
         confidence=None,
         binary_label_confidence=score,
         answer_probability=answer_probability,
+        stated_confidence=stated_confidence,
+        self_validation_probability=self_validation_probability,
         response_text="",
         processing_time=0.0,
         is_success=True,
@@ -55,15 +66,15 @@ def _scored(labels_by_descending_score):
     ]
 
 
-def _by_confidence(correct_by_descending_probability):
-    """Predictions whose answer probability decreases along the given correctness list."""
+def _by_confidence(correct_by_descending_probability, source="answer_probability"):
+    """Predictions whose confidence score decreases along the given correctness list."""
     n = len(correct_by_descending_probability)
     return [
         _pred(
             i,
             true_label=1,
             predicted_label=1 if is_correct else 0,
-            answer_probability=0.5 + 0.5 * (n - i) / n,
+            **{source: 0.5 + 0.5 * (n - i) / n},
         )
         for i, is_correct in enumerate(correct_by_descending_probability)
     ]
@@ -325,6 +336,49 @@ def test_ids_without_pair_suffix_yield_none_paired_metrics():
     print("test_ids_without_pair_suffix_yield_none_paired_metrics PASSED")
 
 
+def test_optional_confidence_methods_get_their_own_coverage_metrics():
+    # Same ranking as the answer-probability test: top 2 -> 2/2, top 4 -> 3/4, top 6 -> 4/6.
+    correct = [True, True, False, True, False, True, False, False]
+    for source in ("stated_confidence", "self_validation_probability"):
+        result = BinaryMetricsCalculator().calculate(_by_confidence(correct, source=source))
+        prefix = source.removesuffix("_probability")
+        assert _close(result.summary[f"{prefix}_accuracy_at_coverage_25"], 1.0), result.summary
+        assert _close(result.summary[f"{prefix}_accuracy_at_coverage_50"], 0.75), result.summary
+        assert _close(result.summary[f"{prefix}_accuracy_at_coverage_75"], 4 / 6), result.summary
+        assert result.details["confidence_methods"][prefix]["scored_samples"] == 8, result.details
+        # Answer probability was not provided, so its own metrics stay empty.
+        assert result.summary["accuracy_at_coverage_25"] is None, result.summary
+    print("test_optional_confidence_methods_get_their_own_coverage_metrics PASSED")
+
+
+def test_correctness_auroc_matches_hand_computed_value():
+    # Correct at ranks 1,2,4,6; wrong at 3,5,7,8. Correct-above-wrong pairs:
+    # 4 + 4 + 3 + 2 = 13 of 16.
+    correct = [True, True, False, True, False, True, False, False]
+    result = BinaryMetricsCalculator().calculate(_by_confidence(correct, source="stated_confidence"))
+    assert _close(result.summary["stated_confidence_correctness_auroc"], 13 / 16), result.summary
+    result = BinaryMetricsCalculator().calculate(_by_confidence(correct))
+    assert _close(result.summary["answer_probability_correctness_auroc"], 13 / 16), result.summary
+    print("test_correctness_auroc_matches_hand_computed_value PASSED")
+
+
+def test_correctness_auroc_is_none_when_all_answers_are_correct():
+    result = BinaryMetricsCalculator().calculate(
+        _by_confidence([True, True, True], source="self_validation_probability")
+    )
+    assert result.summary["self_validation_correctness_auroc"] is None, result.summary
+    assert _close(result.summary["self_validation_accuracy_at_coverage_50"], 1.0), result.summary
+    print("test_correctness_auroc_is_none_when_all_answers_are_correct PASSED")
+
+
+def test_disabled_confidence_methods_add_no_summary_keys():
+    result = BinaryMetricsCalculator().calculate(_by_confidence([True, False]))
+    unexpected = [k for k in result.summary if k.startswith(("stated_confidence", "self_validation"))]
+    assert unexpected == [], unexpected
+    assert result.details["confidence_methods"] == {}, result.details
+    print("test_disabled_confidence_methods_add_no_summary_keys PASSED")
+
+
 if __name__ == "__main__":
     test_paired_ranking_matches_hand_computed_values()
     test_paired_ranking_ignores_between_function_variance()
@@ -345,4 +399,8 @@ if __name__ == "__main__":
     test_coverage_selection_rounds_up()
     test_coverage_excludes_samples_without_answer_probability()
     test_no_answer_probabilities_yields_none_coverage_metrics()
+    test_optional_confidence_methods_get_their_own_coverage_metrics()
+    test_correctness_auroc_matches_hand_computed_value()
+    test_correctness_auroc_is_none_when_all_answers_are_correct()
+    test_disabled_confidence_methods_add_no_summary_keys()
     print("ALL PASSED")

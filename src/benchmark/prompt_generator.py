@@ -5,7 +5,7 @@ from typing import Final
 from pydantic import BaseModel
 
 from benchmark.config import ExperimentConfig
-from benchmark.enums import TaskType
+from benchmark.enums import ConfidenceMethod, TaskType
 
 _BINARY_RESPONSE_CONTRACT: Final[str] = (
     "\nResponse format:\n"
@@ -17,6 +17,21 @@ _BINARY_RESPONSE_CONTRACT: Final[str] = (
     '  {"is_vulnerable": false}\n'
     "- Use true only if the code contains a real, exploitable vulnerability; otherwise"
     " use false.\n"
+    "- Do not wrap the JSON in markdown or add any text after it."
+)
+
+_BINARY_STATED_CONFIDENCE_RESPONSE_CONTRACT: Final[str] = (
+    "\nResponse format:\n"
+    "- You may reason step by step first.\n"
+    "- After your analysis, output your verdict as a single JSON object on the last"
+    " line and nothing after it.\n"
+    "- The last line must have EXACTLY one of these forms:\n"
+    '  {"is_vulnerable": true, "confidence": <0-9>}\n'
+    '  {"is_vulnerable": false, "confidence": <0-9>}\n'
+    "- Use true only if the code contains a real, exploitable vulnerability; otherwise"
+    " use false.\n"
+    "- confidence is a single digit for how likely your verdict is correct: 0 means a"
+    " pure guess, 9 means you are certain.\n"
     "- Do not wrap the JSON in markdown or add any text after it."
 )
 
@@ -77,7 +92,9 @@ _REDUNDANT_RESPONSE_LINE_PATTERNS: Final[tuple[re.Pattern[str], ...]] = (
 
 
 def _get_response_contract(
-    task_type: TaskType | None, prompt_identifier: str | None
+    task_type: TaskType | None,
+    prompt_identifier: str | None,
+    confidence_methods: list[ConfidenceMethod],
 ) -> str:
     """Return a task-specific response contract appended to the user prompt."""
     if task_type in {
@@ -85,6 +102,8 @@ def _get_response_contract(
         TaskType.BINARY_CWE_SPECIFIC,
         TaskType.BINARY_VULNERABILITY_SPECIFIC,
     }:
+        if ConfidenceMethod.STATED_CONFIDENCE in confidence_methods:
+            return _BINARY_STATED_CONFIDENCE_RESPONSE_CONTRACT
         return _BINARY_RESPONSE_CONTRACT
 
     if task_type == TaskType.MULTICLASS_VULNERABILITY:
@@ -154,6 +173,7 @@ class IPromptGenerator(ABC, BaseModel):
 class DefaultPromptGenerator(IPromptGenerator):
     task_type: TaskType | None = None
     prompt_identifier: str | None = None
+    confidence_methods: list[ConfidenceMethod] = []
 
     def get_system_prompt(self) -> str:
         """Generate the system prompt.
@@ -182,7 +202,7 @@ class DefaultPromptGenerator(IPromptGenerator):
             **self.template_values, **template_values
         )
         response_contract: str = _get_response_contract(
-            self.task_type, self.prompt_identifier
+            self.task_type, self.prompt_identifier, self.confidence_methods
         )
         return prompt + response_contract
 
@@ -196,4 +216,5 @@ def get_prompt_generator(
         template_values=template_values,
         task_type=config.task_type,
         prompt_identifier=config.prompt_identifier,
+        confidence_methods=config.confidence_methods,
     )

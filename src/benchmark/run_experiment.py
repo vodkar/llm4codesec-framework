@@ -267,6 +267,7 @@ def _isolated_experiment_worker(
     prompt_key: str,
     experiment_name: str,
     sample_limit: int | None,
+    confidence_methods: list[str],
     result_path: str,
 ) -> None:
     """Child-process entry point for one plan experiment (spawn context).
@@ -289,6 +290,7 @@ def _isolated_experiment_worker(
         prompt_key=prompt_key,
         experiment_name=experiment_name,
         sample_limit=sample_limit,
+        confidence_methods=confidence_methods,
     )
     report = run_single_experiment(experiment_config)
     Path(result_path).write_text(
@@ -321,6 +323,9 @@ def _run_experiment_isolated(
                 "prompt_key": experiment_config.prompt_identifier,
                 "experiment_name": experiment_config.experiment_name,
                 "sample_limit": experiment_config.sample_limit,
+                "confidence_methods": [
+                    str(method) for method in experiment_config.confidence_methods
+                ],
                 "result_path": str(result_path),
             },
         )

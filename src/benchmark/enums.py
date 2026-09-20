@@ -64,6 +64,15 @@ class BackendFrameworks(StrEnum):
     ANTHROPIC = "anthropic"
 
 
+class ConfidenceMethod(StrEnum):
+    """Optional per-response confidence estimators, enabled per experiment plan."""
+
+    STATED_CONFIDENCE = "stated_confidence"
+    """The model states a 0-9 confidence next to its verdict."""
+    SELF_VALIDATION = "self_validation"
+    """A follow-up pass asks the model whether its verdict is correct and reads P(true)."""
+
+
 class BinaryDecisionMode(StrEnum):
     FINAL_ANSWER_LOGPROBS = "final_answer_logprobs"
     TEXT = "text"

@@ -1,0 +1,308 @@
+{
+  "plan_name": "cleanvul_vs_cpg_structural",
+  "description": "Paired comparison of raw CleanVul functions (no context) vs the CPG-structural assembled context on the same 600 samples, with self-consistency N=7 and answer-probability logprobs (ROC AUC, PR AUC, precision@recall, accuracy@coverage 25/50/75)",
+  "start_time": "2026-09-19T20:13:16.962960",
+  "end_time": "2026-09-19T23:15:51.835026",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "cleanvul_vs_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cleanvul_function_only.json",
+        "description": "CleanVul baseline for the compare-rankings samples: the raw function only, without assembled context (same sample ids as the ranking variants)",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-19T21:42:24.629795",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 600,
+          "total_time_seconds": 5161.017564535141,
+          "avg_time_per_sample": 8.601695940891902,
+          "tokens_used_total": 6885089,
+          "tokens_used_avg": 11475.148333333333,
+          "processing_time_stats": {
+            "count": 600,
+            "min": 1.0660799043253064,
+            "max": 1.367098136804998,
+            "mean": 1.226219273067656,
+            "variance": 0.00627055916800951,
+            "std": 0.07918686234476972
+          },
+          "tokens_used_stats": {
+            "count": 600,
+            "min": 4466.0,
+            "max": 28968.0,
+            "mean": 11475.148333333333,
+            "variance": 24356086.664104063,
+            "std": 4935.188614845846
+          },
+          "confidence_stats": {
+            "mean": 0.8174061062746787,
+            "min": 0.7683658073699443,
+            "max": 0.8997241783053725,
+            "count": 600.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.399597647976804,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 600.0
+          }
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.5933333333333334,
+        "summary": {
+          "accuracy": 0.5933333333333334,
+          "precision": 0.6196581196581197,
+          "recall": 0.48333333333333334,
+          "f1_score": 0.5430711610486891,
+          "specificity": 0.7033333333333334,
+          "roc_auc": 0.6175222222222222,
+          "pr_auc": 0.6521511771939932,
+          "precision_at_recall_50": 0.622568093385214,
+          "precision_at_recall_80": 0.5227765726681128,
+          "precision_at_recall_90": 0.5,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6266666666666667,
+          "accuracy_at_coverage_50": 0.64,
+          "accuracy_at_coverage_75": 0.6222222222222222
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 145,
+            "true_negatives": 211,
+            "false_positives": 89,
+            "false_negatives": 155
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 600,
+            "total_samples": 600
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 600,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 600,
+            "total_samples": 600,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 150,
+                "min_answer_probability": 1.0,
+                "accuracy": 0.6266666666666667
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 300,
+                "min_answer_probability": 0.9999998667618316,
+                "accuracy": 0.64
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 450,
+                "min_answer_probability": 0.8571419673347824,
+                "accuracy": 0.6222222222222222
+              }
+            ]
+          },
+          "confidence_stats": {
+            "mean": 0.8174061062746787,
+            "min": 0.7683658073699443,
+            "max": 0.8997241783053725,
+            "count": 600
+          }
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "cleanvul_vs_cpg_structural",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cpg_structural.json",
+        "description": "ContextAssembler compare-rankings dataset using the CPG structural ranking strategy (hyperparameter-tuned weights)",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-19T23:15:50.190891",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null
+        },
+        "stats": {
+          "total_samples": 600,
+          "total_time_seconds": 5476.984148979187,
+          "avg_time_per_sample": 9.12830691496531,
+          "tokens_used_total": 9849258,
+          "tokens_used_avg": 16415.43,
+          "processing_time_stats": {
+            "count": 600,
+            "min": 1.1297294726738563,
+            "max": 1.6707586348056793,
+            "mean": 1.301427477541424,
+            "variance": 0.01609103139320417,
+            "std": 0.12685042921962925
+          },
+          "tokens_used_stats": {
+            "count": 600,
+            "min": 4526.0,
+            "max": 86499.0,
+            "mean": 16415.43,
+            "variance": 106257781.65786313,
+            "std": 10308.141522983817
+          },
+          "confidence_stats": {
+            "mean": 0.8144132085963716,
+            "min": 0.7577385012907004,
+            "max": 0.8970617138063997,
+            "count": 600.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.4828244688014836,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 600.0
+          }
+        },
+        "extra_metadata": {}
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6,
+        "summary": {
+          "accuracy": 0.6,
+          "precision": 0.6086956521739131,
+          "recall": 0.56,
+          "f1_score": 0.5833333333333334,
+          "specificity": 0.64,
+          "roc_auc": 0.6359777777777778,
+          "pr_auc": 0.6638528172687804,
+          "precision_at_recall_50": 0.6172839506172839,
+          "precision_at_recall_80": 0.5310492505353319,
+          "precision_at_recall_90": 0.5246212121212122,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6733333333333333,
+          "accuracy_at_coverage_50": 0.63,
+          "accuracy_at_coverage_75": 0.6266666666666667
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 168,
+            "true_negatives": 192,
+            "false_positives": 108,
+            "false_negatives": 132
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 600,
+            "total_samples": 600
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 600,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 600,
+            "total_samples": 600,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 150,
+                "min_answer_probability": 0.9999999423622193,
+                "accuracy": 0.6733333333333333
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 300,
+                "min_answer_probability": 0.8571434902019438,
+                "accuracy": 0.63
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 450,
+                "min_answer_probability": 0.7142857656479562,
+                "accuracy": 0.6266666666666667
+              }
+            ]
+          },
+          "confidence_stats": {
+            "mean": 0.8144132085963716,
+            "min": 0.7577385012907004,
+            "max": 0.8970617138063997,
+            "count": 600
+          }
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 2,
+    "successful_experiments": 2,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/context_assembler_compare_rankings_experiments/cleanvul_vs_cpg_structural"
+}

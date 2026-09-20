@@ -269,6 +269,33 @@
             ],
             "sample_limit": 700
         },
+        "cleanvul_vs_cpg_structural_smoke": {
+            "description": "Smoke test for cleanvul_vs_cpg_structural: 40 samples x 7 draws = 280 prompts, enough to confirm the streamed logprobs path and non-null answer probabilities",
+            "datasets": [
+                "context_assembler_compare_cleanvul_function_only",
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 40
+        },
+        "cleanvul_vs_cpg_structural": {
+            "description": "Paired comparison of raw CleanVul functions (no context) vs the CPG-structural assembled context on the same 600 samples, with self-consistency N=7 and answer-probability logprobs (ROC AUC, PR AUC, precision@recall, accuracy@coverage 25/50/75)",
+            "datasets": [
+                "context_assembler_compare_cleanvul_function_only",
+                "context_assembler_compare_cpg_structural"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ]
+        },
         "context_sizes_qwen3_8b": {
             "description": "Context-size sweep (1k/2k/4k/8k/16k) across all ranking strategies on qwen3-8b-thinking (no self-consistency)",
             "datasets": [

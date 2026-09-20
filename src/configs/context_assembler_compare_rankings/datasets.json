@@ -75,6 +75,11 @@
             "task_type": "binary_vulnerability",
             "description": "ContextAssembler compare-rankings dataset using the security-score-only strategy"
         },
+        "context_assembler_compare_cleanvul_function_only": {
+            "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_cleanvul_function_only.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul baseline for the compare-rankings samples: the raw function only, without assembled context (same sample ids as the ranking variants)"
+        },
         "context_assembler_compare_smoke_test": {
             "dataset_path": "datasets_processed/context_assembler_compare_rankings/context_assembler_compare_smoke_test.json",
             "task_type": "binary_vulnerability",

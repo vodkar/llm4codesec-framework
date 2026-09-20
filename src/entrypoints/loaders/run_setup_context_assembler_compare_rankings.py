@@ -14,7 +14,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 SRC_DIR: Final[Path] = Path(__file__).resolve().parents[2]
 if str(SRC_DIR) not in sys.path:
@@ -94,9 +94,22 @@ OPTIONAL_DATASET_VARIANTS: Final[dict[str, tuple[str, str]]] = {
     ),
 }
 
-EXCLUDED_SOURCE_FILES: Final[set[str]] = {"cleanvul_entries.json"}
+ENTRIES_SOURCE_NAME: Final[str] = "cleanvul_entries.json"
+EXCLUDED_SOURCE_FILES: Final[set[str]] = {ENTRIES_SOURCE_NAME}
 SMOKE_TEST_OUTPUT_NAME: Final[str] = "context_assembler_compare_smoke_test.json"
 SMOKE_TEST_DATASET_NAME: Final[str] = "ContextAssembler Compare Rankings - Smoke Test"
+# Function-only baseline: the raw CleanVul function of every compare-rankings
+# sample, without any assembled context. It is validated against this ranking
+# variant so both datasets pair sample-for-sample.
+FUNCTION_ONLY_REFERENCE_SOURCE_NAME: Final[str] = (
+    "cleanvul_context_benchmark_cpg_structural.json"
+)
+FUNCTION_ONLY_OUTPUT_NAME: Final[str] = (
+    "context_assembler_compare_cleanvul_function_only.json"
+)
+FUNCTION_ONLY_DATASET_NAME: Final[str] = (
+    "ContextAssembler Compare Rankings - CleanVul Function Only (No Context)"
+)
 
 
 def _write_processed_dataset(
@@ -210,6 +223,20 @@ def build_compare_rankings_datasets(
         )
         written_files.append(output_path)
 
+    if ENTRIES_SOURCE_NAME in discovered_files:
+        function_only_output_path: Path = output_dir / FUNCTION_ONLY_OUTPUT_NAME
+        write_function_only_dataset(
+            entries_path=source_dir / ENTRIES_SOURCE_NAME,
+            reference_path=source_dir / FUNCTION_ONLY_REFERENCE_SOURCE_NAME,
+            output_path=function_only_output_path,
+            sample_limit=sample_limit,
+        )
+        written_files.append(function_only_output_path)
+    else:
+        LOGGER.info(
+            "Skipping function-only baseline (not present): %s", ENTRIES_SOURCE_NAME
+        )
+
     current_source_path: Path = source_dir / "cleanvul_context_benchmark.json"
     smoke_output_path: Path = output_dir / SMOKE_TEST_OUTPUT_NAME
     _write_smoke_test_dataset(
@@ -220,6 +247,93 @@ def build_compare_rankings_datasets(
     written_files.append(smoke_output_path)
 
     return written_files
+
+
+def write_function_only_dataset(
+    entries_path: Path,
+    reference_path: Path,
+    output_path: Path,
+    sample_limit: int | None,
+) -> None:
+    """Write the raw CleanVul functions as a baseline paired with a ranking variant.
+
+    Args:
+        entries_path: ``cleanvul_entries.json`` holding the raw function per sample id.
+        reference_path: Raw ranking-variant JSON the baseline must pair with.
+        output_path: Processed output file path.
+        sample_limit: Optional cap on written samples, applied in reference order.
+
+    Raises:
+        ValueError: If an entry is missing or disagrees with the reference sample
+            on label or commit. Sample ids are re-randomized per dataset
+            generation, so a stale entries file reuses ids for other commits.
+    """
+    with entries_path.open("r", encoding="utf-8") as entries_file:
+        entries: list[dict[str, Any]] = json.load(entries_file)
+    with reference_path.open("r", encoding="utf-8") as reference_file:
+        reference_samples: list[dict[str, Any]] = json.load(reference_file).get(
+            "samples", []
+        )
+
+    entries_by_id: dict[str, dict[str, Any]] = {
+        entry["sample_id"]: entry for entry in entries
+    }
+    if sample_limit is not None:
+        reference_samples = reference_samples[:sample_limit]
+
+    samples: list[BenchmarkSample] = []
+    for reference in reference_samples:
+        sample_id: str = reference["id"]
+        entry: dict[str, Any] | None = entries_by_id.get(sample_id)
+        if entry is None:
+            raise ValueError(f"No CleanVul entry for compare-rankings sample {sample_id}")
+
+        label: int = 1 if entry["is_vulnerable"] else 0
+        reference_meta: dict[str, Any] = reference.get("metadata", {})
+        reference_commit_url: str | None = reference_meta.get(
+            "commit_url"
+        ) or reference_meta.get("CleanVul-CommitUrl")
+        if label != int(reference["label"]) or (
+            reference_commit_url and reference_commit_url != entry["commit_url"]
+        ):
+            raise ValueError(
+                f"CleanVul entry for sample {sample_id} does not match {reference_path.name} "
+                f"(label {label} vs {reference['label']}, commit {entry['commit_url']} "
+                f"vs {reference_commit_url}); the entries file is stale"
+            )
+
+        samples.append(
+            BenchmarkSample(
+                id=sample_id,
+                code=entry["func_code"],
+                label=label,
+                metadata={
+                    "cve_id": entry.get("cve_id", ""),
+                    "description": entry.get("commit_msg", ""),
+                    "cwe_number": 0,
+                    "source": "CleanVul-FunctionOnly",
+                    "commit_url": entry["commit_url"],
+                },
+                cwe_types=[],
+            )
+        )
+
+    dataset: Dataset = Dataset(
+        metadata=DatasetMetadata(
+            name=FUNCTION_ONLY_DATASET_NAME,
+            version="1.0",
+            task_type=TaskType.BINARY_VULNERABILITY,
+            programming_language="Python",
+            change_level="function",
+        ),
+        samples=SampleCollection.model_validate(samples),
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as output_file:
+        json.dump(dataset.model_dump(), output_file, indent=2, ensure_ascii=False)
+
+    LOGGER.info("Wrote %d function-only samples to %s", len(samples), output_path)
 
 
 def _write_smoke_test_dataset(

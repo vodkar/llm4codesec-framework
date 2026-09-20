@@ -13,9 +13,11 @@ from typing import TYPE_CHECKING, Final
 from benchmark.enums import BINARY_TASK_TYPES
 import torch
 from huggingface_hub import hf_hub_download, list_repo_files
+from tqdm import tqdm
 from transformers import PreTrainedTokenizerBase
 
 from benchmark.config import ExperimentConfig
+from llm.engine_streaming import generate_streaming
 from llm.final_answer_logprobs import compute_p_vulnerable, locate_final_answer_label
 from llm.llm import ILLMInference, InferenceResult
 
@@ -393,6 +395,9 @@ class VllmLLM(ILLMInference):
         ]
 
         LOGGER.info("Submitting %d prompts to vLLM scheduler", len(prompts))
+        if self.config.enable_logprobs:
+            return self._generate_reducing_outputs(prompts, sampling_params_list)
+
         start_time: float = time.time()
         all_outputs: list[RequestOutput] = self.llm.generate(prompts, sampling_params_list)
         duration: float = time.time() - start_time
@@ -402,6 +407,81 @@ class VllmLLM(ILLMInference):
             duration=duration,
             batch_size=len(prompts),
         )
+
+    def _generate_reducing_outputs(
+        self, prompts: list[str], sampling_params_list: list[SamplingParams]
+    ) -> list[InferenceResult]:
+        """
+        Generate with logprobs, reducing each output to an InferenceResult as it finishes.
+
+        ``LLM.generate`` retains every RequestOutput until it returns; with top-k
+        logprobs that is several KB of host RAM per generated token, which a whole
+        dataset of self-consistency draws exceeds. Prompts are still submitted in
+        one batch, so scheduling and prefix caching match ``LLM.generate``.
+
+        Args:
+            prompts: List of formatted prompts.
+            sampling_params_list: One SamplingParams per prompt.
+
+        Returns:
+            List of InferenceResult objects in prompt order.
+        """
+        if not self.llm:
+            raise RuntimeError("vLLM model not loaded")
+
+        from vllm.sampling_params import RequestOutputKind
+
+        for sampling_params in sampling_params_list:
+            # We only care about the final output (same as LLM.generate).
+            sampling_params.output_kind = RequestOutputKind.FINAL_ONLY
+
+        total_in_toks: int = 0
+        total_out_toks: int = 0
+        total_cached_toks: int = 0
+        pbar = tqdm(
+            total=len(prompts),
+            desc="Processed prompts",
+            dynamic_ncols=True,
+            postfix="est. speed input: 0.00 toks/s, output: 0.00 toks/s",
+        )
+
+        def update_progress(output: RequestOutput) -> None:
+            nonlocal total_in_toks, total_out_toks, total_cached_toks
+            total_in_toks += len(output.prompt_token_ids or [])
+            total_out_toks += sum(len(stp.token_ids) for stp in output.outputs)
+            total_cached_toks += output.num_cached_tokens or 0
+            elapsed: float = max(pbar.format_dict["elapsed"], 1e-9)
+            pbar.postfix = (
+                f"est. speed input: {total_in_toks / elapsed:.2f} toks/s, "
+                f"output: {total_out_toks / elapsed:.2f} toks/s"
+            )
+            pbar.update(1)
+
+        start_time: float = time.time()
+        try:
+            results: list[InferenceResult] = generate_streaming(
+                engine=self.llm.llm_engine,
+                prompts=prompts,
+                params=sampling_params_list,
+                reduce_output=lambda output: self._collect_batch_results(
+                    batch_outputs=[output], duration=0.0, batch_size=1
+                )[0],
+                on_finished=update_progress,
+            )
+        finally:
+            pbar.close()
+        duration: float = time.time() - start_time
+
+        per_item_duration: float = duration / max(len(prompts), 1)
+        for result in results:
+            result.duration = per_item_duration
+
+        LOGGER.info(
+            "Prefix cache served %.1f%% of %d prompt tokens",
+            100.0 * total_cached_toks / max(total_in_toks, 1),
+            total_in_toks,
+        )
+        return results
 
     def _create_sampling_params(
         self, sampling_params_cls: type[SamplingParams]

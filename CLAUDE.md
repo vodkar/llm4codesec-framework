@@ -145,6 +145,33 @@ scripts/run_reference_context_eval.sh --smoke   # same, using the default config
   manifest's `created_utc`. Reports written before these fields existed must
   be re-run.
 
+## Root static-findings condition
+
+Five conditions: function-only (`cleanvul_python_matched_root_findings`),
+cpg_structural and multiplicative_amplification context, each with root
+(`is_root`) Bandit/Dlint/Semgrep findings off/on in the prompt. Datasets with
+`"render_root_findings": true` fill the `{root_static_findings}` placeholder of
+prompt `strict_exploitable_security_root_findings`; otherwise it renders `""`.
+Every prediction record stores `source_row_ids` (join key with `true_label`),
+`root_static_findings` and `root_findings_in_prompt`, whether or not the
+findings were shown. Analysis happens in external notebooks.
+
+One-time setup (attach findings to the function-only dataset):
+```bash
+PYTHONPATH=src uv run python src/entrypoints/attach_root_findings.py \
+    --target benchmarks/context-assembler-dataset/cleanvul_python_matched.json \
+    --findings-source benchmarks/context-assembler-dataset/context_assembler_cpg_structural.json \
+    --output datasets_processed/context_assembler/cleanvul_python_matched_root_findings.json
+```
+
+Run (`static_findings_root_smoke` for 40 samples per condition):
+```bash
+docker-compose run --rm llm4codesec-benchmark python cli.py run-plan context_assembler static_findings_root_sweep \
+    --config-dir configs/shared \
+    --experiments-config configs/static_findings_root/experiments.json \
+    --datasets-config configs/static_findings_root/datasets.json
+```
+
 ## File layout notes
 
 - `src/` is copied to `/app/` inside Docker — paths inside the container have no `src/` prefix.

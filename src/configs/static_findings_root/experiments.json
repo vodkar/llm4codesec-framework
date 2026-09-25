@@ -1,0 +1,43 @@
+{
+    "experiment_metadata": {
+        "name": "Root Static Findings Condition",
+        "description": "Function-only vs cpg/multiplicative context, with and without is_root static-analyzer findings in the prompt",
+        "version": "1.0",
+        "dataset": "CleanVul score-4 Python with static findings",
+        "created_date": "2026-09-26"
+    },
+    "experiment_plans": {
+        "static_findings_root_sweep": {
+            "description": "Five-condition root static findings sweep",
+            "datasets": [
+                "cleanvul_python_matched_root_findings",
+                "cpg_structural_root_findings_off",
+                "cpg_structural_root_findings_on",
+                "mult_amp_root_findings_off",
+                "mult_amp_root_findings_on"
+            ],
+            "models": ["gemma4-12b-it-thinking-sc7-logprobs-seeded"],
+            "prompts": ["strict_exploitable_security_root_findings"]
+        },
+        "static_findings_root_smoke": {
+            "description": "Smoke test of the root static findings sweep",
+            "datasets": [
+                "cleanvul_python_matched_root_findings",
+                "cpg_structural_root_findings_off",
+                "cpg_structural_root_findings_on",
+                "mult_amp_root_findings_off",
+                "mult_amp_root_findings_on"
+            ],
+            "models": ["gemma4-12b-it-thinking-sc7-logprobs-seeded"],
+            "prompts": ["strict_exploitable_security_root_findings"],
+            "sample_limit": 40
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/static_findings_root",
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "datasets": {
+        "cleanvul_python_matched_root_findings": {
+            "dataset_path": "datasets_processed/context_assembler/cleanvul_python_matched_root_findings.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul function-only baseline; root static findings stored, not shown (1=vulnerable, 0=safe)"
+        },
+        "cpg_structural_root_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural context; root static findings stored, not shown"
+        },
+        "cpg_structural_root_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural context with root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "mult_amp_root_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification context; root static findings stored, not shown"
+        },
+        "mult_amp_root_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification context with root static findings in the prompt",
+            "render_root_findings": true
+        }
+    }
+}

@@ -36,11 +36,10 @@ hf = [
 ]
 vllm = [
     "torch>=2.2.0",
-    "vllm>=0.18.0",
+    "vllm>=0.30.0",
     "ninja>=1.11.1.4,<2",
-    "fbgemm-gpu>=1.4.1",
-    "flashinfer-python>=0.6.4",
-    "flashinfer-cubin>=0.6.4",
+    "fbgemm-gpu>=1.8.0",
+    "flashinfer-python>=0.6.18.post1",
     "torch-c-dlpack-ext>=0.1.5",
 ]
 llama-cpp = [
@@ -91,26 +90,21 @@ default-groups = [
 ]
 
 [[tool.uv.index]]
-# cu130 wheels (CUDA 13.0) are forward-compatible with the CUDA 13.2 Docker
-# runtime. vllm nightly and fbgemm-gpu are not published for cu132 yet, so we
-# pin the wheel indexes to cu130 (the newest complete CUDA 13.x index).
-name = "vllm-nightly"
-url = "https://wheels.vllm.ai/nightly/cu130"
-explicit = true
-
-[[tool.uv.index]]
+# Stable vllm comes from PyPI, whose default wheel is built for CUDA 13.0
+# (vllm publishes cu130 and cu129 builds only). Keep torch/fbgemm-gpu on the
+# matching cu130 index and the Docker base on CUDA 13.0.x.
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.uv.sources]
-vllm = [
-  { index = "vllm-nightly" }
-]
 torch = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]
 torchvision = [
+  { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
+]
+torchaudio = [
   { index = "pytorch", marker = "platform_system != 'Darwin' or platform_machine != 'arm64'" }
 ]
 fbgemm-gpu = [

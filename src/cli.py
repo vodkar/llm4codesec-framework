@@ -3,12 +3,34 @@
 from __future__ import annotations
 
 import logging
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 import typer
 
+from analysis.reference_context.acceptance import CheckResult, run_all
+from analysis.reference_context.inputs import (
+    AnalysisInputs,
+    Condition,
+    ItemRecord,
+    load_inputs,
+)
+from analysis.reference_context.metrics import (
+    ClusterBootstrap,
+    ConditionTable,
+    condition_table,
+    decomposition,
+    length_stats,
+    stratum_tables_with_redraws,
+)
+from analysis.reference_context.report import (
+    BootstrapRedraws,
+    write_invalid_report,
+    write_report,
+)
+from analysis.reference_context.run_config import ReferenceRunConfig
 from benchmark.config import ExperimentConfig
 from benchmark.run_experiment import (
     create_experiment_summary,
@@ -23,6 +45,8 @@ from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 BASE_RESULTS_DIR = Path("results")
+_FRAMEWORK_REPO_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+_FRAMEWORK_DIRTY_SCOPE: Final[tuple[str, ...]] = ("src", "config", "scripts")
 
 
 @dataclass(frozen=True)
@@ -100,6 +124,90 @@ def _get_benchmark(name: str) -> BenchmarkCliConfig:
             f"Unknown benchmark '{name}'. Available: {', '.join(sorted(BENCHMARKS.keys()))}"
         )
     return benchmark
+
+
+def _resolve_scanner_out(config: ReferenceRunConfig) -> Path:
+    """Resolve llm_scanner's ``output_dir`` against the pinned llm_scanner checkout.
+
+    Args:
+        config: The loaded reference-context run configuration.
+
+    Returns:
+        ``llm_scanner.output_dir`` as-is when absolute, otherwise resolved
+        against ``pins.llm_scanner_path``.
+
+    Raises:
+        ValueError: If ``llm_scanner.output_dir`` is missing or not a string.
+    """
+
+    raw_output_dir: object = config.llm_scanner.get("output_dir")
+    if not isinstance(raw_output_dir, str):
+        raise ValueError(
+            "config.llm_scanner.output_dir must be a string path, "
+            f"got {raw_output_dir!r}"
+        )
+    output_dir = Path(raw_output_dir)
+    if output_dir.is_absolute():
+        return output_dir
+    return config.pins.llm_scanner_path / output_dir
+
+
+def _items_by_condition(inputs: AnalysisInputs) -> dict[Condition, list[ItemRecord]]:
+    """Group aligned items by condition, dropping conditions with no items."""
+
+    grouped: dict[Condition, list[ItemRecord]] = {
+        condition: [item for item in inputs.items if item.condition is condition]
+        for condition in Condition
+    }
+    return {condition: items for condition, items in grouped.items() if items}
+
+
+def _framework_git_state() -> tuple[str, bool]:
+    """Read the framework repository's HEAD SHA and working-tree cleanliness.
+
+    Always targets :data:`_FRAMEWORK_REPO_ROOT` (derived from this module's
+    own path) via ``git -C``, so the result does not depend on the caller's
+    current working directory. Never mutates git state: runs only
+    ``git rev-parse HEAD`` and ``git status --porcelain --untracked-files=no
+    -- src config scripts``. The dirty scope matches the evaluation script's
+    preflight: untracked files (e.g. run results) and files outside
+    :data:`_FRAMEWORK_DIRTY_SCOPE` never make the state dirty.
+
+    Returns:
+        ``(framework_sha, framework_dirty)``.
+
+    Raises:
+        RuntimeError: If either git command fails or ``git`` is unavailable.
+    """
+
+    repo_root: str = str(_FRAMEWORK_REPO_ROOT)
+    try:
+        sha_result = subprocess.run(
+            ["git", "-C", repo_root, "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        status_result = subprocess.run(
+            [
+                "git",
+                "-C",
+                repo_root,
+                "status",
+                "--porcelain",
+                "--untracked-files=no",
+                "--",
+                *_FRAMEWORK_DIRTY_SCOPE,
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError("Failed to read framework git state") from exc
+    except FileNotFoundError as exc:
+        raise RuntimeError("git executable not found") from exc
+    return sha_result.stdout.strip(), bool(status_result.stdout.strip())
 
 
 def _resolve_benchmark_config(
@@ -386,6 +494,123 @@ def rebuild_plan_results(
     summary: str = create_experiment_summary(rebuilt_result)
     for line in summary.splitlines():
         _LOGGER.info(line)
+
+
+@app.command("analyze-reference-context")
+def analyze_reference_context(
+    config: str = typer.Option(
+        ..., "--config", help="Path to the reference-context run config YAML."
+    ),
+    output_dir: str = typer.Option(
+        ...,
+        "--output-dir",
+        help="Directory to write report.md/report.json/acceptance.json into.",
+    ),
+    plan: str | None = typer.Option(
+        None, "--plan", help="Override framework.plan from the config."
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging."
+    ),
+    log_level: str = typer.Option("INFO", "--log-level", help="Log level."),
+) -> None:
+    """Run the reference-context oracle analysis and write its report.
+
+    Loads the pinned run config, aligns llm_scanner's per-item artifacts
+    with the framework's five-condition benchmark reports, builds the
+    repository cluster bootstrap and metrics tables, runs every acceptance
+    check (design spec §11), and writes ``report.md``/``report.json``/
+    ``acceptance.json`` into ``--output-dir``. Exits with code 1 when the
+    run is invalid, after every artifact has been written; a run with no
+    surviving pair gets a **RUN INVALID** report and exits 1 as well.
+    Mixed or stale condition reports raise ``ValueError`` before analysis.
+    """
+    _configure_logging(verbose=verbose, log_level=log_level)
+
+    config_path = Path(config)
+    run_config: ReferenceRunConfig = ReferenceRunConfig.from_yaml(config_path)
+    plan_name: str = plan if plan is not None else run_config.framework.plan
+
+    results_dir: Path = run_config.framework.results_dir / plan_name
+    scanner_out: Path = _resolve_scanner_out(run_config)
+
+    _LOGGER.info(
+        "Loading reference-context analysis inputs for plan '%s' from %s",
+        plan_name,
+        results_dir,
+    )
+    inputs: AnalysisInputs = load_inputs(results_dir, scanner_out, _FRAMEWORK_REPO_ROOT)
+
+    config_sha256: str = ReferenceRunConfig.sha256(config_path)
+    framework_sha, framework_dirty = _framework_git_state()
+    manifest_extra: dict[str, object] = {
+        "config_path": str(config_path),
+        "config_sha256": config_sha256,
+        "framework_sha": framework_sha,
+        "framework_dirty": framework_dirty,
+        "plan": plan_name,
+        "bootstrap_resamples": run_config.framework.bootstrap_resamples,
+        "bootstrap_seed": run_config.framework.bootstrap_seed,
+        "probe_seed": run_config.framework.probe_seed,
+        "mismatch_tolerance": run_config.framework.mismatch_tolerance,
+    }
+
+    if not inputs.pair_ids:
+        note: str = (
+            "No pair survived into the analysis (see the coverage funnel and "
+            "inference-time exclusions); nothing can be evaluated."
+        )
+        report_path_invalid: Path = write_invalid_report(
+            Path(output_dir), inputs, note, manifest_extra
+        )
+        _LOGGER.error(
+            "Reference-context run is INVALID: %s See %s", note, report_path_invalid
+        )
+        raise typer.Exit(1)
+
+    bootstrap = ClusterBootstrap(
+        _items_by_condition(inputs),
+        run_config.framework.bootstrap_resamples,
+        run_config.framework.bootstrap_seed,
+    )
+    tables: ConditionTable = condition_table(inputs, bootstrap)
+    strata, strata_redraws = stratum_tables_with_redraws(
+        inputs,
+        run_config.framework.bootstrap_resamples,
+        run_config.framework.bootstrap_seed,
+    )
+    lengths = length_stats(inputs)
+    decomp = decomposition(bootstrap)
+    redraws = BootstrapRedraws(overall=bootstrap.redraws, strata=strata_redraws)
+    manifest_extra["bootstrap_redraws"] = redraws.to_json()
+
+    checks: list[CheckResult] = run_all(
+        inputs, bootstrap, run_config, config_sha256, framework_sha, framework_dirty
+    )
+
+    report_path: Path = write_report(
+        Path(output_dir),
+        inputs,
+        tables,
+        strata,
+        lengths,
+        decomp,
+        checks,
+        manifest_extra,
+        bootstrap_redraws=redraws,
+    )
+    _LOGGER.info("Wrote reference-context report to %s", report_path)
+
+    if not all(check.passed for check in checks):
+        failed: list[str] = [check.name for check in checks if not check.passed]
+        _LOGGER.error(
+            "Reference-context run is INVALID (failed: %s); see %s",
+            ", ".join(failed),
+            report_path,
+        )
+        raise typer.Exit(1)
+
+    _LOGGER.info("Reference-context run is valid")
 
 
 if __name__ == "__main__":

@@ -175,3 +175,6 @@ benchmarks/benchmarks/case_comparisons/
 benchmarks/PrimeVul/primevul.jsonl
 benchmark_report*.json
 metrics_summary*.json
+
+# Reference-context evaluation run outputs
+results/reference_context/

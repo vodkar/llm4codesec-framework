@@ -1,0 +1,51 @@
+{
+    "experiment_metadata": {
+        "name": "Reference Context Oracle Evaluation",
+        "description": "Evaluate reference-context oracle strategies on CleanVul binary vulnerability detection",
+        "version": "1.0",
+        "dataset": "CleanVul Reference Context v1.0",
+        "created_date": "2026-09-24"
+    },
+    "experiment_plans": {
+        "reference_context_sweep": {
+            "description": "Full reference-context oracle evaluation across all five conditions",
+            "datasets": [
+                "reference_context_none",
+                "reference_context_random",
+                "reference_context_cpg",
+                "reference_context_reference",
+                "reference_context_mismatched"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ]
+        },
+        "reference_context_smoke": {
+            "description": "Smoke test of reference-context oracle evaluation (20 complete pairs per condition)",
+            "datasets": [
+                "reference_context_none",
+                "reference_context_random",
+                "reference_context_cpg",
+                "reference_context_reference",
+                "reference_context_mismatched"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security"
+            ],
+            "sample_limit": 40
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/reference_context",
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    }
+}

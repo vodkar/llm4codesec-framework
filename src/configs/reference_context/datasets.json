@@ -1,0 +1,29 @@
+{
+    "datasets": {
+        "reference_context_none": {
+            "dataset_path": "datasets_processed/reference_context/cleanvul_cond_none.json",
+            "task_type": "binary_vulnerability",
+            "description": "Reference context evaluation dataset with no context (baseline)"
+        },
+        "reference_context_random": {
+            "dataset_path": "datasets_processed/reference_context/cleanvul_cond_random.json",
+            "task_type": "binary_vulnerability",
+            "description": "Reference context evaluation dataset with random context selection"
+        },
+        "reference_context_cpg": {
+            "dataset_path": "datasets_processed/reference_context/cleanvul_cond_cpg.json",
+            "task_type": "binary_vulnerability",
+            "description": "Reference context evaluation dataset with CPG-based context selection"
+        },
+        "reference_context_reference": {
+            "dataset_path": "datasets_processed/reference_context/cleanvul_cond_reference.json",
+            "task_type": "binary_vulnerability",
+            "description": "Reference context evaluation dataset with oracle reference context selection"
+        },
+        "reference_context_mismatched": {
+            "dataset_path": "datasets_processed/reference_context/cleanvul_cond_mismatched.json",
+            "task_type": "binary_vulnerability",
+            "description": "Reference context evaluation dataset with mismatched context selection (oracle on inverse labels)"
+        }
+    }
+}

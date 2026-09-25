@@ -1,0 +1,29 @@
+# Pinned configuration for the reference-context (oracle) evaluation.
+# Changing any value changes config_sha256 and invalidates llm_scanner caches.
+pins:
+  llm_scanner_path: /home/somen/llm_scanner
+  llm_scanner_git_sha: "<fill with `git -C /home/somen/llm_scanner rev-parse HEAD` after Plan A lands>"
+
+llm_scanner:
+  dataset_path: /var/opt/llm4codesec-framework/benchmarks/CleanVul/vulnerability_score_4.csv
+  dataset_sha256: "7fbacc7872374eea4e551545dd2b3de52e268d2413f03592473ddadcab3c2970"
+  repo_cache_dir: /home/somen/llm_scanner/data/repo_cache_reference
+  output_dir: /home/somen/llm_scanner/data/reference_context
+  min_score: 4
+  token_budget: 4096
+  max_call_depth: 12
+  cpg_structural_coefficients: /home/somen/llm_scanner/config/best_cpg_structural.yaml
+  random_seed: 20260923
+  derangement_seed: 20260924
+  random_candidate_cap: 200
+
+framework:
+  plan: reference_context_sweep
+  experiments_config: configs/reference_context/experiments.json
+  datasets_config: configs/reference_context/datasets.json
+  results_dir: results/reference_context
+  datasets_dir: datasets_processed/reference_context
+  bootstrap_resamples: 2000
+  bootstrap_seed: 20260926
+  probe_seed: 20260927
+  mismatch_tolerance: 0.02

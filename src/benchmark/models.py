@@ -1,9 +1,10 @@
 from collections.abc import Iterator
 from typing import Any
 
-from pydantic import BaseModel, Field, RootModel, field_validator
+from pydantic import BaseModel, Field, RootModel, field_validator, model_validator
 
 from benchmark.enums import TaskType
+from benchmark.static_findings import RootStaticFinding, root_findings_from_raw
 
 
 class BenchmarkSample(BaseModel):
@@ -15,6 +16,22 @@ class BenchmarkSample(BaseModel):
     metadata: dict[str, Any]
     cwe_types: list[str] | None = None
     severity: str | None = None
+    root_static_findings: list[RootStaticFinding] | None = None
+    """Findings inside the function under analysis; None when the dataset has no findings."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def extract_root_static_findings(cls, data: Any) -> Any:
+        """Derive ``root_static_findings`` from a raw llm_scanner ``static_findings`` list."""
+        if not isinstance(data, dict) or "root_static_findings" in data:
+            return data
+        raw_findings: list[dict[str, Any]] | None = data.get("static_findings")
+        if raw_findings is None:
+            return data
+        return {
+            **data,
+            "root_static_findings": root_findings_from_raw(data["code"], raw_findings),
+        }
 
     @field_validator("cwe_types", mode="before")
     @classmethod

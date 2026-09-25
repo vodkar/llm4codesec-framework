@@ -110,6 +110,62 @@ def test_render_collapses_multiline_messages() -> None:
     assert "1. [semgrep python.x] Line one. Line two.\n" in render_root_findings_block([finding])
 
 
+from benchmark.models import BenchmarkSample
+
+
+def _sample_dict(**extra) -> dict:
+    return {"id": "s1", "code": CODE, "label": 1, "metadata": {"source_row_ids": [7]}, **extra}
+
+
+def test_sample_extracts_root_findings_from_static_findings() -> None:
+    sample = BenchmarkSample.model_validate(
+        _sample_dict(static_findings=[_raw(), _raw(is_root=False)], source_map=[])
+    )
+    assert sample.root_static_findings is not None
+    assert [f.rule_id for f in sample.root_static_findings] == ["B602"]
+
+
+def test_sample_without_static_findings_has_none() -> None:
+    assert BenchmarkSample.model_validate(_sample_dict()).root_static_findings is None
+    assert (
+        BenchmarkSample.model_validate(_sample_dict(static_findings=None)).root_static_findings
+        is None
+    )
+
+
+def test_sample_with_no_root_findings_has_empty_list() -> None:
+    sample = BenchmarkSample.model_validate(_sample_dict(static_findings=[_raw(is_root=False)]))
+    assert sample.root_static_findings == []
+
+
+def test_sample_loads_precomputed_root_findings() -> None:
+    precomputed = RootStaticFinding(
+        tool="bandit", rule_id="B101", message="m", file_path="a.py",
+        repo_line=3, flagged_line="assert x",
+    ).model_dump(mode="json")
+    sample = BenchmarkSample.model_validate(_sample_dict(root_static_findings=[precomputed]))
+    assert sample.root_static_findings == [RootStaticFinding.model_validate(precomputed)]
+
+
+def test_real_context_dataset_root_findings() -> None:
+    import json
+
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "benchmarks/context-assembler-dataset/context_assembler_cpg_structural.json"
+    )
+    if not path.exists():
+        print(f"SKIP: {path} missing")
+        return
+    samples = [
+        BenchmarkSample.model_validate(raw)
+        for raw in json.loads(path.read_text())["samples"]
+    ]
+    assert len(samples) == 732
+    assert sum(len(s.root_static_findings or []) for s in samples) == 626
+    assert sum(bool(s.root_static_findings) for s in samples) == 183
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

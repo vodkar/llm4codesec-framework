@@ -23,6 +23,22 @@ class _FakeOutput:
         self.finished: bool = finished
 
 
+class _FakeRenderer:
+    """Renders prompt dicts into engine inputs, like vLLM's ``Renderer.render_cmpl``."""
+
+    def __init__(self, calls: list[str], fail: bool = False) -> None:
+        self.calls: list[str] = calls
+        self.fail: bool = fail
+        self.rendered: list[list[dict[str, str]]] = []
+
+    def render_cmpl(self, prompts: list[dict[str, str]]) -> list[dict[str, str]]:
+        if self.fail:
+            raise ValueError("prompt too long for the model")
+        self.calls.append("render")
+        self.rendered.append(list(prompts))
+        return [{"type": "rendered", "text": prompt["prompt"]} for prompt in prompts]
+
+
 class _FakeEngine:
     """Finishes requests in a scripted order, one per step, like a vLLM LLMEngine."""
 
@@ -31,19 +47,21 @@ class _FakeEngine:
         finish_order: list[int] | None = None,
         fail_on_add: int | None = None,
         emit_unfinished: bool = False,
+        fail_on_render: bool = False,
     ) -> None:
         self.finish_order: list[int] | None = finish_order
         self.fail_on_add: int | None = fail_on_add
         self.emit_unfinished: bool = emit_unfinished
         self.calls: list[str] = []
-        self.added: list[tuple[str, str, Any]] = []
+        self.renderer: _FakeRenderer = _FakeRenderer(self.calls, fail=fail_on_render)
+        self.added: list[tuple[str, Any, Any]] = []
         self.aborted: list[tuple[list[str], bool]] = []
         self.steps_done: int = 0
         self.finished_at_step: dict[str, int] = {}
         self.output_refs: list[weakref.ref[_FakeOutput]] = []
         self._queue: list[str] = []
 
-    def add_request(self, request_id: str, prompt: str, params: Any) -> str:
+    def add_request(self, request_id: str, prompt: Any, params: Any) -> str:
         if self.fail_on_add is not None and len(self.added) == self.fail_on_add:
             raise RuntimeError("prompt too long")
         self.calls.append("add")
@@ -81,13 +99,36 @@ def _reduce(output: _FakeOutput) -> str:
 def test_all_prompts_are_submitted_in_one_batch_before_stepping() -> None:
     engine = _FakeEngine()
     generate_streaming(engine, ["a", "b", "c"], ["pa", "pb", "pc"], _reduce)
-    assert engine.calls == ["add", "add", "add", "step", "step", "step"], engine.calls
-    assert [(prompt, params) for _, prompt, params in engine.added] == [
-        ("a", "pa"),
-        ("b", "pb"),
-        ("c", "pc"),
-    ]
+    assert engine.calls == ["render", "add", "add", "add", "step", "step", "step"], engine.calls
     print("test_all_prompts_are_submitted_in_one_batch_before_stepping PASSED")
+
+
+def test_prompts_are_rendered_in_one_call_and_submitted_as_engine_inputs() -> None:
+    # vLLM deprecated passing raw prompt strings to add_request: they must go
+    # through Renderer.render_cmpl first, and the rendered inputs get submitted.
+    engine = _FakeEngine()
+    generate_streaming(engine, ["a", "b", "c"], ["pa", "pb", "pc"], _reduce)
+    assert engine.renderer.rendered == [
+        [{"prompt": "a"}, {"prompt": "b"}, {"prompt": "c"}]
+    ], engine.renderer.rendered
+    assert [(prompt, params) for _, prompt, params in engine.added] == [
+        ({"type": "rendered", "text": "a"}, "pa"),
+        ({"type": "rendered", "text": "b"}, "pb"),
+        ({"type": "rendered", "text": "c"}, "pc"),
+    ], engine.added
+    print("test_prompts_are_rendered_in_one_call_and_submitted_as_engine_inputs PASSED")
+
+
+def test_failed_rendering_submits_nothing() -> None:
+    engine = _FakeEngine(fail_on_render=True)
+    try:
+        generate_streaming(engine, ["a", "b"], ["p"] * 2, _reduce)
+    except ValueError as error:
+        assert "prompt too long" in str(error)
+    else:
+        raise AssertionError("expected the render failure to propagate")
+    assert engine.added == [] and engine.aborted == [], (engine.added, engine.aborted)
+    print("test_failed_rendering_submits_nothing PASSED")
 
 
 def test_results_follow_prompt_order_when_finishing_out_of_order() -> None:
@@ -206,6 +247,8 @@ def test_empty_prompts_do_not_touch_the_engine() -> None:
 
 if __name__ == "__main__":
     test_all_prompts_are_submitted_in_one_batch_before_stepping()
+    test_prompts_are_rendered_in_one_call_and_submitted_as_engine_inputs()
+    test_failed_rendering_submits_nothing()
     test_results_follow_prompt_order_when_finishing_out_of_order()
     test_outputs_are_reduced_in_the_step_they_finish()
     test_raw_outputs_are_not_retained()

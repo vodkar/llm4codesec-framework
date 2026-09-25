@@ -13,10 +13,19 @@ from collections.abc import Callable, Sequence
 from typing import Any, Protocol
 
 
+class IPromptRenderer(Protocol):
+    """Subset of ``vllm.renderers.BaseRenderer`` that turns prompts into engine inputs."""
+
+    def render_cmpl(self, prompts: Sequence[dict[str, str]]) -> list[Any]: ...
+
+
 class IStreamingEngine(Protocol):
     """Subset of ``vllm.LLMEngine`` needed to drive generation step by step."""
 
-    def add_request(self, request_id: str, prompt: str, params: Any) -> str: ...
+    @property
+    def renderer(self) -> IPromptRenderer: ...
+
+    def add_request(self, request_id: str, prompt: Any, params: Any) -> str: ...
 
     def step(self) -> list[Any]: ...
 
@@ -50,14 +59,23 @@ def generate_streaming[ResultT](
     if not prompts:
         return []
 
+    # vLLM deprecated raw prompt strings in add_request; render (tokenize) every
+    # prompt in one batch with the engine's default completion settings, as the
+    # deprecated path did one prompt at a time.
+    engine_inputs: list[Any] = engine.renderer.render_cmpl(
+        [{"prompt": prompt} for prompt in prompts]
+    )
+
     # The engine reports outputs under the id passed in, but aborting needs the
     # internal id that add_request returns.
     internal_ids: dict[str, str] = {}
     results: dict[int, ResultT] = {}
     try:
-        for index, (prompt, prompt_params) in enumerate(zip(prompts, params)):
+        for index, (engine_input, prompt_params) in enumerate(zip(engine_inputs, params)):
             request_id: str = str(index)
-            internal_ids[request_id] = engine.add_request(request_id, prompt, prompt_params)
+            internal_ids[request_id] = engine.add_request(
+                request_id, engine_input, prompt_params
+            )
 
         while engine.has_unfinished_requests():
             for output in engine.step():

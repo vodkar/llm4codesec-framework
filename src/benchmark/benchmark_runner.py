@@ -1,10 +1,11 @@
 import time
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
 from benchmark.config import ExperimentConfig
 from benchmark.metrics_calculator import MetricsCalculatorFactory
-from benchmark.models import PredictionResult, SampleCollection
+from benchmark.models import BenchmarkSample, PredictionResult, SampleCollection
 from benchmark.prompt_generator import IPromptGenerator, get_prompt_generator
 from benchmark.response_parser import (
     IResponseParser,
@@ -14,6 +15,7 @@ from benchmark.response_parser import (
 )
 from benchmark.results import BenchmarkRunResult
 from benchmark.sampling_seeds import draw_seed
+from benchmark.static_findings import render_root_findings_block
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
@@ -75,6 +77,40 @@ def _aggregate_draw_confidences(
     if not towards_predicted:
         return None
     return sum(towards_predicted) / len(towards_predicted)
+
+
+def user_template_values(
+    sample: BenchmarkSample, render_root_findings: bool
+) -> dict[str, str]:
+    """Per-sample user-prompt template values.
+
+    Raises:
+        ValueError: If rendering is on but the sample carries no findings information.
+    """
+    if not render_root_findings:
+        return {"code": sample.code, "root_static_findings": ""}
+    if sample.root_static_findings is None:
+        raise ValueError(
+            f"Sample {sample.id} has no static findings but its dataset sets render_root_findings"
+        )
+    return {
+        "code": sample.code,
+        "root_static_findings": render_root_findings_block(sample.root_static_findings),
+    }
+
+
+def sample_provenance(
+    sample: BenchmarkSample, render_root_findings: bool
+) -> dict[str, Any]:
+    """Per-sample fields stored on every prediction for cross-report analysis."""
+    raw_row_ids: Any = sample.metadata.get("source_row_ids")
+    return {
+        "source_row_ids": [int(row_id) for row_id in raw_row_ids]
+        if raw_row_ids is not None
+        else None,
+        "root_static_findings": sample.root_static_findings,
+        "root_findings_in_prompt": render_root_findings,
+    }
 
 
 class BenchmarkRunner(BaseModel):
@@ -174,7 +210,9 @@ class BenchmarkRunner(BaseModel):
         removed_ids: list[str] = []
         for sample in samples:
             system_prompt = prompt_generator.get_system_prompt()
-            user_prompt = prompt_generator.get_user_prompt({"code": sample.code})
+            user_prompt = prompt_generator.get_user_prompt(
+                user_template_values(sample, self.config.render_root_findings)
+            )
             full_text = system_prompt + "\n" + user_prompt
             if llm.count_input_tokens(full_text) <= input_budget:
                 filtered_samples.append(sample)
@@ -261,7 +299,9 @@ class BenchmarkRunner(BaseModel):
         expanded_seeds: list[int] | None = [] if self.config.sampling_seed is not None else None
         for sample in samples:
             sys_p = prompt_generator.get_system_prompt()
-            usr_p = prompt_generator.get_user_prompt({"code": sample.code})
+            usr_p = prompt_generator.get_user_prompt(
+                user_template_values(sample, self.config.render_root_findings)
+            )
             for draw_index in range(n):
                 expanded_system_prompts.append(sys_p)
                 expanded_user_prompts.append(usr_p)
@@ -282,6 +322,9 @@ class BenchmarkRunner(BaseModel):
         errors_count = 0
 
         for i, sample in enumerate(samples):
+            provenance: dict[str, Any] = sample_provenance(
+                sample, self.config.render_root_findings
+            )
             # Slice the N InferenceResults that belong to this sample
             group: list[InferenceResult] = batch_results[i * n : (i + 1) * n]
             all_texts: list[str] = [r.response_text for r in group]
@@ -382,6 +425,7 @@ class BenchmarkRunner(BaseModel):
                     stated_confidences=stated_confidences,
                     self_validation_probabilities=self_validation_probabilities,
                     vote_counts=vote_counts,
+                    **provenance,
                 )
             except Exception as e:
                 _LOGGER.error(
@@ -403,6 +447,7 @@ class BenchmarkRunner(BaseModel):
                     is_success=False,
                     all_responses=all_texts,
                     vote_counts={},
+                    **provenance,
                 )
                 errors_count += 1
                 if errors_count / len(samples) > _ERRORS_THRESHOLD:

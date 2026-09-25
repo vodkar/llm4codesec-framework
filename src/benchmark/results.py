@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from benchmark.enums import BinaryDecisionMode
 from benchmark.models import PredictionResult
+from benchmark.static_findings import RootStaticFinding
 
 
 class MetricsResult(BaseModel):
@@ -62,6 +63,12 @@ class PredictionRecord(BaseModel):
     is_success: bool
     error_message: str | None
     inference_data: SampleInferenceData
+    source_row_ids: list[int] | None = None
+    """CleanVul source row ids; with true_label, a join key that survives dataset rebuilds."""
+    root_static_findings: list[RootStaticFinding] | None = None
+    """Root findings of the sample, stored whether or not they were shown to the model."""
+    root_findings_in_prompt: bool = False
+    """True when the findings block was rendered into the prompt."""
 
 
 class ModelRunConfig(BaseModel):

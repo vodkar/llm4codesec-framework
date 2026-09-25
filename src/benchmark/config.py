@@ -12,6 +12,7 @@ from benchmark.enums import (
     ModelType,
     TaskType,
 )
+from benchmark.static_findings import ROOT_FINDINGS_PLACEHOLDER
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
 _LOGGER = logging.getLogger(__name__)
@@ -81,6 +82,8 @@ class DatasetConfig(BaseModel):
     task_type: TaskType
     vulnerability_type: str | None = None
     cwe_type: str | None = None
+    render_root_findings: bool = False
+    """Fill the {root_static_findings} prompt placeholder with the sample's root findings."""
 
     def model_post_init(self, context: Any) -> None:
         if not self.path.exists():
@@ -167,6 +170,8 @@ class ExperimentConfig(BaseModel):
     api_batch_max_wait_seconds: float | None = None
     sampling_seed: int | None = None
     """Global pinned seed; per-draw vLLM seeds are derived from it via draw_seed."""
+    render_root_findings: bool = False
+    """Copied from the dataset config; see DatasetConfig.render_root_findings."""
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -213,6 +218,15 @@ class ExperimentConfig(BaseModel):
 
         if self.sampling_seed is not None and self.backend != BackendFrameworks.VLLM:
             raise ValueError("sampling_seed is only supported by the vLLM backend")
+
+        if (
+            self.render_root_findings
+            and ROOT_FINDINGS_PLACEHOLDER not in self.user_prompt_template
+        ):
+            raise ValueError(
+                "render_root_findings requires the user prompt template to contain "
+                f"{ROOT_FINDINGS_PLACEHOLDER}"
+            )
 
         super().model_post_init(context)
 
@@ -332,6 +346,7 @@ class ExperimentConfig(BaseModel):
             api_batch_max_wait_seconds=model_config.api_batch_max_wait_seconds,
             sampling_seed=model_config.sampling_seed,
             cwe_type=dataset_config.cwe_type,
+            render_root_findings=dataset_config.render_root_findings,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,
             sample_limit=sample_limit,

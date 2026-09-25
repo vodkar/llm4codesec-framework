@@ -184,6 +184,9 @@ class BenchmarkResultProcessor(BaseModel):
             is_success=prediction.is_success,
             error_message=prediction.error_message,
             inference_data=inference_data,
+            source_row_ids=prediction.source_row_ids,
+            root_static_findings=prediction.root_static_findings,
+            root_findings_in_prompt=prediction.root_findings_in_prompt,
         )
 
     def _describe_processing_times(
@@ -283,6 +286,7 @@ class BenchmarkResultProcessor(BaseModel):
             extra_metadata["vulnerability_type"] = getattr(
                 self.config, "vulnerability_type"
             )
+        extra_metadata["render_root_findings"] = self.config.render_root_findings
 
         model_run_config = ModelRunConfig(
             model_name=self.config.model_name,

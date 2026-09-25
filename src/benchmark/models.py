@@ -80,6 +80,12 @@ class PredictionResult(BaseModel):
     """Self-validation P(correct) of each draw's own verdict, aligned with all_responses."""
     vote_counts: dict[str, int] = Field(default_factory=dict)
     """Maps label string to vote count; a single entry with count 1 when self_consistency_samples=1."""
+    source_row_ids: list[int] | None = None
+    """CleanVul source row ids; with true_label, a join key that survives dataset rebuilds."""
+    root_static_findings: list[RootStaticFinding] | None = None
+    """Root findings of the sample, stored whether or not they were shown to the model."""
+    root_findings_in_prompt: bool = False
+    """True when the findings block was rendered into the prompt."""
 
 
 class SampleCollection(RootModel[list[BenchmarkSample]]):

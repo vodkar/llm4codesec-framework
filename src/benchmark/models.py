@@ -42,6 +42,12 @@ class PredictionResult(BaseModel):
     """Model-stated confidence in predicted_label, scaled to [0, 1]; None unless enabled."""
     self_validation_probability: float | None = None
     """P(verdict is correct) for predicted_label from the self-validation pass; None unless enabled."""
+    prompt_text: str | None = None
+    """Realized formatted prompt text actually sent to the model, when available."""
+    prompt_tokens: int | None = None
+    """Realized prompt token count, when available."""
+    p_vulnerable_per_draw: list[float | None] = Field(default_factory=list)
+    """Per-draw P(VULNERABLE) from binary_label_confidence, aligned with all_responses."""
     response_text: str
     processing_time: float
     tokens_used: int | None = None

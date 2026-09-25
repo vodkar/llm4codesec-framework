@@ -27,9 +27,13 @@ class BaseOnlineLLM(ILLMInference):
         """Load provider-specific SDK clients."""
 
     def generate_responses_batch_optimized(
-        self, system_prompts: list[str], user_prompts: list[str]
+        self,
+        system_prompts: list[str],
+        user_prompts: list[str],
+        seeds: list[int] | None = None,
     ) -> list[InferenceResult]:
         """Generate responses sequentially for multiple prompt pairs."""
+        del seeds
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 

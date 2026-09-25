@@ -350,7 +350,10 @@ class VllmLLM(ILLMInference):
         return batch_results[0]
 
     def generate_responses_batch_optimized(
-        self, system_prompts: list[str], user_prompts: list[str]
+        self,
+        system_prompts: list[str],
+        user_prompts: list[str],
+        seeds: list[int] | None = None,
     ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs with batch optimization.
@@ -358,6 +361,8 @@ class VllmLLM(ILLMInference):
         Args:
             system_prompts: List of system prompts.
             user_prompts: List of user prompts.
+            seeds: Optional per-request vLLM sampling seeds, aligned with the
+                prompts. When omitted, each request gets a fresh random seed.
 
         Returns:
             List of InferenceResult objects.
@@ -370,16 +375,18 @@ class VllmLLM(ILLMInference):
             for system_prompt, user_prompt in zip(system_prompts, user_prompts)
         ]
 
-        return self.generate_batch_responses(formatted_prompts)
+        return self.generate_batch_responses(formatted_prompts, seeds=seeds)
 
     def generate_batch_responses(
-        self, prompts: list[str]
+        self, prompts: list[str], seeds: list[int] | None = None
     ) -> list[InferenceResult]:
         """
         Generate responses for a batch of prompts.
 
         Args:
             prompts: List of formatted prompts.
+            seeds: Optional per-request vLLM sampling seeds, aligned with
+                ``prompts``. When omitted, each request gets a fresh random seed.
 
         Returns:
             List of InferenceResult objects.
@@ -390,16 +397,24 @@ class VllmLLM(ILLMInference):
         if not prompts:
             return []
 
+        if seeds is not None and len(seeds) != len(prompts):
+            raise ValueError("seeds must align with prompts")
+
         try:
             from vllm import SamplingParams
         except ImportError as exc:
             LOGGER.exception("vLLM SamplingParams import failed")
             raise RuntimeError("vLLM is not installed") from exc
 
-        # One SamplingParams per prompt — each gets a unique random seed so that
+        # One SamplingParams per prompt. When a pinned seed is supplied for a
+        # request it is used verbatim (so every condition sees identical draws
+        # per item/draw index); otherwise a fresh random seed is drawn so that
         # duplicate prompts (self-consistency copies) produce different outputs.
         sampling_params_list = [
-            self._create_sampling_params(SamplingParams) for _ in prompts
+            self._create_sampling_params(
+                SamplingParams, seed=None if seeds is None else seeds[i]
+            )
+            for i in range(len(prompts))
         ]
 
         LOGGER.info("Submitting %d prompts to vLLM scheduler", len(prompts))
@@ -414,6 +429,7 @@ class VllmLLM(ILLMInference):
             batch_outputs=all_outputs,
             duration=duration,
             batch_size=len(prompts),
+            prompts=prompts,
         )
 
     def _generate_reducing_outputs(
@@ -472,7 +488,10 @@ class VllmLLM(ILLMInference):
                 prompts=prompts,
                 params=sampling_params_list,
                 reduce_output=lambda output: self._collect_batch_results(
-                    batch_outputs=[output], duration=0.0, batch_size=1
+                    batch_outputs=[output],
+                    duration=0.0,
+                    batch_size=1,
+                    prompts=[prompts[int(output.request_id)]],
                 )[0],
                 on_finished=update_progress,
             )
@@ -492,13 +511,15 @@ class VllmLLM(ILLMInference):
         return results
 
     def _create_sampling_params(
-        self, sampling_params_cls: type[SamplingParams]
+        self, sampling_params_cls: type[SamplingParams], seed: int | None = None
     ) -> SamplingParams:
         """
         Create vLLM sampling parameters from config.
 
         Args:
             sampling_params_cls: vLLM SamplingParams class.
+            seed: Explicit sampling seed (e.g. from ``draw_seed``). When
+                ``None``, a fresh random seed is drawn.
 
         Returns:
             SamplingParams: Configured sampling parameters.
@@ -508,8 +529,9 @@ class VllmLLM(ILLMInference):
             "temperature": self.config.temperature,
             # Without an explicit seed vLLM defaults to seed=0 internally,
             # making every run produce identical outputs even with temperature > 0.
-            # Use a fresh random seed per call so repeated runs are truly stochastic.
-            "seed": random.randint(0, 2**31 - 1),
+            # Use the caller-provided seed when pinned, otherwise a fresh random
+            # seed per call so unpinned repeated runs are truly stochastic.
+            "seed": seed if seed is not None else random.randint(0, 2**31 - 1),
         }
 
         optional_sampling_values: dict[str, int | float | None] = {
@@ -535,7 +557,11 @@ class VllmLLM(ILLMInference):
         return sampling_params_cls(**sampling_kwargs)
 
     def _collect_batch_results(
-        self, batch_outputs: list[RequestOutput], duration: float, batch_size: int
+        self,
+        batch_outputs: list[RequestOutput],
+        duration: float,
+        batch_size: int,
+        prompts: list[str] | None = None,
     ) -> list[InferenceResult]:
         """
         Collect generation results for a batch.
@@ -544,6 +570,9 @@ class VllmLLM(ILLMInference):
             batch_outputs: vLLM outputs for each prompt.
             duration: Total batch duration in seconds.
             batch_size: Number of prompts in this batch.
+            prompts: Formatted prompts aligned by position with ``batch_outputs``,
+                used as a fallback for the realized prompt text when
+                ``RequestOutput.prompt`` is ``None`` in the installed vLLM version.
 
         Returns:
             List of InferenceResult objects.
@@ -551,12 +580,20 @@ class VllmLLM(ILLMInference):
         results: list[InferenceResult] = []
         per_item_duration: float = duration / max(batch_size, 1)
 
-        for output in batch_outputs:
+        for index, output in enumerate(batch_outputs):
             response_text: str = ""
             token_count: int = 0
             confidence: float | None = None
             binary_label_confidence: float | None = None
             stated_confidence: float | None = None
+            prompt_text: str | None = output.prompt
+            if prompt_text is None and prompts is not None:
+                prompt_text = prompts[index]
+            prompt_tokens: int | None = (
+                None
+                if output.prompt_token_ids is None
+                else len(output.prompt_token_ids)
+            )
 
             if output.outputs:
                 response_text = output.outputs[0].text.strip()
@@ -577,6 +614,8 @@ class VllmLLM(ILLMInference):
                 confidence=confidence,
                 binary_label_confidence=binary_label_confidence,
                 stated_confidence=stated_confidence,
+                prompt_text=prompt_text,
+                prompt_tokens=prompt_tokens,
             ))
 
         return results

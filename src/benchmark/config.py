@@ -68,6 +68,8 @@ class ModelConfig(BaseModel):
     api_batch_poll_interval_seconds: float | None = None
     api_batch_completion_window: str | None = None
     api_batch_max_wait_seconds: float | None = None
+    sampling_seed: int | None = None
+    """Global pinned seed; per-draw vLLM seeds are derived from it via draw_seed."""
 
 
 class DatasetConfig(BaseModel):
@@ -163,6 +165,8 @@ class ExperimentConfig(BaseModel):
     api_batch_poll_interval_seconds: float | None = None
     api_batch_completion_window: str | None = None
     api_batch_max_wait_seconds: float | None = None
+    sampling_seed: int | None = None
+    """Global pinned seed; per-draw vLLM seeds are derived from it via draw_seed."""
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -206,6 +210,9 @@ class ExperimentConfig(BaseModel):
             raise ValueError(
                 "confidence method 'self_validation' is only supported by the vllm backend"
             )
+
+        if self.sampling_seed is not None and self.backend != BackendFrameworks.VLLM:
+            raise ValueError("sampling_seed is only supported by the vLLM backend")
 
         super().model_post_init(context)
 
@@ -323,6 +330,7 @@ class ExperimentConfig(BaseModel):
             api_batch_poll_interval_seconds=model_config.api_batch_poll_interval_seconds,
             api_batch_completion_window=model_config.api_batch_completion_window,
             api_batch_max_wait_seconds=model_config.api_batch_max_wait_seconds,
+            sampling_seed=model_config.sampling_seed,
             cwe_type=dataset_config.cwe_type,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,

@@ -251,6 +251,7 @@ def run_single_experiment(
         predictions=result.predictions,
         total_time=result.total_time,
         total_samples=result.total_samples,
+        filtered_sample_ids=result.filtered_sample_ids,
     )
 
     _LOGGER.info("Experiment completed successfully")

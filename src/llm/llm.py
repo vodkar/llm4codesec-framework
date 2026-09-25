@@ -16,6 +16,10 @@ class InferenceResult:
     """Binary P(VULNERABLE) derived from final-answer label-position logprobs."""
     stated_confidence: float | None = field(default=None)
     """Expected stated 0-9 confidence digit scaled to [0, 1], from its token logprobs."""
+    prompt_text: str | None = field(default=None)
+    """Formatted prompt text actually sent to the model, when available."""
+    prompt_tokens: int | None = field(default=None)
+    """Realized prompt token count, when available."""
 
 
 class ILLMInference(ABC):
@@ -53,7 +57,10 @@ class ILLMInference(ABC):
         pass
 
     def generate_responses_batch_optimized(
-        self, system_prompts: list[str], user_prompts: list[str]
+        self,
+        system_prompts: list[str],
+        user_prompts: list[str],
+        seeds: list[int] | None = None,
     ) -> list[InferenceResult]:
         """
         Generate responses for multiple system/user prompt pairs with batch optimization.
@@ -61,10 +68,13 @@ class ILLMInference(ABC):
         Args:
             system_prompts: List of system prompts
             user_prompts: List of user prompts (must be same length as system_prompts)
+            seeds: Optional per-request sampling seeds, aligned with the prompts.
+                Ignored by the default implementation; only the vLLM backend honors it.
 
         Returns:
             List of InferenceResult objects, one per prompt pair.
         """
+        del seeds
         if len(system_prompts) != len(user_prompts):
             raise ValueError("system_prompts and user_prompts must have same length")
 

@@ -13,6 +13,7 @@ from benchmark.response_parser import (
     has_explicit_binary_verdict,
 )
 from benchmark.results import BenchmarkRunResult
+from benchmark.sampling_seeds import draw_seed
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
@@ -104,7 +105,9 @@ class BenchmarkRunner(BaseModel):
                 else {},
             )
 
-            samples = self._filter_samples_by_token_limit(samples, llm, prompt_generator)
+            samples, filtered_sample_ids = self._filter_samples_by_token_limit(
+                samples, llm, prompt_generator
+            )
             samples = self._apply_sample_limit(samples)
 
             if len(samples) == 0:
@@ -135,6 +138,7 @@ class BenchmarkRunner(BaseModel):
             total_samples=len(samples),
             total_time=total_time,
             predictions=predictions,
+            filtered_sample_ids=filtered_sample_ids,
         )
 
     def _filter_samples_by_token_limit(
@@ -142,11 +146,14 @@ class BenchmarkRunner(BaseModel):
         samples: SampleCollection,
         llm: ILLMInference,
         prompt_generator: IPromptGenerator,
-    ) -> SampleCollection:
+    ) -> tuple[SampleCollection, list[str]]:
         """Filter samples whose full formatted prompt exceeds the model's input budget.
 
         Counts tokens on the complete prompt text (system + user with code substituted)
         and compares against context_length - max_output_tokens - chat template overhead.
+
+        Returns:
+            A tuple of the kept samples and the ids of the samples that were removed.
         """
         context_len = self.config.model_context_length_tokens
         output_budget = self.config.max_output_tokens
@@ -161,15 +168,18 @@ class BenchmarkRunner(BaseModel):
                 output_budget,
                 _CHAT_TEMPLATE_TOKEN_OVERHEAD,
             )
-            return samples
+            return samples, []
 
         filtered_samples = []
+        removed_ids: list[str] = []
         for sample in samples:
             system_prompt = prompt_generator.get_system_prompt()
             user_prompt = prompt_generator.get_user_prompt({"code": sample.code})
             full_text = system_prompt + "\n" + user_prompt
             if llm.count_input_tokens(full_text) <= input_budget:
                 filtered_samples.append(sample)
+            else:
+                removed_ids.append(sample.id)
 
         removed_samples = len(samples) - len(filtered_samples)
         if removed_samples > 0:
@@ -184,7 +194,7 @@ class BenchmarkRunner(BaseModel):
             )
         _LOGGER.info("Samples after token filtering: %d", len(filtered_samples))
 
-        return SampleCollection(filtered_samples)
+        return SampleCollection(filtered_samples), removed_ids
 
     def _apply_sample_limit(self, samples: SampleCollection) -> SampleCollection:
         """Apply sample limit after token filtering."""
@@ -248,15 +258,20 @@ class BenchmarkRunner(BaseModel):
         # Build expanded prompt lists: each sample repeated N times consecutively
         expanded_system_prompts: list[str] = []
         expanded_user_prompts: list[str] = []
+        expanded_seeds: list[int] | None = [] if self.config.sampling_seed is not None else None
         for sample in samples:
             sys_p = prompt_generator.get_system_prompt()
             usr_p = prompt_generator.get_user_prompt({"code": sample.code})
-            for _ in range(n):
+            for draw_index in range(n):
                 expanded_system_prompts.append(sys_p)
                 expanded_user_prompts.append(usr_p)
+                if expanded_seeds is not None and self.config.sampling_seed is not None:
+                    expanded_seeds.append(
+                        draw_seed(self.config.sampling_seed, sample.id, draw_index)
+                    )
 
         batch_results: list[InferenceResult] = llm.generate_responses_batch_optimized(
-            expanded_system_prompts, expanded_user_prompts
+            expanded_system_prompts, expanded_user_prompts, seeds=expanded_seeds
         )
 
         self_validation_scores: list[float | None] = self._score_self_validation(
@@ -299,6 +314,11 @@ class BenchmarkRunner(BaseModel):
                 if raw_binary_label_confidences
                 else None
             )
+            prompt_text: str | None = group[0].prompt_text if group else None
+            prompt_tokens: int | None = group[0].prompt_tokens if group else None
+            p_vulnerable_per_draw: list[float | None] = [
+                r.binary_label_confidence for r in group
+            ]
 
             try:
                 parsed_labels: list[int | str] = [
@@ -349,6 +369,9 @@ class BenchmarkRunner(BaseModel):
                     self_validation_probability=_aggregate_draw_confidences(
                         parsed_labels, predicted_label, self_validation_probabilities
                     ),
+                    prompt_text=prompt_text,
+                    prompt_tokens=prompt_tokens,
+                    p_vulnerable_per_draw=p_vulnerable_per_draw,
                     response_text=all_texts[0],
                     processing_time=avg_time,
                     tokens_used=total_tokens,
@@ -370,6 +393,9 @@ class BenchmarkRunner(BaseModel):
                     true_label=sample.label,
                     confidence=confidence,
                     binary_label_confidence=binary_label_confidence,
+                    prompt_text=prompt_text,
+                    prompt_tokens=prompt_tokens,
+                    p_vulnerable_per_draw=p_vulnerable_per_draw,
                     response_text=all_texts[0] if all_texts else "",
                     processing_time=avg_time,
                     tokens_used=total_tokens,

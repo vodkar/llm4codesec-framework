@@ -45,6 +45,12 @@ class SampleInferenceData(BaseModel):
     """Self-validation P(correct) for the final predicted label."""
     self_validation_probabilities: list[float | None] = Field(default_factory=list)
     """Self-validation P(correct) of each draw's own verdict, aligned with responses."""
+    prompt_text: str | None = None
+    """Realized formatted prompt text actually sent to the model, when available."""
+    prompt_tokens: int | None = None
+    """Realized prompt token count, when available."""
+    p_vulnerable_per_draw: list[float | None] = Field(default_factory=list)
+    """Per-draw P(VULNERABLE) from binary_label_confidence, aligned with responses."""
 
 
 class PredictionRecord(BaseModel):
@@ -80,6 +86,8 @@ class ModelRunConfig(BaseModel):
     binary_logprob_threshold: float | None = None
     confidence_methods: list[str] = Field(default_factory=list)
     """Enabled optional confidence methods; 'stated_confidence' changes the response contract."""
+    sampling_seed: int | None = None
+    """Global pinned sampling seed (per-draw vLLM seeds derive from it); None when unpinned."""
 
 
 class RunStats(BaseModel):
@@ -111,6 +119,12 @@ class BenchmarkInfo(BaseModel):
     model: ModelRunConfig
     stats: RunStats
     extra_metadata: dict[str, Any]
+    prompt_identifier: str | None = None
+    """Prompt config key (slug) the run used; None in reports predating this field."""
+    prompt_template_sha256: str | None = None
+    """sha256 of the system and user prompt templates; None in older reports."""
+    timestamp_utc: str | None = None
+    """Timezone-aware UTC ISO timestamp of report creation; None in older reports."""
 
 
 class ShortExperimentReport(BaseModel):
@@ -125,6 +139,8 @@ class BenchmarkReport(ShortExperimentReport):
     """Standardized benchmark report format."""
 
     predictions: list[PredictionRecord]
+    filtered_sample_ids: list[str] = Field(default_factory=list)
+    """IDs of samples dropped by the runner's token-limit filter before inference."""
 
     @property
     def short_summary(self) -> ShortExperimentReport:
@@ -152,6 +168,8 @@ class BenchmarkRunResult(BaseModel):
     predictions: list[PredictionResult]
     total_samples: int
     total_time: float
+    filtered_sample_ids: list[str] = Field(default_factory=list)
+    """IDs of samples dropped by the runner's token-limit filter before inference."""
 
 
 class ExperimentPlanSummary(BaseModel):

@@ -1,6 +1,7 @@
+import hashlib
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -36,9 +37,21 @@ class BenchmarkResultProcessor(BaseModel):
         predictions: list[PredictionResult],
         total_time: float,
         total_samples: int,
+        filtered_sample_ids: list[str] | None = None,
     ) -> BenchmarkReport:
         """
         Build a standardized report with metadata, metrics, and predictions.
+
+        Args:
+            metrics: Computed metrics for the run.
+            predictions: Per-sample prediction results.
+            total_time: Total wall-clock run time in seconds.
+            total_samples: Number of samples included in the run.
+            filtered_sample_ids: IDs of samples dropped by the runner's
+                token-limit filter before inference; defaults to an empty list.
+
+        Returns:
+            The assembled benchmark report.
         """
         prediction_records: list[PredictionRecord] = [
             self._to_prediction_record(prediction) for prediction in predictions
@@ -71,6 +84,7 @@ class BenchmarkResultProcessor(BaseModel):
             metrics=metrics,
             predictions=prediction_records,
             is_success=all(prediction.is_success for prediction in predictions),
+            filtered_sample_ids=filtered_sample_ids or [],
         )
 
         return report
@@ -117,13 +131,27 @@ class BenchmarkResultProcessor(BaseModel):
         predictions: list[PredictionResult],
         total_time: float,
         total_samples: int,
+        filtered_sample_ids: list[str] | None = None,
     ) -> tuple[BenchmarkReport, ResultArtifacts]:
-        """Build a standardized report and persist it to disk."""
+        """Build a standardized report and persist it to disk.
+
+        Args:
+            metrics: Computed metrics for the run.
+            predictions: Per-sample prediction results.
+            total_time: Total wall-clock run time in seconds.
+            total_samples: Number of samples included in the run.
+            filtered_sample_ids: IDs of samples dropped by the runner's
+                token-limit filter before inference; defaults to an empty list.
+
+        Returns:
+            The assembled report and the paths of the persisted artifacts.
+        """
         report: BenchmarkReport = self.build_report(
             metrics=metrics,
             predictions=predictions,
             total_time=total_time,
             total_samples=total_samples,
+            filtered_sample_ids=filtered_sample_ids,
         )
         artifacts: ResultArtifacts = self.save_report(report)
         return report, artifacts
@@ -145,6 +173,9 @@ class BenchmarkResultProcessor(BaseModel):
             stated_confidences=prediction.stated_confidences,
             self_validation_probability=prediction.self_validation_probability,
             self_validation_probabilities=prediction.self_validation_probabilities,
+            prompt_text=prediction.prompt_text,
+            prompt_tokens=prediction.prompt_tokens,
+            p_vulnerable_per_draw=prediction.p_vulnerable_per_draw,
         )
         return PredictionRecord(
             sample_id=str(prediction.sample_id),
@@ -272,6 +303,7 @@ class BenchmarkResultProcessor(BaseModel):
             binary_decision_mode=self.config.binary_decision_mode,
             binary_logprob_threshold=self.config.binary_logprob_threshold,
             confidence_methods=[str(method) for method in self.config.confidence_methods],
+            sampling_seed=self.config.sampling_seed,
         )
 
         run_stats = RunStats(
@@ -297,4 +329,22 @@ class BenchmarkResultProcessor(BaseModel):
             model=model_run_config,
             stats=run_stats,
             extra_metadata=extra_metadata,
+            prompt_identifier=self.config.prompt_identifier,
+            prompt_template_sha256=self._prompt_template_sha256(),
+            timestamp_utc=datetime.now(UTC).isoformat(),
         )
+
+    def _prompt_template_sha256(self) -> str:
+        """Return the sha256 of the system and user prompt templates.
+
+        The two templates are joined by a NUL byte so that moving text from
+        one template to the other changes the digest.
+
+        Returns:
+            Hex digest string.
+        """
+
+        payload: str = (
+            f"{self.config.system_prompt_template}\0{self.config.user_prompt_template}"
+        )
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()

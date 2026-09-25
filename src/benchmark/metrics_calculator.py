@@ -8,6 +8,7 @@ from sklearn.metrics import (
     average_precision_score,
     classification_report,
     confusion_matrix,
+    matthews_corrcoef,
     precision_recall_curve,
     roc_auc_score,
 )
@@ -88,12 +89,15 @@ class BinaryMetricsCalculator(IMetricsCalculator):
         )
         specificity: float = tn / (tn + fp) if (tn + fp) > 0 else 0.0
 
+        mcc: float = float(matthews_corrcoef(y_true, y_pred))
+
         summary: dict[str, float | int | str | None] = {
             "accuracy": accuracy,
             "precision": precision,
             "recall": recall,
             "f1_score": f1_score,
             "specificity": specificity,
+            "mcc": mcc,
         }
         details: dict[str, Any] = {
             "confusion_matrix": {
@@ -109,7 +113,9 @@ class BinaryMetricsCalculator(IMetricsCalculator):
         summary.update(ranking_summary)
         details["ranking_metrics"] = ranking_details
 
-        paired_summary, paired_details = self._calculate_paired_ranking_metrics(predictions)
+        paired_summary, paired_details = self._calculate_paired_ranking_metrics(
+            predictions
+        )
         summary.update(paired_summary)
         details["paired_ranking"] = paired_details
 
@@ -226,12 +232,16 @@ class BinaryMetricsCalculator(IMetricsCalculator):
 
         is_correct: list[bool] = [correct for _, correct in scored]
         if len(set(is_correct)) == 2:
-            auroc: float = float(roc_auc_score(is_correct, [score for score, _ in scored]))
+            auroc: float = float(
+                roc_auc_score(is_correct, [score for score, _ in scored])
+            )
             summary[auroc_key] = auroc
             details["correctness_auroc"] = auroc
 
         for level in _COVERAGE_LEVELS:
-            selected: list[tuple[float, bool]] = scored[: math.ceil(level * len(scored))]
+            selected: list[tuple[float, bool]] = scored[
+                : math.ceil(level * len(scored))
+            ]
             accuracy: float = sum(correct for _, correct in selected) / len(selected)
             summary[f"{key_prefix}accuracy_at_coverage_{round(level * 100)}"] = accuracy
             details["levels"].append(
@@ -270,8 +280,10 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             margins = [
                 vulnerable_score - fixed_score
                 for vulnerable, fixed in pairs
-                if (vulnerable_score := self._get_vulnerable_score(vulnerable, source)) is not None
-                and (fixed_score := self._get_vulnerable_score(fixed, source)) is not None
+                if (vulnerable_score := self._get_vulnerable_score(vulnerable, source))
+                is not None
+                and (fixed_score := self._get_vulnerable_score(fixed, source))
+                is not None
             ]
             if margins:
                 score_source = source
@@ -292,7 +304,9 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             details["skipped_reason"] = "no pre/post sample pairs found"
             return summary, details
         if not margins:
-            details["skipped_reason"] = "no pair has P(VULNERABLE) scores for both halves"
+            details["skipped_reason"] = (
+                "no pair has P(VULNERABLE) scores for both halves"
+            )
             return summary, details
 
         # A tie counts as half a win, as in ROC AUC

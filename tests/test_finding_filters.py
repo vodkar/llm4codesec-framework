@@ -117,6 +117,14 @@ def test_report_records_filter_flags() -> None:
     assert info.extra_metadata["omit_empty_root_findings"] is True
 
 
+
+def test_provenance_flag_false_when_nothing_rendered() -> None:
+    assert sample_provenance(_sample([]), True, True)["root_findings_in_prompt"] is False
+    assert sample_provenance(_sample([]), True, False)["root_findings_in_prompt"] is True
+    assert sample_provenance(_sample([_finding("B602")]), True, True)["root_findings_in_prompt"] is True
+    assert sample_provenance(_sample([_finding("B602")]), False, True)["root_findings_in_prompt"] is False
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

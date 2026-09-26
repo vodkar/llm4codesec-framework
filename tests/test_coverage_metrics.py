@@ -118,6 +118,15 @@ def test_plan_coverage_levels_flow_into_experiments() -> None:
     _raises(ValueError, lambda: ExperimentsPlanConfig.from_file(_config([2.0]), "plan"))
 
 
+
+def test_f1_is_zero_not_none_without_true_positives() -> None:
+    # tp=0, fp=1, fn=1: sklearn's f1_score is 0.0, and so must the coverage F1 be.
+    predictions = [_pred(0, 1, 0, 0.9), _pred(1, 0, 1, 0.8)]
+    result = BinaryMetricsCalculator().calculate(predictions)
+    assert result.summary["f1_score_at_coverage_100"] == 0.0
+    assert _close(result.summary["f1_score_at_coverage_100"] + 1, result.summary["f1_score"] + 1)
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):

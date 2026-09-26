@@ -48,11 +48,9 @@ def _selection_metrics(predictions: list[PredictionResult]) -> dict[str, float |
 
     precision: float | None = ratio(tp, tp + fp)
     recall: float | None = ratio(tp, tp + fn)
-    f1_score: float | None = (
-        2 * precision * recall / (precision + recall)
-        if precision is not None and recall is not None and precision + recall > 0
-        else None
-    )
+    # 2TP / (2TP + FP + FN) equals the harmonic mean where both are defined and,
+    # like sklearn, is 0.0 when there are positives but no true positive.
+    f1_score: float | None = ratio(2 * tp, 2 * tp + fp + fn)
     return {
         "accuracy": sum(p.predicted_label == p.true_label for p in predictions)
         / len(predictions),

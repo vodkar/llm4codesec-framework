@@ -182,13 +182,15 @@ Follow-up (finding verification): dataset entries may set `exclude_samples`
 `static_findings_verify_sweep` / `_smoke` run prompt
 `finding_verification_root_findings` on the two `*_verify` datasets.
 Recompute and merge saved reports without inference (container, `results/` is
-root-owned):
+root-owned; `--output-dir` must be new or empty; `--model` is required when a
+plan dir holds several models):
 ```bash
 docker-compose run --rm llm4codesec-benchmark python cli.py merge-plan-results \
     --plan-dir results/static_findings_root/static_findings_root_sweep \
     --plan-dir results/static_findings_root/static_findings_verify_sweep \
     --datasets-config configs/static_findings_root/datasets.json \
     --exclude-finding-rules B101,B113 \
+    --model gemma4-12b-it-thinking-sc7-logprobs-seeded \
     --output-dir results/static_findings_root/merged_verify
 ```
 

@@ -105,16 +105,25 @@ def user_template_values(
 
 
 def sample_provenance(
-    sample: BenchmarkSample, render_root_findings: bool
+    sample: BenchmarkSample,
+    render_root_findings: bool,
+    omit_empty_root_findings: bool = False,
 ) -> dict[str, Any]:
-    """Per-sample fields stored on every prediction for cross-report analysis."""
+    """Per-sample fields stored on every prediction for cross-report analysis.
+
+    ``root_findings_in_prompt`` is True only when a findings block was actually
+    rendered (an omitted empty section counts as not rendered).
+    """
+    rendered: bool = render_root_findings and (
+        bool(sample.root_static_findings) or not omit_empty_root_findings
+    )
     raw_row_ids: Any = sample.metadata.get("source_row_ids")
     return {
         "source_row_ids": [int(row_id) for row_id in raw_row_ids]
         if raw_row_ids is not None
         else None,
         "root_static_findings": sample.root_static_findings,
-        "root_findings_in_prompt": render_root_findings,
+        "root_findings_in_prompt": rendered,
     }
 
 
@@ -371,7 +380,9 @@ class BenchmarkRunner(BaseModel):
 
         for i, sample in enumerate(samples):
             provenance: dict[str, Any] = sample_provenance(
-                sample, self.config.render_root_findings
+                sample,
+                self.config.render_root_findings,
+                self.config.omit_empty_root_findings,
             )
             # Slice the N InferenceResults that belong to this sample
             group: list[InferenceResult] = batch_results[i * n : (i + 1) * n]

@@ -127,7 +127,9 @@ def recompute_report(
             "extra_metadata": {
                 **info.extra_metadata,
                 "recomputed_from": str(source_path),
-                "excluded_samples": [
+                # Distinct from the runner's "excluded_samples", which records
+                # samples already dropped before inference.
+                "merge_excluded_samples": [
                     {"source_row_ids": list(row_ids), "label": label}
                     for row_ids, label in dropped
                 ],
@@ -213,12 +215,20 @@ def merge_plan_results(
         models: If given, only conditions whose model directory is listed are merged.
 
     Raises:
+        FileExistsError: If ``output_dir`` exists and is not empty.
         KeyError: If a condition's dataset key is missing from the datasets config.
         ValueError: If two merged conditions share a summary row name.
     """
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise FileExistsError(
+            f"{output_dir} is not empty; merge into a new directory so no stale reports mix in"
+        )
     entries: dict[str, dict[str, Any]] = normalize_config_schema(
         load_config_dict(datasets_config)
     )["datasets"]
+
+    # Recompute everything before writing, so a failure leaves nothing behind.
+    recomputed_reports: list[tuple[Path, BenchmarkReport]] = []
     rows: dict[str, dict[str, float | None]] = {}
     for plan_dir in plan_dirs:
         for condition, report_path in latest_condition_reports(plan_dir).items():
@@ -228,6 +238,11 @@ def merge_plan_results(
             dataset_key: str = condition.parts[0]
             if dataset_key not in entries:
                 raise KeyError(f"Dataset key {dataset_key!r} not in {datasets_config}")
+            row_name: str = f"{dataset_key} · {condition.parts[-1]}"
+            if row_name in rows:
+                raise ValueError(
+                    f"Two conditions map to summary row {row_name!r}; pass --model to pick one"
+                )
             exclusions: list[SampleExclusion] = [
                 SampleExclusion.model_validate(entry)
                 for entry in entries[dataset_key].get("exclude_samples", [])
@@ -238,18 +253,17 @@ def merge_plan_results(
             recomputed: BenchmarkReport = recompute_report(
                 report, exclusions, analysis_exclude_rules, coverage_levels, report_path
             )
-            target: Path = output_dir / plan_dir.name / condition / report_path.name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(
-                json.dumps(recomputed.model_dump(), indent=2, ensure_ascii=False, default=str),
-                encoding="utf-8",
+            recomputed_reports.append(
+                (output_dir / plan_dir.name / condition / report_path.name, recomputed)
             )
-            row_name: str = f"{dataset_key} · {condition.parts[-1]}"
-            if row_name in rows:
-                raise ValueError(
-                    f"Two conditions map to summary row {row_name!r}; pass --model to pick one"
-                )
             rows[row_name] = summary_row(recomputed.metrics.summary, coverage_levels)
+
+    for target, recomputed in recomputed_reports:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(recomputed.model_dump(), indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
 
     rebuild_experiment_plan_results(
         input_path=output_dir,

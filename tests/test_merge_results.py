@@ -99,7 +99,7 @@ def test_recompute_applies_exclusions_and_rule_filter() -> None:
     assert all([f.rule_id for f in p.root_static_findings] == ["B602"] for p in recomputed.predictions)
     assert recomputed.benchmark_info.stats.total_samples == 3
     meta = recomputed.benchmark_info.extra_metadata
-    assert meta["excluded_samples"] == [{"source_row_ids": [10], "label": 0}]
+    assert meta["merge_excluded_samples"] == [{"source_row_ids": [10], "label": 0}]
     assert meta["analysis_exclude_finding_rules"] == ["B101"]
     expected = BinaryMetricsCalculator((1.0,)).calculate([PREDICTIONS[0], PREDICTIONS[2], PREDICTIONS[3]])
     assert recomputed.metrics.summary == expected.summary
@@ -193,6 +193,50 @@ def test_merge_model_filter_and_duplicate_rows() -> None:
         assert (root / "o2" / "plan_a" / "ds_a" / "m2").exists()
         assert not (root / "o2" / "plan_a" / "ds_a" / "m1").exists()
         assert summary.read_text().count("ds_a · p") == 1
+
+
+
+def test_merge_failure_writes_nothing() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        for model in ("m1", "m2"):
+            condition = root / "plan_a" / "ds_a" / model / "p"
+            condition.mkdir(parents=True)
+            (condition / "benchmark_report_20260926_000000.json").write_text(
+                json.dumps(_report(PREDICTIONS).model_dump(), default=str))
+        datasets = root / "datasets.json"
+        datasets.write_text(json.dumps({"datasets": {
+            "ds_a": {"dataset_path": "x", "task_type": "binary_vulnerability", "description": "a"}}}))
+        out = root / "out"
+        _raises(ValueError, lambda: merge_plan_results([root / "plan_a"], datasets, (1.0,), [], out))
+        assert not out.exists() or not any(out.iterdir())
+
+
+def test_merge_refuses_non_empty_output_dir() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        condition = root / "plan_a" / "ds_a" / "m" / "p"
+        condition.mkdir(parents=True)
+        (condition / "benchmark_report_20260926_000000.json").write_text(
+            json.dumps(_report(PREDICTIONS).model_dump(), default=str))
+        datasets = root / "datasets.json"
+        datasets.write_text(json.dumps({"datasets": {
+            "ds_a": {"dataset_path": "x", "task_type": "binary_vulnerability", "description": "a"}}}))
+        out = root / "out"
+        out.mkdir()
+        (out / "stale.json").write_text("{}")
+        _raises(FileExistsError, lambda: merge_plan_results([root / "plan_a"], datasets, (1.0,), [], out))
+
+
+def test_recompute_keeps_runtime_excluded_samples() -> None:
+    report = _report(PREDICTIONS)
+    runtime = [{"source_row_ids": [99], "label": 1, "reason": "wrong"}]
+    report.benchmark_info.extra_metadata["excluded_samples"] = runtime
+    recomputed = recompute_report(
+        report, [SampleExclusion(source_row_ids=[10], label=0)], [], (1.0,), Path("x"))
+    meta = recomputed.benchmark_info.extra_metadata
+    assert meta["excluded_samples"] == runtime
+    assert meta["merge_excluded_samples"] == [{"source_row_ids": [10], "label": 0}]
 
 
 if __name__ == "__main__":

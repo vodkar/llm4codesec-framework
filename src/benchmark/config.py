@@ -12,6 +12,8 @@ from benchmark.enums import (
     ModelType,
     TaskType,
 )
+from benchmark.coverage import DEFAULT_COVERAGE_LEVELS, validate_coverage_levels
+from benchmark.sample_exclusions import SampleExclusion
 from benchmark.static_findings import ROOT_FINDINGS_PLACEHOLDER
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
@@ -88,6 +90,12 @@ class DatasetConfig(BaseModel):
     cwe_type: str | None = None
     render_root_findings: bool = False
     """Fill the {root_static_findings} prompt placeholder with the sample's root findings."""
+    exclude_samples: list[SampleExclusion] = []
+    """Samples to drop by (source_row_ids, label), e.g. audited wrong labels."""
+    exclude_finding_rules: list[str] = []
+    """fnmatch patterns of analyzer rule ids dropped from root findings before rendering."""
+    omit_empty_root_findings: bool = False
+    """Render nothing instead of "none reported" when no root findings remain."""
 
     def model_post_init(self, context: Any) -> None:
         if not self.path.exists():
@@ -180,6 +188,14 @@ class ExperimentConfig(BaseModel):
     """Global pinned seed; per-draw vLLM seeds are derived from it via draw_seed."""
     render_root_findings: bool = False
     """Copied from the dataset config; see DatasetConfig.render_root_findings."""
+    exclude_samples: list[SampleExclusion] = []
+    """Copied from the dataset config; see DatasetConfig.exclude_samples."""
+    exclude_finding_rules: list[str] = []
+    """Copied from the dataset config; see DatasetConfig.exclude_finding_rules."""
+    omit_empty_root_findings: bool = False
+    """Copied from the dataset config; see DatasetConfig.omit_empty_root_findings."""
+    coverage_levels: list[float] = list(DEFAULT_COVERAGE_LEVELS)
+    """Coverage levels for selective-prediction metrics, set per experiment plan."""
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -236,6 +252,8 @@ class ExperimentConfig(BaseModel):
                 f"{ROOT_FINDINGS_PLACEHOLDER}"
             )
 
+        self.coverage_levels = list(validate_coverage_levels(self.coverage_levels))
+
         super().model_post_init(context)
 
     @classmethod
@@ -248,6 +266,7 @@ class ExperimentConfig(BaseModel):
         experiment_name: str,
         sample_limit: int | None = None,
         confidence_methods: list[ConfidenceMethod] | list[str] | None = None,
+        coverage_levels: list[float] | None = None,
     ) -> "ExperimentConfig":
         if isinstance(config, (Path, str)):
             config_path = Path(config)
@@ -289,6 +308,7 @@ class ExperimentConfig(BaseModel):
             experiment_name=experiment_name,
             sample_limit=sample_limit,
             confidence_methods=confidence_methods,
+            coverage_levels=coverage_levels,
         )
 
     @classmethod
@@ -301,6 +321,7 @@ class ExperimentConfig(BaseModel):
         experiment_name: str,
         sample_limit: int | None = None,
         confidence_methods: list[ConfidenceMethod] | list[str] | None = None,
+        coverage_levels: list[float] | None = None,
     ) -> "ExperimentConfig":
         """Create a BenchmarkConfig from separate model, dataset, and prompt configs."""
         config = cls(
@@ -357,6 +378,12 @@ class ExperimentConfig(BaseModel):
             sampling_seed=model_config.sampling_seed,
             cwe_type=dataset_config.cwe_type,
             render_root_findings=dataset_config.render_root_findings,
+            exclude_samples=dataset_config.exclude_samples,
+            exclude_finding_rules=dataset_config.exclude_finding_rules,
+            omit_empty_root_findings=dataset_config.omit_empty_root_findings,
+            coverage_levels=coverage_levels
+            if coverage_levels is not None
+            else list(DEFAULT_COVERAGE_LEVELS),
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,
             sample_limit=sample_limit,
@@ -438,6 +465,7 @@ class ExperimentsPlanConfig(BaseModel):
                             experiment_name=plan_name,
                             sample_limit=plan_config.get("sample_limit"),
                             confidence_methods=plan_config.get("confidence_methods"),
+                            coverage_levels=plan_config.get("coverage_levels"),
                         )
                     )
 

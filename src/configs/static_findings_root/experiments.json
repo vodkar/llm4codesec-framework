@@ -17,8 +17,7 @@
                 "mult_amp_root_findings_on"
             ],
             "models": [
-                "lfm25-2.6b-fable5-heretic-thinking-sc7-logprobs-seeded",
-                "qwen3-8b-thinking-sc7-logprobs-seeded"
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
             ],
             "prompts": [
                 "strict_exploitable_security_root_findings"
@@ -34,11 +33,49 @@
                 "mult_amp_root_findings_on"
             ],
             "models": [
-                "lfm25-2.6b-fable5-heretic-thinking-sc7-logprobs-seeded",
-                "qwen3-8b-thinking-sc7-logprobs-seeded"
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
             ],
             "prompts": [
                 "strict_exploitable_security_root_findings"
+            ],
+            "sample_limit": 40
+        },
+        "static_findings_verify_sweep": {
+            "description": "Finding-verification prompt, B101/B113 filtered, empty section omitted, wrong labels excluded",
+            "datasets": [
+                "cpg_structural_root_findings_verify",
+                "mult_amp_root_findings_verify"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "finding_verification_root_findings"
+            ],
+            "coverage_levels": [
+                0.25,
+                0.5,
+                0.75,
+                1.0
+            ]
+        },
+        "static_findings_verify_smoke": {
+            "description": "Smoke test of the finding-verification sweep",
+            "datasets": [
+                "cpg_structural_root_findings_verify",
+                "mult_amp_root_findings_verify"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "finding_verification_root_findings"
+            ],
+            "coverage_levels": [
+                0.25,
+                0.5,
+                0.75,
+                1.0
             ],
             "sample_limit": 40
         }

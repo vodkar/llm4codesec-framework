@@ -14,8 +14,9 @@ from benchmark.response_parser import (
     has_explicit_binary_verdict,
 )
 from benchmark.results import BenchmarkRunResult
+from benchmark.sample_exclusions import apply_sample_exclusions
 from benchmark.sampling_seeds import draw_seed
-from benchmark.static_findings import render_root_findings_block
+from benchmark.static_findings import filter_root_findings, render_root_findings_block
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
@@ -80,7 +81,9 @@ def _aggregate_draw_confidences(
 
 
 def user_template_values(
-    sample: BenchmarkSample, render_root_findings: bool
+    sample: BenchmarkSample,
+    render_root_findings: bool,
+    omit_empty_root_findings: bool = False,
 ) -> dict[str, str]:
     """Per-sample user-prompt template values.
 
@@ -95,21 +98,32 @@ def user_template_values(
         )
     return {
         "code": sample.code,
-        "root_static_findings": render_root_findings_block(sample.root_static_findings),
+        "root_static_findings": render_root_findings_block(
+            sample.root_static_findings, omit_empty=omit_empty_root_findings
+        ),
     }
 
 
 def sample_provenance(
-    sample: BenchmarkSample, render_root_findings: bool
+    sample: BenchmarkSample,
+    render_root_findings: bool,
+    omit_empty_root_findings: bool = False,
 ) -> dict[str, Any]:
-    """Per-sample fields stored on every prediction for cross-report analysis."""
+    """Per-sample fields stored on every prediction for cross-report analysis.
+
+    ``root_findings_in_prompt`` is True only when a findings block was actually
+    rendered (an omitted empty section counts as not rendered).
+    """
+    rendered: bool = render_root_findings and (
+        bool(sample.root_static_findings) or not omit_empty_root_findings
+    )
     raw_row_ids: Any = sample.metadata.get("source_row_ids")
     return {
         "source_row_ids": [int(row_id) for row_id in raw_row_ids]
         if raw_row_ids is not None
         else None,
         "root_static_findings": sample.root_static_findings,
-        "root_findings_in_prompt": render_root_findings,
+        "root_findings_in_prompt": rendered,
     }
 
 
@@ -131,6 +145,7 @@ class BenchmarkRunner(BaseModel):
             self.config.dataset_path, self.config.sample_limit * 3 if self.config.sample_limit else None
         )
         _LOGGER.info(f"Loaded {len(samples)} samples")
+        samples, run_metadata = self._prepare_samples(samples)
 
         llm = create_llm_inference(self.config)
         try:
@@ -164,7 +179,7 @@ class BenchmarkRunner(BaseModel):
             llm.cleanup()
 
         metrics_calculator = MetricsCalculatorFactory.create_calculator(
-            self.config.task_type
+            self.config.task_type, coverage_levels=self.config.coverage_levels
         )
         metrics = metrics_calculator.calculate(predictions)
 
@@ -175,7 +190,41 @@ class BenchmarkRunner(BaseModel):
             total_time=total_time,
             predictions=predictions,
             filtered_sample_ids=filtered_sample_ids,
+            run_metadata=run_metadata,
         )
+
+    def _prepare_samples(
+        self, samples: SampleCollection
+    ) -> tuple[SampleCollection, dict[str, Any]]:
+        """Drop excluded samples and filtered analyzer rules before any filtering.
+
+        Returns:
+            The kept samples and run metadata recording what was excluded.
+        """
+        exclusion = apply_sample_exclusions(list(samples), self.config.exclude_samples)
+        if exclusion.unmatched:
+            _LOGGER.warning(
+                "%d sample exclusions matched no sample: %s",
+                len(exclusion.unmatched),
+                [entry.key for entry in exclusion.unmatched],
+            )
+        if exclusion.excluded:
+            _LOGGER.info("Excluded %d samples", len(exclusion.excluded))
+        run_metadata: dict[str, Any] = {
+            "excluded_samples": [entry.model_dump() for entry in exclusion.excluded],
+            "unmatched_exclusions": [entry.model_dump() for entry in exclusion.unmatched],
+        }
+        kept: list[BenchmarkSample] = [
+            sample.model_copy(
+                update={
+                    "root_static_findings": filter_root_findings(
+                        sample.root_static_findings, self.config.exclude_finding_rules
+                    )
+                }
+            )
+            for sample in exclusion.kept
+        ]
+        return SampleCollection(kept), run_metadata
 
     def _filter_samples_by_token_limit(
         self,
@@ -211,7 +260,11 @@ class BenchmarkRunner(BaseModel):
         for sample in samples:
             system_prompt = prompt_generator.get_system_prompt()
             user_prompt = prompt_generator.get_user_prompt(
-                user_template_values(sample, self.config.render_root_findings)
+                user_template_values(
+                    sample,
+                    self.config.render_root_findings,
+                    self.config.omit_empty_root_findings,
+                )
             )
             full_text = system_prompt + "\n" + user_prompt
             if llm.count_input_tokens(full_text) <= input_budget:
@@ -300,7 +353,11 @@ class BenchmarkRunner(BaseModel):
         for sample in samples:
             sys_p = prompt_generator.get_system_prompt()
             usr_p = prompt_generator.get_user_prompt(
-                user_template_values(sample, self.config.render_root_findings)
+                user_template_values(
+                    sample,
+                    self.config.render_root_findings,
+                    self.config.omit_empty_root_findings,
+                )
             )
             for draw_index in range(n):
                 expanded_system_prompts.append(sys_p)
@@ -323,7 +380,9 @@ class BenchmarkRunner(BaseModel):
 
         for i, sample in enumerate(samples):
             provenance: dict[str, Any] = sample_provenance(
-                sample, self.config.render_root_findings
+                sample,
+                self.config.render_root_findings,
+                self.config.omit_empty_root_findings,
             )
             # Slice the N InferenceResults that belong to this sample
             group: list[InferenceResult] = batch_results[i * n : (i + 1) * n]

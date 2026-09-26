@@ -212,7 +212,8 @@ def test_coverage_selection_rounds_up():
     assert _close(result.summary["accuracy_at_coverage_50"], 2 / 3), result.summary
     assert _close(result.summary["accuracy_at_coverage_75"], 0.75), result.summary
     levels = result.details["selective_prediction"]["levels"]
-    assert [level["selected_samples"] for level in levels] == [2, 3, 4], levels
+    # The default levels include full coverage (100% -> all 5).
+    assert [level["selected_samples"] for level in levels] == [2, 3, 4, 5], levels
     # Probabilities are 1.0, 0.9, 0.8, 0.7, 0.6 -> cutoffs at ranks 2, 3, 4.
     for level, expected in zip(levels, [0.9, 0.8, 0.7]):
         assert _close(level["min_answer_probability"], expected), levels

@@ -172,6 +172,28 @@ docker-compose run --rm llm4codesec-benchmark python cli.py run-plan context_ass
     --datasets-config configs/static_findings_root/datasets.json
 ```
 
+Follow-up (finding verification): dataset entries may set `exclude_samples`
+(`[{source_row_ids, label, reason}]`, audited wrong labels; all 7
+`static_findings_root` entries carry the same 18), `exclude_finding_rules`
+(fnmatch on `rule_id`, e.g. `["B101", "B113"]`) and `omit_empty_root_findings`
+(render nothing instead of "none reported"). Plans may set `coverage_levels`
+(default `[0.25, 0.5, 0.75, 1.0]`); binary reports carry
+`{accuracy,precision,recall,f1_score,fpr,fnr}_at_coverage_<pct>`. Plans
+`static_findings_verify_sweep` / `_smoke` run prompt
+`finding_verification_root_findings` on the two `*_verify` datasets.
+Recompute and merge saved reports without inference (container, `results/` is
+root-owned; `--output-dir` must be new or empty; `--model` is required when a
+plan dir holds several models):
+```bash
+docker-compose run --rm llm4codesec-benchmark python cli.py merge-plan-results \
+    --plan-dir results/static_findings_root/static_findings_root_sweep \
+    --plan-dir results/static_findings_root/static_findings_verify_sweep \
+    --datasets-config configs/static_findings_root/datasets.json \
+    --exclude-finding-rules B101,B113 \
+    --model gemma4-12b-it-thinking-sc7-logprobs-seeded \
+    --output-dir results/static_findings_root/merged_verify
+```
+
 ## File layout notes
 
 - `src/` is copied to `/app/` inside Docker — paths inside the container have no `src/` prefix.

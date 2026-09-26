@@ -32,6 +32,8 @@ from analysis.reference_context.report import (
 )
 from analysis.reference_context.run_config import ReferenceRunConfig
 from benchmark.config import ExperimentConfig
+from benchmark.coverage import validate_coverage_levels
+from benchmark.merge_results import merge_plan_results
 from benchmark.run_experiment import (
     create_experiment_summary,
     rebuild_experiment_plan_results,
@@ -494,6 +496,45 @@ def rebuild_plan_results(
     summary: str = create_experiment_summary(rebuilt_result)
     for line in summary.splitlines():
         _LOGGER.info(line)
+
+
+@app.command("merge-plan-results")
+def merge_plan_results_command(
+    plan_dir: list[str] = typer.Option(
+        ..., "--plan-dir", help="Plan output directory; repeat to merge several plans."
+    ),
+    datasets_config: str = typer.Option(
+        ..., "--datasets-config", help="Datasets config with each condition's exclude_samples."
+    ),
+    output_dir: str = typer.Option(
+        ..., "--output-dir", help="Directory for recomputed reports and summary.md."
+    ),
+    model: list[str] | None = typer.Option(
+        None, "--model", help="Only merge conditions of this model directory; repeatable."
+    ),
+    coverage_levels: str = typer.Option(
+        "0.25,0.5,0.75,1.0", "--coverage-levels", help="Comma-separated levels in (0, 1]."
+    ),
+    exclude_finding_rules: str = typer.Option(
+        "", "--exclude-finding-rules",
+        help="Comma-separated fnmatch rule patterns dropped from stored findings (analysis only).",
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose logging."
+    ),
+    log_level: str = typer.Option("INFO", "--log-level", help="Log level."),
+) -> None:
+    """Recompute saved reports under sample exclusions and merge plans into one summary."""
+    _configure_logging(verbose=verbose, log_level=log_level)
+    levels: tuple[float, ...] = validate_coverage_levels(
+        [float(level) for level in coverage_levels.split(",") if level.strip()]
+    )
+    rules: list[str] = [rule.strip() for rule in exclude_finding_rules.split(",") if rule.strip()]
+    summary_path: Path = merge_plan_results(
+        [Path(path) for path in plan_dir], Path(datasets_config), levels, rules, Path(output_dir),
+        models=model or None,
+    )
+    typer.echo(summary_path.read_text(encoding="utf-8"))
 
 
 @app.command("analyze-reference-context")

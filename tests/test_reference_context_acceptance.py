@@ -472,7 +472,79 @@ def test_budget_check_median_deviation() -> None:
         for c, t in zip(cpg, (100, 97, 60))
     ]
     result = budget_check(_inputs(cpg + ref))
-    assert result.value == 0.03 and result.passed
+    assert result.value == 1.0 and result.passed
+    assert result.detail["median_relative_shortfall"] == 0.03
+    assert result.detail["n_violations"] == 0
+    assert result.detail["violators"] == []
+
+
+def _budget_pair(
+    pair: str, cpg_tokens: int, ref_tokens: int, ref_context: int | None
+) -> list[ItemRecord]:
+    cpg = _item(pair, 1, 0.5, "r", Condition.CPG, token_count=cpg_tokens)
+    ref = cpg.model_copy(
+        update={
+            "condition": Condition.REFERENCE,
+            "token_count": ref_tokens,
+            "context_token_count": ref_context,
+        }
+    )
+    return [cpg, ref]
+
+
+def test_budget_check_violation_only_when_reference_has_context() -> None:
+    items = [
+        *_budget_pair("aaaaaaaaaaaa", 100, 101, 5),
+        *_budget_pair("bbbbbbbbbbbb", 100, 100, 5),
+        *_budget_pair("cccccccccccc", 100, 50, 5),
+    ]
+    result = budget_check(_inputs(items))
+    assert result.passed is False
+    assert result.value == 2 / 3
+    assert result.detail["n_violations"] == 1
+    assert result.detail["violators"] == ["aaaaaaaaaaaa_vuln"]
+
+
+def test_budget_check_targets_only_overshoot_passes() -> None:
+    items = [
+        *_budget_pair("aaaaaaaaaaaa", 100, 400, 0),
+        *_budget_pair("bbbbbbbbbbbb", 100, 90, 10),
+    ]
+    result = budget_check(_inputs(items))
+    assert result.passed is True
+    assert result.value == 1.0
+    assert result.detail["n_violations"] == 0
+
+
+def test_budget_check_missing_context_count_overshoot_violates() -> None:
+    result = budget_check(_inputs(_budget_pair("aaaaaaaaaaaa", 100, 101, None)))
+    assert result.passed is False
+    assert result.detail["violators"] == ["aaaaaaaaaaaa_vuln"]
+
+
+def test_budget_check_underfill_does_not_fail() -> None:
+    items = [
+        *_budget_pair("aaaaaaaaaaaa", 100, 10, 3),
+        *_budget_pair("bbbbbbbbbbbb", 100, 20, 0),
+    ]
+    items = [
+        i.model_copy(update={"underfill": True})
+        if i.condition == Condition.REFERENCE
+        else i
+        for i in items
+    ]
+    result = budget_check(_inputs(items))
+    assert result.passed is True
+    assert result.detail["underfill_rate"] == 1.0
+    assert abs(result.detail["median_relative_shortfall"] - 0.85) < 1e-9
+
+
+def test_budget_check_lists_at_most_50_violators() -> None:
+    items = [item for i in range(60) for item in _budget_pair(f"{i:012d}", 10, 11, 1)]
+    result = budget_check(_inputs(items))
+    assert result.detail["n_violations"] == 60
+    assert len(result.detail["violators"]) == 50
+    assert result.value == 0.0
 
 
 def test_budget_check_underfill_rate() -> None:
@@ -511,7 +583,7 @@ def test_budget_check_fails_when_reference_item_has_no_cpg_match() -> None:
     extra_ref = _item("999999999999", 1, 0.5, "r", Condition.REFERENCE)
     result = budget_check(_inputs(cpg + ref + [extra_ref]))
     assert result.passed is False
-    assert result.value == 0.03
+    assert result.value == 1.0
     assert result.detail["n_unmatched_or_zero_cpg"] == 1
     assert "note" in result.detail
 
@@ -859,6 +931,11 @@ if __name__ == "__main__":
     test_budget_check_underfill_rate()
     test_budget_check_fails_when_reference_item_has_no_cpg_match()
     test_budget_check_fails_when_cpg_token_count_is_zero()
+    test_budget_check_violation_only_when_reference_has_context()
+    test_budget_check_targets_only_overshoot_passes()
+    test_budget_check_missing_context_count_overshoot_violates()
+    test_budget_check_underfill_does_not_fail()
+    test_budget_check_lists_at_most_50_violators()
     test_mismatched_control_passes_when_identical()
     test_mismatched_control_fails_when_mismatched_diverges()
     test_reproducibility_check_passes_when_everything_matches()

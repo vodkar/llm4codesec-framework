@@ -14,7 +14,7 @@ passing on an empty ``per_condition`` table.
 from collections import defaultdict
 from collections.abc import Sequence
 from statistics import median
-from typing import Final
+from typing import Final, NamedTuple
 
 import numpy as np
 import numpy.typing as npt
@@ -33,7 +33,7 @@ from analysis.reference_context.scoring import FloatArray, IntArray, score_array
 
 _LEAKAGE_AUC_THRESHOLD: Final[float] = 0.55
 _SYMMETRY_TOKEN_RATIO_THRESHOLD: Final[float] = 0.05
-_BUDGET_MEDIAN_THRESHOLD: Final[float] = 0.05
+_MAX_LISTED_VIOLATORS: Final[int] = 50
 _SANITY_ABS_TOL: Final[float] = 1e-12
 _MAX_GROUP_FOLDS: Final[int] = 5
 _MIN_REPOS_FOR_PROBE: Final[int] = 2
@@ -415,22 +415,51 @@ def symmetry_check(inputs: AnalysisInputs) -> CheckResult:
     )
 
 
+class _BudgetItem(NamedTuple):
+    """One REFERENCE item's budget comparison against its matching CPG item."""
+
+    item_id: str
+    violates: bool
+    shortfall: float
+
+
+def _budget_item(item: ItemRecord, cpg_token_count: int) -> _BudgetItem:
+    """Compare one REFERENCE item with its (nonzero-token) CPG item.
+
+    The item violates the cap iff it is longer than the cpg item **and** holds
+    non-target context (``context_token_count > 0``): a targets-only
+    reference cannot be shortened. A missing ``context_token_count`` is
+    treated as non-empty context, so an overshoot is never vacuously excused.
+    """
+
+    overshoots: bool = item.token_count > cpg_token_count
+    has_context: bool = item.context_token_count is None or item.context_token_count > 0
+    shortfall: float = max(0, cpg_token_count - item.token_count) / cpg_token_count
+    return _BudgetItem(item.item_id, overshoots and has_context, shortfall)
+
+
 def budget_check(inputs: AnalysisInputs) -> CheckResult:
-    """Check that reference contexts stay within the cpg condition's token budget.
+    """Check that reference contexts never exceed the cpg condition's token count.
+
+    The cpg item's ``token_count`` is a cap, not a target (decision
+    2026-09-26): a REFERENCE item **violates** iff
+    ``reference.token_count > cpg.token_count`` and
+    ``reference.context_token_count > 0`` (an overshoot by a targets-only
+    reference cannot be shortened and is not a violation; a missing
+    ``context_token_count`` counts as context). Underfill never fails.
 
     Args:
         inputs: Aligned analysis inputs.
 
     Returns:
-        ``value`` is the median, over ``REFERENCE`` items with a matching
-        ``item_id`` in the ``CPG`` condition, of
-        ``abs(ref_tokens - cpg_tokens) / cpg_tokens`` (``None`` if no item
-        matched). ``passed`` requires ``value <= 0.05`` **and** every
-        ``REFERENCE`` item to have a matching, nonzero-token ``CPG`` item;
-        any unmatched or zero-token item fails the check with a detail note
-        naming the count, even though the median is still reported over the
-        items that did match. ``detail["underfill_rate"]`` is the fraction
-        of ``REFERENCE`` items flagged ``underfill``.
+        ``value`` is the fraction of REFERENCE items with a matching,
+        nonzero-token CPG item that do not violate (``None`` if none
+        matched). ``passed`` requires ``value == 1.0`` **and** every
+        REFERENCE item to have a matching, nonzero-token CPG item; unmatched
+        or zero-token items fail the check with a detail note. ``detail``
+        reports the median relative shortfall ``max(0, cpg - ref) / cpg``,
+        the ``underfill_rate`` of REFERENCE items, ``n_violations`` and up to
+        ``_MAX_LISTED_VIOLATORS`` violating item ids.
     """
 
     by_condition = _by_condition(inputs.items)
@@ -438,26 +467,30 @@ def budget_check(inputs: AnalysisInputs) -> CheckResult:
         item.item_id: item.token_count for item in by_condition.get(Condition.CPG, [])
     }
     reference_items: list[ItemRecord] = by_condition.get(Condition.REFERENCE, [])
-
-    deviations: list[float] = []
-    unmatched_or_zero: int = 0
-    for item in reference_items:
-        cpg_token_count: int | None = cpg_tokens.get(item.item_id)
-        if cpg_token_count is None or cpg_token_count == 0:
-            unmatched_or_zero += 1
-            continue
-        deviations.append(abs(item.token_count - cpg_token_count) / cpg_token_count)
-
-    value: float | None = median(deviations) if deviations else None
+    compared: list[_BudgetItem] = [
+        _budget_item(item, cpg_tokens[item.item_id])
+        for item in reference_items
+        if cpg_tokens.get(item.item_id)
+    ]
+    unmatched_or_zero: int = len(reference_items) - len(compared)
+    violators: list[str] = sorted(entry.item_id for entry in compared if entry.violates)
+    value: float | None = (
+        (len(compared) - len(violators)) / len(compared) if compared else None
+    )
     underfill_rate: float | None = (
         sum(item.underfill for item in reference_items) / len(reference_items)
         if reference_items
         else None
     )
     detail: dict[str, object] = {
+        "median_relative_shortfall": (
+            median(entry.shortfall for entry in compared) if compared else None
+        ),
         "underfill_rate": underfill_rate,
-        "n_matched_items": len(deviations),
+        "n_matched_items": len(compared),
         "n_unmatched_or_zero_cpg": unmatched_or_zero,
+        "n_violations": len(violators),
+        "violators": violators[:_MAX_LISTED_VIOLATORS],
     }
     has_unmatched: bool = unmatched_or_zero > 0
     if has_unmatched:
@@ -465,16 +498,13 @@ def budget_check(inputs: AnalysisInputs) -> CheckResult:
             f"{unmatched_or_zero} REFERENCE item(s) lack a matching, nonzero-token "
             "CPG item"
         )
-    elif not deviations:
+    elif not compared:
         detail["note"] = "no item_id matched between REFERENCE and CPG"
-    passed: bool = (
-        value is not None and value <= _BUDGET_MEDIAN_THRESHOLD and not has_unmatched
-    )
     return CheckResult(
         name="budget_check",
-        passed=passed,
+        passed=value == 1.0 and not has_unmatched,
         value=value,
-        threshold=f"median relative deviation <= {_BUDGET_MEDIAN_THRESHOLD}, "
+        threshold="no REFERENCE item with context exceeds its CPG item's tokens, "
         "every REFERENCE item matched",
         detail=detail,
     )

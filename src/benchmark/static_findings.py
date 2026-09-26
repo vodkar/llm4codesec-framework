@@ -5,6 +5,7 @@ Datasets built by llm_scanner with ``--include-static-findings`` carry a
 function under analysis; only those are used here.
 """
 
+import fnmatch
 from typing import Any
 
 from pydantic import BaseModel
@@ -79,14 +80,30 @@ def root_findings_from_raw(
     return findings
 
 
-def render_root_findings_block(findings: list[RootStaticFinding]) -> str:
+def filter_root_findings(
+    findings: list[RootStaticFinding] | None, patterns: list[str]
+) -> list[RootStaticFinding] | None:
+    """Drop findings whose ``rule_id`` matches any ``fnmatch`` pattern; None stays None."""
+    if findings is None or not patterns:
+        return findings
+    return [
+        finding
+        for finding in findings
+        if not any(fnmatch.fnmatchcase(finding.rule_id, pattern) for pattern in patterns)
+    ]
+
+
+def render_root_findings_block(
+    findings: list[RootStaticFinding], omit_empty: bool = False
+) -> str:
     """Render findings as the value of the ``{root_static_findings}`` placeholder.
 
     The value starts with a blank-line separator so it lays out cleanly whether
-    the placeholder sits after or before ``{code}``.
+    the placeholder sits after or before ``{code}``. With ``omit_empty``, an
+    empty list renders nothing instead of the "none reported" line.
     """
     if not findings:
-        return _BLOCK_SEPARATOR + _NO_FINDINGS_TEXT
+        return "" if omit_empty else _BLOCK_SEPARATOR + _NO_FINDINGS_TEXT
     lines: list[str] = [_FINDINGS_HEADER]
     for index, finding in enumerate(findings, start=1):
         tags: list[str] = [f"{finding.tool} {finding.rule_id}"]

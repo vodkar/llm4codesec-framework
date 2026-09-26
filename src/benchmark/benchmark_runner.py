@@ -16,7 +16,7 @@ from benchmark.response_parser import (
 from benchmark.results import BenchmarkRunResult
 from benchmark.sample_exclusions import apply_sample_exclusions
 from benchmark.sampling_seeds import draw_seed
-from benchmark.static_findings import render_root_findings_block
+from benchmark.static_findings import filter_root_findings, render_root_findings_block
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
@@ -81,7 +81,9 @@ def _aggregate_draw_confidences(
 
 
 def user_template_values(
-    sample: BenchmarkSample, render_root_findings: bool
+    sample: BenchmarkSample,
+    render_root_findings: bool,
+    omit_empty_root_findings: bool = False,
 ) -> dict[str, str]:
     """Per-sample user-prompt template values.
 
@@ -96,7 +98,9 @@ def user_template_values(
         )
     return {
         "code": sample.code,
-        "root_static_findings": render_root_findings_block(sample.root_static_findings),
+        "root_static_findings": render_root_findings_block(
+            sample.root_static_findings, omit_empty=omit_empty_root_findings
+        ),
     }
 
 
@@ -183,7 +187,7 @@ class BenchmarkRunner(BaseModel):
     def _prepare_samples(
         self, samples: SampleCollection
     ) -> tuple[SampleCollection, dict[str, Any]]:
-        """Drop excluded samples (e.g. audited wrong labels) before any filtering.
+        """Drop excluded samples and filtered analyzer rules before any filtering.
 
         Returns:
             The kept samples and run metadata recording what was excluded.
@@ -201,7 +205,17 @@ class BenchmarkRunner(BaseModel):
             "excluded_samples": [entry.model_dump() for entry in exclusion.excluded],
             "unmatched_exclusions": [entry.model_dump() for entry in exclusion.unmatched],
         }
-        return SampleCollection(exclusion.kept), run_metadata
+        kept: list[BenchmarkSample] = [
+            sample.model_copy(
+                update={
+                    "root_static_findings": filter_root_findings(
+                        sample.root_static_findings, self.config.exclude_finding_rules
+                    )
+                }
+            )
+            for sample in exclusion.kept
+        ]
+        return SampleCollection(kept), run_metadata
 
     def _filter_samples_by_token_limit(
         self,
@@ -237,7 +251,11 @@ class BenchmarkRunner(BaseModel):
         for sample in samples:
             system_prompt = prompt_generator.get_system_prompt()
             user_prompt = prompt_generator.get_user_prompt(
-                user_template_values(sample, self.config.render_root_findings)
+                user_template_values(
+                    sample,
+                    self.config.render_root_findings,
+                    self.config.omit_empty_root_findings,
+                )
             )
             full_text = system_prompt + "\n" + user_prompt
             if llm.count_input_tokens(full_text) <= input_budget:
@@ -326,7 +344,11 @@ class BenchmarkRunner(BaseModel):
         for sample in samples:
             sys_p = prompt_generator.get_system_prompt()
             usr_p = prompt_generator.get_user_prompt(
-                user_template_values(sample, self.config.render_root_findings)
+                user_template_values(
+                    sample,
+                    self.config.render_root_findings,
+                    self.config.omit_empty_root_findings,
+                )
             )
             for draw_index in range(n):
                 expanded_system_prompts.append(sys_p)

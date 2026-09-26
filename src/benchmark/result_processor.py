@@ -293,6 +293,8 @@ class BenchmarkResultProcessor(BaseModel):
                 self.config, "vulnerability_type"
             )
         extra_metadata["render_root_findings"] = self.config.render_root_findings
+        extra_metadata["exclude_finding_rules"] = list(self.config.exclude_finding_rules)
+        extra_metadata["omit_empty_root_findings"] = self.config.omit_empty_root_findings
 
         model_run_config = ModelRunConfig(
             model_name=self.config.model_name,

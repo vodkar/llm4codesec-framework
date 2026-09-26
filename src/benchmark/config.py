@@ -87,6 +87,10 @@ class DatasetConfig(BaseModel):
     """Fill the {root_static_findings} prompt placeholder with the sample's root findings."""
     exclude_samples: list[SampleExclusion] = []
     """Samples to drop by (source_row_ids, label), e.g. audited wrong labels."""
+    exclude_finding_rules: list[str] = []
+    """fnmatch patterns of analyzer rule ids dropped from root findings before rendering."""
+    omit_empty_root_findings: bool = False
+    """Render nothing instead of "none reported" when no root findings remain."""
 
     def model_post_init(self, context: Any) -> None:
         if not self.path.exists():
@@ -177,6 +181,10 @@ class ExperimentConfig(BaseModel):
     """Copied from the dataset config; see DatasetConfig.render_root_findings."""
     exclude_samples: list[SampleExclusion] = []
     """Copied from the dataset config; see DatasetConfig.exclude_samples."""
+    exclude_finding_rules: list[str] = []
+    """Copied from the dataset config; see DatasetConfig.exclude_finding_rules."""
+    omit_empty_root_findings: bool = False
+    """Copied from the dataset config; see DatasetConfig.omit_empty_root_findings."""
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -353,6 +361,8 @@ class ExperimentConfig(BaseModel):
             cwe_type=dataset_config.cwe_type,
             render_root_findings=dataset_config.render_root_findings,
             exclude_samples=dataset_config.exclude_samples,
+            exclude_finding_rules=dataset_config.exclude_finding_rules,
+            omit_empty_root_findings=dataset_config.omit_empty_root_findings,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,
             sample_limit=sample_limit,

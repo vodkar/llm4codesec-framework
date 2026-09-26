@@ -1,0 +1,690 @@
+{
+  "description": "CleanVul samples whose dataset label was found wrong by manual audit against the real fix commit. Audited 2026-09-26: ALL 54 samples wrong on all 35 votes (5 conditions x 7 self-consistency draws) in static_findings_root_sweep (32 FN, 22 FP). Batches 1-4 were seeded 6 FN + 4 FP picks (Random(20260926..20260929)); batch 5 was the remaining 14. Outcome: 17 wrong labels (samples), 2 disputed, 5 not judgeable from the function, 30 genuine model errors. Tiers 34/35 and 33/35 wrong votes (13 + 19 = 32 samples) fully audited: 2 wrong labels, 3 disputed, 1 not judgeable, 26 model errors.",
+  "source_csv": "benchmarks/CleanVul/vulnerability_score_4.csv",
+  "source_row_id_note": "cleanvul_source_row_ids are 0-based data-row indices into source_csv (header excluded), as stored in metadata.source_row_ids; a sample may merge several rows of one commit.",
+  "experiment": "results/static_findings_root/static_findings_root_sweep",
+  "samples": [
+    {
+      "sample_id": "CleanVulContextAssembler-507",
+      "cleanvul_source_row_ids": [
+        789,
+        2754
+      ],
+      "rows": [
+        {
+          "row_id": 789,
+          "file_name": "vyper/old_codegen/stmt.py",
+          "function": "parse_Return"
+        },
+        {
+          "row_id": 2754,
+          "file_name": "vyper/old_codegen/return_.py",
+          "function": "make_return_stmt"
+        }
+      ],
+      "commit_url": "https://github.com/vyperlang/vyper/commit/04feca81b42dd82d978275933ab124f1464b838a",
+      "cve": null,
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "not_a_security_fix",
+      "reason": "WIP refactor of the return calling convention ('simplify return logic and protect return buffers from internal calls'). The buffer-clobbering guard protects the new code path; the old parse_Return/make_return_stmt has no demonstrable flaw that the commit removes. No CVE/GHSA.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-385",
+      "cleanvul_source_row_ids": [
+        3607
+      ],
+      "rows": [
+        {
+          "row_id": 3607,
+          "file_name": "waitress/task.py",
+          "function": "ErrorTask.execute"
+        }
+      ],
+      "commit_url": "https://github.com/Pylons/waitress/commit/f11093a6b3240fc26830b6111e826128af7771c3",
+      "cve": "GHSA-g2xc-35jw-c63p (CVE-2019-16785, CVE-2019-16786)",
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "collateral_change",
+      "reason": "Commit fixes HTTP request smuggling in parser.py/receiver.py/utilities.py. This function's delta only makes error responses always send 'Connection: close' (listed under Bugfixes, not Security Fixes, in CHANGES.txt). No smuggling flaw in this function.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-399",
+      "cleanvul_source_row_ids": [
+        3875
+      ],
+      "rows": [
+        {
+          "row_id": 3875,
+          "file_name": "cairosvg/parser.py",
+          "function_before": "Node.__init__",
+          "function_after": "Tree.__init__"
+        }
+      ],
+      "commit_url": "https://github.com/Kozea/CairoSVG/commit/12d31c653c0254fa9d9853f66b04ea46e7397255",
+      "cve": "CVE-2023-27586 (GHSA-rwmf-w63j-p7gv)",
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "mismatched_pair_upstream",
+      "reason": "Upstream CleanVul row pairs func_before = Node.__init__ (unchanged by the commit, just forwards url_fetcher) with func_after = Tree.__init__ (where the fix was added). Both are named __init__. The labelled-vulnerable function contains no vulnerable code; the real pre-fix Tree.__init__ is absent. The whole pair (label 1 and label 0 sides) is invalid.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-680",
+      "cleanvul_source_row_ids": [
+        1054,
+        1679,
+        1721,
+        3767
+      ],
+      "rows": [
+        {
+          "row_id": 1054,
+          "file_name": "PIL/Image.py",
+          "function": "_dump"
+        },
+        {
+          "row_id": 1679,
+          "file_name": "PIL/EpsImagePlugin.py",
+          "function": "Ghostscript"
+        },
+        {
+          "row_id": 1721,
+          "file_name": "PIL/IptcImagePlugin.py",
+          "function": "load"
+        },
+        {
+          "row_id": 3767,
+          "file_name": "PIL/JpegImagePlugin.py",
+          "function": "load_djpeg",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/python-imaging/Pillow/commit/4e9f367dfd3f04c8f5d23f7f759ec12782e10ee7",
+      "cve": "CVE-2014-1932, CVE-2014-1933 (fixed); CVE-2014-3007 (remains)",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "mktemp race is fixed, but func_after of load_djpeg (row 3767) still does os.system(\"djpeg '%s' >'%s'\" % (self.filename, path)); a filename containing a single quote breaks out -> shell injection, CVE-2014-3007, re-fixed in Pillow 2.5.0 with subprocess.check_call([...]). Model flagged exactly this.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-325",
+      "cleanvul_source_row_ids": [
+        5192
+      ],
+      "rows": [
+        {
+          "row_id": 5192,
+          "file_name": "api/api/validator.py",
+          "function": "is_safe_path"
+        }
+      ],
+      "commit_url": "https://github.com/wazuh/wazuh/commit/96c78342e1f4f385f1e62540679ab653513cc6b1",
+      "cve": null,
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "collateral_change",
+      "reason": "The flaw was the active-response endpoint not validating 'command' at all; the fix adds a new format checker in validator.py/spec.yaml that reuses is_safe_path. The is_safe_path delta ('./' check dropped, '..\\\\' added for Windows agents) is incidental; pre-fix is_safe_path with realpath+commonpath is not exploitable for its existing POSIX callers.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-584",
+      "cleanvul_source_row_ids": [
+        3304,
+        3716,
+        4838
+      ],
+      "rows": [
+        {
+          "row_id": 3304,
+          "file_name": "keylime/tpm/tpm_main.py",
+          "function": "_tpm2_checkquote",
+          "still_vulnerable": true
+        },
+        {
+          "row_id": 3716,
+          "file_name": "keylime/tpm/tpm_abstract.py",
+          "function": "create_quote"
+        },
+        {
+          "row_id": 4838,
+          "file_name": "keylime/tpm/tpm_main.py",
+          "function": "create_quote"
+        }
+      ],
+      "commit_url": "https://github.com/keylime/keylime/commit/6e44758b64b0ee13564fc46e807f4ba98091c355",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "Zip-bomb DoS fix only makes compression optional: _tpm2_checkquote still runs unbounded zlib.decompress on agent-supplied quote/sig/pcr blobs when compressed=True, and callers pass compressed=(agent['supported_version'] == '1.0'). At this commit 1.0 is the only API version, so every agent still triggers decompression (the code even logs 'Decompressing quote data which is unsafe!').",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-450",
+      "cleanvul_source_row_ids": [
+        2813
+      ],
+      "rows": [
+        {
+          "row_id": 2813,
+          "file_name": "app_doc/import_utils.py",
+          "function": "ImportZipProject.read_zip",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/zmister2016/mrdoc/commit/bb49e1287700b4e7681eab544c61093821ce72f6",
+      "cve": "CVE-2021-32568 (fixed: yaml.load -> yaml.safe_load)",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "YAML deserialization is fixed, but toc[].file values from the attacker's mrdoc.yaml go into open(os.path.join(self.temp_dir, i['file'])) unchecked; an absolute path or '../' reads arbitrary files into a Doc the attacker owns (arbitrary file read). Model's stated reason (Zip Slip in shutil.unpack_archive) is wrong for .zip, so the verdict is right for the wrong reason.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-92",
+      "cleanvul_source_row_ids": [
+        1530,
+        2253,
+        2678,
+        3270,
+        3719,
+        4771,
+        4937,
+        5155,
+        5533,
+        5732,
+        5800
+      ],
+      "rows": [
+        {
+          "row_id": 5155,
+          "file_name": "radicale/storage/multifilesystem.py",
+          "function": "Collection.remove",
+          "still_vulnerable": true
+        },
+        {
+          "row_id": "others",
+          "note": "10 other filesystem.py/multifilesystem.py path-conversion methods, correctly fixed"
+        }
+      ],
+      "commit_url": "https://github.com/Kozea/Radicale/commit/b4b3d51f33c7623d312f289252dd7bbb8f58bbe6",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "Collection paths now go through path_to_filesystem, but multifilesystem remove(name) still does os.remove(os.path.join(self._filesystem_path, name)) with the unchecked last URL segment (Windows '..\\\\' traversal). Fixed 55 min later upstream in bcaf452 'Convert component names safely to filenames' (adds is_safe_filesystem_path_component to remove()/write()); both shipped in Radicale 1.1.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-522",
+      "cleanvul_source_row_ids": [
+        1310,
+        4752
+      ],
+      "rows": [
+        {
+          "row_id": 1310,
+          "file_name": "opendiamond/dataretriever/diamond_store.py",
+          "function": "_get_index_absolute_path"
+        },
+        {
+          "row_id": 4752,
+          "file_name": "opendiamond/dataretriever/yfcc100m_mysql_store.py",
+          "function": "_get_object_element",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/cmusatyalab/opendiamond/commit/398049c187ee644beabab44d6fece82251c1ea56",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "other_vulnerability_remains",
+      "reason": "Path traversal fixed via safe_join, but _get_object_element (reached from @route('/id/<dataset>/<int:seq_no>')) concatenates the URL segment 'dataset' into 'SELECT rel_path, download_link FROM ' + dataset + ' WHERE ...' -> UNION-based SQL injection. Model flagged exactly this. Same SQLi seen in the earlier function-only audit.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-722",
+      "cleanvul_source_row_ids": [
+        1190,
+        5922
+      ],
+      "rows": [
+        {
+          "row_id": 1190,
+          "file_name": "python-flask/main.py",
+          "function": "sign_in_callback",
+          "still_vulnerable": true
+        },
+        {
+          "row_id": 5922,
+          "file_name": "python-flask/main.py",
+          "function": "sign_in"
+        }
+      ],
+      "commit_url": "https://github.com/valtech/valtech-idp-test-clients/commit/f1e7b3d431c8681ec46445557125890c14fa295f",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "OAuth state check is `if state != request.cookies.get('python-flask-csrf')`: an attacker omitting state against a victim with no cookie gives None == None, so the login CSRF (attacker code -> victim logged in as attacker) still works. Model flagged a different line (jwt.decode(verify=False) on a TLS back-channel id_token, not exploitable) — right label, wrong reason.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-25",
+      "cleanvul_source_row_ids": [
+        4300,
+        5858
+      ],
+      "rows": [
+        {
+          "row_id": 4300,
+          "file_name": "mitmproxy/addons/proxyserver.py",
+          "function": "Proxyserver.load"
+        },
+        {
+          "row_id": 5858,
+          "file_name": "mitmproxy/proxy/layers/http/_http2.py",
+          "function": "Http2Connection.__init__"
+        }
+      ],
+      "commit_url": "https://github.com/mitmproxy/mitmproxy/commit/b06fb6d157087d526bd02e7aadbe37c56865c71b",
+      "cve": "GHSA-gcx2-gvj7-pxv3",
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "collateral_change",
+      "reason": "Request-smuggling fix is validate_headers() in http1/read.py, called from _http1.py. The sample only contains plumbing for the new validate_inbound_headers option (option registration + copying it into h2_conf). HTTP/2 already defaulted validate_inbound_headers=True, so pre-fix code here is not vulnerable.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-612",
+      "cleanvul_source_row_ids": [
+        3982,
+        4580,
+        5040
+      ],
+      "rows": [
+        {
+          "row_id": 3982,
+          "file_name": "app/routes.py",
+          "function": "config"
+        },
+        {
+          "row_id": 4580,
+          "file_name": "app/routes.py",
+          "function": "window",
+          "still_vulnerable": true
+        },
+        {
+          "row_id": 5040,
+          "file_name": "app/routes.py",
+          "function": "element",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/benbusby/whoogle-search/commit/3a2e0b262e4a076a20416b45e6b6f23fd265aeda",
+      "cve": "CVE-2024-22203, CVE-2024-22204, CVE-2024-22205, CVE-2024-22417 (GHSL-2023-186..189)",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "SSRF fix is validators.domain(netloc), a syntax-only check: a hostname resolving to an internal IP (e.g. 127.0.0.1.nip.io) or a redirect to one still reaches internal hosts. element() still returns send_file(..., mimetype=src_type) with src_type from the request, so attacker HTML served as text/html gives the XSS of CVE-2024-22417. Model's stated reason (pickle RCE in config) is wrong — right label, wrong reason.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-424",
+      "cleanvul_source_row_ids": [
+        4728
+      ],
+      "rows": [
+        {
+          "row_id": 4728,
+          "file_name": "gerapy/server/core/views.py",
+          "function": "project_configure",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/Gerapy/Gerapy/commit/e8446605eb2424717418eae199ec7aad573da2d2",
+      "cve": "CVE-2020-7698 (incompletely fixed; properly fixed in 0.9.8)",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "Fix is a blacklist re.sub('[\\!\\@\\#\\$\\;\\&\\*\\~\\\"\\'\\{\\}\\]\\[\\-\\+\\%\\^]+', '', project_name) before Popen('gerapy generate ' + name, shell=True). Backtick, |, <, >, ( ) survive, so project names like p`id` or p|id from the URL path still execute. Upstream later switched to argv list with shell=False. Model flagged exactly the backtick bypass.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-203",
+      "cleanvul_source_row_ids": [
+        1693
+      ],
+      "rows": [
+        {
+          "row_id": 1693,
+          "file_name": "jwcrypto/jwa.py",
+          "function_before": "_RawKeyMgmt.unwrap (abstract stub)",
+          "function_after": "_Rsa15.unwrap"
+        }
+      ],
+      "commit_url": "https://github.com/latchset/jwcrypto/commit/eb5be5bd94c8cae1d7f3ba9801377084d8e5a7ba",
+      "cve": "CVE-2016-6298",
+      "dataset_label": 1,
+      "correct_label": 0,
+      "model_prediction": 0,
+      "issue": "mismatched_pair_upstream",
+      "reason": "Upstream row pairs func_before = abstract `def unwrap(...): raise NotImplementedError` with func_after = the newly added _Rsa15.unwrap (RFC 3218 random filling). The real padding oracle was in _RSA.unwrap, which is not in the row. The label-1 stub is not vulnerable; the pair is invalid.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-36",
+      "cleanvul_source_row_ids": [
+        4415
+      ],
+      "rows": [
+        {
+          "row_id": 4415,
+          "file_name": "mindsdb/api/http/namespaces/file.py",
+          "function": "File.put",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/mindsdb/mindsdb/commit/4419b0f0019c000db390b54d8b9d06e1d3670039",
+      "cve": "CVE-2023-30620 (fixed); CVE-2023-50731, CVE-2023-49795 (remain)",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "other_vulnerability_remains",
+      "reason": "TarSlip replaced by safe_extract, but the same function still does data['file'] = data['name'] (user-controlled) -> open(os.path.join(temp_dir_path, data['file']), 'wb') = arbitrary file write (CVE-2023-50731), and requests.get(url) on a user URL = SSRF (CVE-2023-49795). safe_extract itself uses a commonprefix check (sibling-dir bypass, ignores links). Model flagged the data['file'] traversal.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-120",
+      "cleanvul_source_row_ids": [
+        50,
+        1125,
+        2048,
+        3812,
+        4114,
+        4276,
+        4972,
+        5439
+      ],
+      "rows": [
+        {
+          "row_id": 4276,
+          "file_name": "shuup/front/urls.py",
+          "function": "_not_here_yet",
+          "still_vulnerable": true
+        },
+        {
+          "row_id": "others",
+          "note": "7 other views correctly escaped"
+        }
+      ],
+      "commit_url": "https://github.com/shuup/shuup/commit/75714c37e32796eb7cbb0d977af5bcaa26573588",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "_not_here_yet still returns HttpResponse('Not here yet: %s (%r, %r)' % (request.path, escape(args), escape(kwargs))) as text/html: request.path is decoded and attacker-controlled, so reflected XSS remains (unchanged on shuup master). Model's stated reason ('arbitrary method execution' via dispatch_ prefix) is wrong — right label, wrong reason.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-188",
+      "cleanvul_source_row_ids": [
+        5882
+      ],
+      "rows": [
+        {
+          "row_id": 5882,
+          "file_name": "pandasai/__init__.py",
+          "function": "PandasAI._clean_code",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/gventuri/pandas-ai/commit/3aac79be8fc1d18b53d66a566adddbbdd2b38ad5",
+      "cve": "CVE-2023-39660 / CVE-2023-39661",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "New _is_jailbreak only checks ast.Name ids in {__subclasses__, __builtins__, __import__}; attribute access (ast.Attribute) passes, so ().__class__.__base__.__subclasses__() ... reaches exec() -> RCE (verified locally by the auditor). Model found exactly this bypass.",
+      "wrong_votes": 35
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-352",
+      "cleanvul_source_row_ids": [
+        1869
+      ],
+      "wrong_votes": 34,
+      "rows": [
+        {
+          "row_id": 1869,
+          "file_name": "applications/admin/controllers/default.py",
+          "function": "index",
+          "still_vulnerable": true
+        }
+      ],
+      "commit_url": "https://github.com/web2py/web2py/commit/944d8bd8f3c5cf8ae296fc03d149056c65358426",
+      "cve": "CVE-2016-10321 (fixed); open redirect remains",
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "other_vulnerability_remains",
+      "reason": "Brute-force lockout is now checked before password verification, but send = request.vars.send flows unchecked into redirect(send) (open redirect, CWE-601; upstream later wrapped it in prevent_open_redirect). Lockout is also keyed on request.client, taken from the spoofable first X-Forwarded-For entry at this commit. Model flagged the open redirect."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-140",
+      "cleanvul_source_row_ids": [
+        916,
+        1031,
+        3480,
+        5423
+      ],
+      "wrong_votes": 33,
+      "rows": [
+        {
+          "row_id": 916,
+          "file_name": "cookbook/provider/dropbox.py",
+          "function": "get_file"
+        },
+        {
+          "row_id": 1031,
+          "file_name": "cookbook/provider/nextcloud.py",
+          "function": "get_share_link"
+        },
+        {
+          "row_id": 3480,
+          "file_name": "cookbook/views/api.py",
+          "function": "recipe_from_source"
+        },
+        {
+          "row_id": 5423,
+          "file_name": "cookbook/integration/recipesage.py",
+          "function": "get_recipe_from_file"
+        }
+      ],
+      "commit_url": "https://github.com/TandoorRecipes/recipes/commit/d48fe26a3529cc1ee903ffb2758dfd8f7efaba8c",
+      "cve": null,
+      "dataset_label": 0,
+      "correct_label": 1,
+      "model_prediction": 1,
+      "issue": "incomplete_fix",
+      "reason": "SSRF fix is validators.url(url, public=True) before requests.get: a string-only check (validators 0.19.0 tested: DNS names resolving internally e.g. 127.0.0.1.nip.io, [::1], [::ffff:127.0.0.1] pass) and requests follows redirects unchecked; auditor reports a later advisory for the redirect bypass on the same pattern. Also BookmarkletImport.objects.filter(pk=bookmarklet) has no owner/space scope (IDOR)."
+    }
+  ],
+  "disputed": [
+    {
+      "sample_id": "CleanVulContextAssembler-80",
+      "cleanvul_source_row_ids": [
+        2976,
+        5318
+      ],
+      "rows": [
+        {
+          "row_id": 2976,
+          "file_name": "pyblock/pyblock.py",
+          "function": "RawDataStorage.save_raw_data"
+        },
+        {
+          "row_id": 5318,
+          "file_name": "pyblock/pyblock.py",
+          "function": "RawDataStorage.load_raw_data"
+        }
+      ],
+      "commit_url": "https://github.com/nasa/PyBlock/commit/21433065afcdb072a6e0464408689e3d06fbde6d",
+      "dataset_label": 0,
+      "suggested_label": 1,
+      "reason": "pickle removed, but the fix adds os.system('rm ' + filename), os.system('gzip ' + filename) etc. (CWE-78). Exploitable only if a caller passes an attacker-influenced filename; PyBlock is a library normally driven by a local user, so this hinges on the trust model."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-675",
+      "cleanvul_source_row_ids": [
+        4634
+      ],
+      "commit_url": "https://github.com/scikit-learn/scikit-learn/commit/1bf13d567d3cd74854aa8343fd25b61dd768bb85",
+      "dataset_label": 1,
+      "suggested_label": 0,
+      "reason": "CVE-2020-28975 is DISPUTED by NVD/vendor: the segfault needs mutating the private _n_support of a fitted model (or loading an attacker pickle, which is already RCE). The label is correct by the dataset's definition but crosses no trust boundary."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-409",
+      "cleanvul_source_row_ids": [
+        3993
+      ],
+      "wrong_votes": 34,
+      "commit_url": "https://github.com/pyload/pyload/commit/7b53b8d43c2c072b457dcd19c8a09bcfc3721703",
+      "dataset_label": 1,
+      "suggested_label": "0 or 1",
+      "reason": "CVE-2023-0055 missing Secure flag on session cookie (CWE-614). Exact flaw is in the function but only exploitable with TLS enabled + network MITM forcing plain HTTP; hardening-grade."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-580",
+      "cleanvul_source_row_ids": [
+        2839
+      ],
+      "wrong_votes": 34,
+      "commit_url": "https://github.com/nicolargo/glances/commit/85d5a6b4af31fcf785d5a61086cbbd166b40b07a",
+      "dataset_label": 0,
+      "suggested_label": "unclear",
+      "reason": "Commit is a Bandit-audit refactor (not B411): Popen(cmd.split(' '), shell=False) -> secure_popen(cmd). Both are shell=False; secure_popen additionally splits on '|' and '>' (pipes / file redirection) over a mustache-rendered command containing plugin stats (process/mount names a local user can influence). 'Fixed' side is arguably worse; pre-fix label 1 is also weak."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-628",
+      "cleanvul_source_row_ids": [
+        440,
+        1071,
+        1084,
+        1557,
+        4000,
+        4124,
+        4380,
+        4896
+      ],
+      "wrong_votes": 33,
+      "commit_url": "https://github.com/octoprint/octoprint/commit/40e6217ac1a85cc5ed592873ae49db01d3005da4",
+      "dataset_label": 0,
+      "suggested_label": "1 (config-dependent)",
+      "reason": "CVE-2022-2888 session-expiration fix is sound, but merged passive_login trusts X-Forwarded-For via get_remote_address and auto-logs-in as autologinAs for localNetworks -> auth bypass when autologinLocal is enabled (non-default); later CVE-2024-32977."
+    }
+  ],
+  "pairing_issues": [
+    {
+      "cleanvul_source_row_ids": [
+        3155
+      ],
+      "sample_id": "CleanVulContextAssembler-95",
+      "file_name": "src/calibre/gui2/tweak_book/preview.py",
+      "reason": "Upstream row pairs func_before = ParseItem.__init__(self, name) with func_after = WebPage.__init__(self, parent) (name collision). The sample's label stays correct because the merged row 5636 (apply_basic_settings) carries the real fix."
+    },
+    {
+      "cleanvul_source_row_ids": [
+        1693
+      ],
+      "sample_id": "CleanVulContextAssembler-203",
+      "file_name": "jwcrypto/jwa.py",
+      "reason": "func_before = _RawKeyMgmt.unwrap stub, func_after = _Rsa15.unwrap (name collision). Listed in samples as wrong label."
+    },
+    {
+      "cleanvul_source_row_ids": [
+        3875
+      ],
+      "sample_id": "CleanVulContextAssembler-399",
+      "file_name": "cairosvg/parser.py",
+      "reason": "func_before = Node.__init__, func_after = Tree.__init__ (name collision). Listed in samples as wrong label."
+    }
+  ],
+  "not_judgeable": [
+    {
+      "sample_id": "CleanVulContextAssembler-383",
+      "cleanvul_source_row_ids": [
+        67,
+        4049
+      ],
+      "commit_url": "https://github.com/triaxtec/openapi-python-client/commit/3e7dfae5d0b3685abf1ede1bc6c086a116ac4746",
+      "dataset_label": 1,
+      "reason": "Label defensible at commit level (GHSA-7wgr-7666-7pwj path traversal; fix added _sanitize to snake_case/pascal_case), but the sample is a pure string helper; the file-path sink is in __init__.py and not visible."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-505",
+      "cleanvul_source_row_ids": [
+        4944
+      ],
+      "commit_url": "https://github.com/FederatedAI/FATE/commit/6feccf6d752184a6f9365d56a76fe627983e7139",
+      "dataset_label": 1,
+      "reason": "Label right at commit level (guest sent label-derived weight/sum_grad/sum_hess to the host in hetero SecureBoost), but sync_tree only shows 'send self.tree_ to HOST'; node contents and the threat model live elsewhere."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-63",
+      "cleanvul_source_row_ids": [
+        4698
+      ],
+      "commit_url": "https://github.com/ridhoq/soundslike/commit/90bb4fb667d9253d497b619b9adaac83bf0ce0f8",
+      "dataset_label": 1,
+      "reason": "Label correct (request.args['top'] flows unvalidated into a raw-SQL LIMIT built with str.format in Song.get_related_songs_json), but the sink is in app/models.py and was not included by any context condition, so the model could not see it."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-201",
+      "cleanvul_source_row_ids": [
+        5186
+      ],
+      "commit_url": "https://github.com/django/django/commit/eb31d845323618d688ad429479c6dda973056136",
+      "dataset_label": 1,
+      "reason": "CVE-2020-7471. Sample is the 2-line StringAgg.__init__ passing delimiter to super(); the injecting sink is the class attribute template \"...'%(delimiter)s'...\", not in the sample."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-555",
+      "cleanvul_source_row_ids": [
+        5699
+      ],
+      "commit_url": "https://github.com/pypa/pip/commit/fe17bb4d75eb1e898e36d62f4e0433f3c87e9f54",
+      "dataset_label": 1,
+      "reason": "https->http downgrade is fixed in VerifiedHTTPSHandler (not in sample); get_opener's delta is scheme plumbing, only reveals the bug if you know build_opener adds a default HTTPHandler."
+    },
+    {
+      "sample_id": "CleanVulContextAssembler-249",
+      "cleanvul_source_row_ids": [
+        4352
+      ],
+      "wrong_votes": 34,
+      "commit_url": "https://github.com/html5lib/html5lib-python/commit/9b8d8eb5afbc066b7fac9390f5ec75e5e8a7cab7",
+      "dataset_label": 1,
+      "reason": "CVE-2016-9910 legacy-IE attribute quoting XSS: regex contents (module level) and insecure default quote_attr_values=False (__init__) are outside serialize(); pre-fix output is HTML5-spec-conformant. Low severity."
+    }
+  ]
+}

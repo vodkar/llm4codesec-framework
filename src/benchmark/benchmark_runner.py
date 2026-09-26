@@ -170,7 +170,7 @@ class BenchmarkRunner(BaseModel):
             llm.cleanup()
 
         metrics_calculator = MetricsCalculatorFactory.create_calculator(
-            self.config.task_type
+            self.config.task_type, coverage_levels=self.config.coverage_levels
         )
         metrics = metrics_calculator.calculate(predictions)
 

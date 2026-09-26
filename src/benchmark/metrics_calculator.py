@@ -1,6 +1,7 @@
 import math
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from typing import Any
 
 from sklearn.metrics import (
@@ -13,13 +14,17 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+from benchmark.coverage import (
+    COVERAGE_METRIC_NAMES,
+    DEFAULT_COVERAGE_LEVELS,
+    validate_coverage_levels,
+)
 from benchmark.enums import TaskType
 from benchmark.models import PredictionResult
 from benchmark.results import MetricsResult
 
 
 _PRECISION_AT_RECALL_LEVELS: tuple[float, ...] = (0.5, 0.8, 0.9, 0.95)
-_COVERAGE_LEVELS: tuple[float, ...] = (0.25, 0.5, 0.75)
 # Optional confidence methods: summary-key prefix -> PredictionResult score field.
 _OPTIONAL_CONFIDENCE_SOURCES: dict[str, str] = {
     "stated_confidence": "stated_confidence",
@@ -29,6 +34,34 @@ _OPTIONAL_CONFIDENCE_SOURCES: dict[str, str] = {
 _VULNERABLE_ID_SUFFIX: str = "_vuln"
 _FIXED_ID_SUFFIX: str = "_safe"
 _PAIR_ID_SUFFIXES: tuple[str, ...] = (_VULNERABLE_ID_SUFFIX, _FIXED_ID_SUFFIX)
+
+
+def _selection_metrics(predictions: list[PredictionResult]) -> dict[str, float | None]:
+    """Accuracy, precision, recall, F1, FPR and FNR of a selection; None where undefined."""
+    tp: int = sum(p.predicted_label == 1 and p.true_label == 1 for p in predictions)
+    fp: int = sum(p.predicted_label == 1 and p.true_label == 0 for p in predictions)
+    tn: int = sum(p.predicted_label == 0 and p.true_label == 0 for p in predictions)
+    fn: int = sum(p.predicted_label == 0 and p.true_label == 1 for p in predictions)
+
+    def ratio(numerator: int, denominator: int) -> float | None:
+        return numerator / denominator if denominator else None
+
+    precision: float | None = ratio(tp, tp + fp)
+    recall: float | None = ratio(tp, tp + fn)
+    f1_score: float | None = (
+        2 * precision * recall / (precision + recall)
+        if precision is not None and recall is not None and precision + recall > 0
+        else None
+    )
+    return {
+        "accuracy": sum(p.predicted_label == p.true_label for p in predictions)
+        / len(predictions),
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1_score,
+        "fpr": ratio(fp, fp + tn),
+        "fnr": ratio(fn, fn + tp),
+    }
 
 
 class IMetricsCalculator(ABC):
@@ -69,6 +102,13 @@ class IMetricsCalculator(ABC):
 
 class BinaryMetricsCalculator(IMetricsCalculator):
     """Metrics calculator for binary classification tasks."""
+
+    def __init__(
+        self, coverage_levels: Sequence[float] = DEFAULT_COVERAGE_LEVELS
+    ) -> None:
+        self.coverage_levels: tuple[float, ...] = validate_coverage_levels(
+            coverage_levels
+        )
 
     def calculate(self, predictions: list[PredictionResult]) -> MetricsResult:
         """Calculate metrics for binary classification."""
@@ -201,18 +241,20 @@ class BinaryMetricsCalculator(IMetricsCalculator):
     ) -> tuple[dict[str, float | int | str | None], dict[str, Any]]:
         """Calculate selective-prediction metrics for one per-sample confidence score.
 
-        Reports accuracy on the most confident fraction of samples (accuracy@coverage)
-        and the AUROC of the score for separating correct from incorrect predictions.
+        At each coverage level, keeps the most confident fraction of samples and
+        reports accuracy, precision, recall, F1, FPR and FNR on it, plus the AUROC
+        of the score for separating correct from incorrect predictions.
         """
         auroc_key: str = f"{key_prefix or 'answer_probability_'}correctness_auroc"
         summary: dict[str, float | int | str | None] = {
-            f"{key_prefix}accuracy_at_coverage_{round(level * 100)}": None
-            for level in _COVERAGE_LEVELS
+            f"{key_prefix}{name}_at_coverage_{round(level * 100)}": None
+            for level in self.coverage_levels
+            for name in COVERAGE_METRIC_NAMES
         }
         summary[auroc_key] = None
-        scored: list[tuple[float, bool]] = sorted(
+        scored: list[tuple[float, PredictionResult]] = sorted(
             (
-                (score, pred.predicted_label == pred.true_label)
+                (score, pred)
                 for pred in predictions
                 if (score := getattr(pred, score_field)) is not None
             ),
@@ -230,7 +272,9 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             details["skipped_reason"] = f"no per-sample {score_field} scores available"
             return summary, details
 
-        is_correct: list[bool] = [correct for _, correct in scored]
+        is_correct: list[bool] = [
+            pred.predicted_label == pred.true_label for _, pred in scored
+        ]
         if len(set(is_correct)) == 2:
             auroc: float = float(
                 roc_auc_score(is_correct, [score for score, _ in scored])
@@ -238,18 +282,21 @@ class BinaryMetricsCalculator(IMetricsCalculator):
             summary[auroc_key] = auroc
             details["correctness_auroc"] = auroc
 
-        for level in _COVERAGE_LEVELS:
-            selected: list[tuple[float, bool]] = scored[
+        for level in self.coverage_levels:
+            selected: list[tuple[float, PredictionResult]] = scored[
                 : math.ceil(level * len(scored))
             ]
-            accuracy: float = sum(correct for _, correct in selected) / len(selected)
-            summary[f"{key_prefix}accuracy_at_coverage_{round(level * 100)}"] = accuracy
+            values: dict[str, float | None] = _selection_metrics(
+                [pred for _, pred in selected]
+            )
+            for name, value in values.items():
+                summary[f"{key_prefix}{name}_at_coverage_{round(level * 100)}"] = value
             details["levels"].append(
                 {
                     "coverage": level,
                     "selected_samples": len(selected),
                     "min_answer_probability": selected[-1][0],
-                    "accuracy": accuracy,
+                    **values,
                 }
             )
         return summary, details
@@ -506,7 +553,9 @@ class MetricsCalculatorFactory:
 
     @staticmethod
     def create_calculator(
-        task_type: TaskType, task_specific_type: str | None = None
+        task_type: TaskType,
+        task_specific_type: str | None = None,
+        coverage_levels: Sequence[float] | None = None,
     ) -> IMetricsCalculator:
         """
         Factory method to create appropriate metrics calculator.
@@ -514,6 +563,8 @@ class MetricsCalculatorFactory:
         Args:
             task_type: The general task type (binary, multiclass, etc.)
             task_specific_type: Specific task type for code analysis (e.g., "task3", "task4")
+            coverage_levels: Coverage levels for binary selective-prediction metrics;
+                defaults to DEFAULT_COVERAGE_LEVELS.
 
         Returns:
             Appropriate metrics calculator instance
@@ -535,7 +586,11 @@ class MetricsCalculatorFactory:
             TaskType.BINARY_CWE_SPECIFIC,
             TaskType.BINARY_VULNERABILITY_SPECIFIC,
         ]:
-            return BinaryMetricsCalculator()
+            return BinaryMetricsCalculator(
+                coverage_levels
+                if coverage_levels is not None
+                else DEFAULT_COVERAGE_LEVELS
+            )
         else:
             return MulticlassMetricsCalculator()
 

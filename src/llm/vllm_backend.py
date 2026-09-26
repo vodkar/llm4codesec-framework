@@ -117,6 +117,9 @@ class VllmLLM(ILLMInference):
         if max_num_batched_tokens is not None:
             llm_kwargs["max_num_batched_tokens"] = max_num_batched_tokens
 
+        if self.config.vllm_ignore_patterns is not None:
+            llm_kwargs["ignore_patterns"] = self.config.vllm_ignore_patterns
+
         # Text-only use of a multimodal checkpoint: disabling image inputs frees
         # the vision-encoder activation that vLLM otherwise reserves during
         # memory profiling, leaving more VRAM for the KV cache (higher batch
@@ -524,7 +527,7 @@ class VllmLLM(ILLMInference):
         Returns:
             SamplingParams: Configured sampling parameters.
         """
-        sampling_kwargs: dict[str, int | float] = {
+        sampling_kwargs: dict[str, int | float | list[str]] = {
             "max_tokens": self.config.max_output_tokens,
             "temperature": self.config.temperature,
             # Without an explicit seed vLLM defaults to seed=0 internally,
@@ -544,6 +547,9 @@ class VllmLLM(ILLMInference):
         for key, value in optional_sampling_values.items():
             if value is not None:
                 sampling_kwargs[key] = value
+
+        if self.config.vllm_bad_words is not None:
+            sampling_kwargs["bad_words"] = self.config.vllm_bad_words
 
         if self.config.enable_logprobs:
             # For the final-answer label probability, request a wider top-k slice so both

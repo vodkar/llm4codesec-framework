@@ -48,6 +48,10 @@ class ModelConfig(BaseModel):
     max_num_seqs: int | None = None
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
+    vllm_ignore_patterns: list[str] | None = None
+    """Repo file globs vLLM must not load (e.g. a stray LoRA adapter); None keeps vLLM's default."""
+    vllm_bad_words: list[str] | None = None
+    """Strings vLLM must never generate (e.g. a tool-call start token)."""
     enable_prefix_caching: bool | None = None
     limit_mm_per_prompt: dict[str, int] | None = None
     hf_overrides: dict[str, object] | None = None
@@ -145,6 +149,10 @@ class ExperimentConfig(BaseModel):
     max_num_seqs: int | None = None
     enforce_eager: bool | None = None
     max_num_batched_tokens: int | None = None
+    vllm_ignore_patterns: list[str] | None = None
+    """Repo file globs vLLM must not load (e.g. a stray LoRA adapter); None keeps vLLM's default."""
+    vllm_bad_words: list[str] | None = None
+    """Strings vLLM must never generate (e.g. a tool-call start token)."""
     enable_prefix_caching: bool | None = None
     limit_mm_per_prompt: dict[str, int] | None = None
     hf_overrides: dict[str, object] | None = None
@@ -321,6 +329,8 @@ class ExperimentConfig(BaseModel):
             gpu_memory_utilization=model_config.gpu_memory_utilization,
             max_num_seqs=model_config.max_num_seqs,
             enforce_eager=model_config.enforce_eager,
+            vllm_ignore_patterns=model_config.vllm_ignore_patterns,
+            vllm_bad_words=model_config.vllm_bad_words,
             max_num_batched_tokens=model_config.max_num_batched_tokens,
             enable_prefix_caching=model_config.enable_prefix_caching,
             limit_mm_per_prompt=model_config.limit_mm_per_prompt,

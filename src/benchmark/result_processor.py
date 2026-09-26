@@ -38,6 +38,7 @@ class BenchmarkResultProcessor(BaseModel):
         total_time: float,
         total_samples: int,
         filtered_sample_ids: list[str] | None = None,
+        run_metadata: dict[str, Any] | None = None,
     ) -> BenchmarkReport:
         """
         Build a standardized report with metadata, metrics, and predictions.
@@ -49,6 +50,7 @@ class BenchmarkResultProcessor(BaseModel):
             total_samples: Number of samples included in the run.
             filtered_sample_ids: IDs of samples dropped by the runner's
                 token-limit filter before inference; defaults to an empty list.
+            run_metadata: Run-time facts merged into benchmark_info.extra_metadata.
 
         Returns:
             The assembled benchmark report.
@@ -78,6 +80,7 @@ class BenchmarkResultProcessor(BaseModel):
             confidence_stats=confidence_stats,
             binary_label_confidence_stats=binary_label_confidence_stats,
         )
+        benchmark_info.extra_metadata.update(run_metadata or {})
 
         report: BenchmarkReport = BenchmarkReport(
             benchmark_info=benchmark_info,
@@ -132,6 +135,7 @@ class BenchmarkResultProcessor(BaseModel):
         total_time: float,
         total_samples: int,
         filtered_sample_ids: list[str] | None = None,
+        run_metadata: dict[str, Any] | None = None,
     ) -> tuple[BenchmarkReport, ResultArtifacts]:
         """Build a standardized report and persist it to disk.
 
@@ -142,6 +146,7 @@ class BenchmarkResultProcessor(BaseModel):
             total_samples: Number of samples included in the run.
             filtered_sample_ids: IDs of samples dropped by the runner's
                 token-limit filter before inference; defaults to an empty list.
+            run_metadata: Run-time facts merged into benchmark_info.extra_metadata.
 
         Returns:
             The assembled report and the paths of the persisted artifacts.
@@ -152,6 +157,7 @@ class BenchmarkResultProcessor(BaseModel):
             total_time=total_time,
             total_samples=total_samples,
             filtered_sample_ids=filtered_sample_ids,
+            run_metadata=run_metadata,
         )
         artifacts: ResultArtifacts = self.save_report(report)
         return report, artifacts

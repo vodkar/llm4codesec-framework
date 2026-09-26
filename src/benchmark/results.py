@@ -177,6 +177,8 @@ class BenchmarkRunResult(BaseModel):
     total_time: float
     filtered_sample_ids: list[str] = Field(default_factory=list)
     """IDs of samples dropped by the runner's token-limit filter before inference."""
+    run_metadata: dict[str, Any] = Field(default_factory=dict)
+    """Run-time facts merged into benchmark_info.extra_metadata (e.g. excluded samples)."""
 
 
 class ExperimentPlanSummary(BaseModel):

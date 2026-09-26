@@ -14,6 +14,7 @@ from benchmark.response_parser import (
     has_explicit_binary_verdict,
 )
 from benchmark.results import BenchmarkRunResult
+from benchmark.sample_exclusions import apply_sample_exclusions
 from benchmark.sampling_seeds import draw_seed
 from benchmark.static_findings import render_root_findings_block
 from datasets.loaders.base import JsonDatasetLoader
@@ -131,6 +132,7 @@ class BenchmarkRunner(BaseModel):
             self.config.dataset_path, self.config.sample_limit * 3 if self.config.sample_limit else None
         )
         _LOGGER.info(f"Loaded {len(samples)} samples")
+        samples, run_metadata = self._prepare_samples(samples)
 
         llm = create_llm_inference(self.config)
         try:
@@ -175,7 +177,31 @@ class BenchmarkRunner(BaseModel):
             total_time=total_time,
             predictions=predictions,
             filtered_sample_ids=filtered_sample_ids,
+            run_metadata=run_metadata,
         )
+
+    def _prepare_samples(
+        self, samples: SampleCollection
+    ) -> tuple[SampleCollection, dict[str, Any]]:
+        """Drop excluded samples (e.g. audited wrong labels) before any filtering.
+
+        Returns:
+            The kept samples and run metadata recording what was excluded.
+        """
+        exclusion = apply_sample_exclusions(list(samples), self.config.exclude_samples)
+        if exclusion.unmatched:
+            _LOGGER.warning(
+                "%d sample exclusions matched no sample: %s",
+                len(exclusion.unmatched),
+                [entry.key for entry in exclusion.unmatched],
+            )
+        if exclusion.excluded:
+            _LOGGER.info("Excluded %d samples", len(exclusion.excluded))
+        run_metadata: dict[str, Any] = {
+            "excluded_samples": [entry.model_dump() for entry in exclusion.excluded],
+            "unmatched_exclusions": [entry.model_dump() for entry in exclusion.unmatched],
+        }
+        return SampleCollection(exclusion.kept), run_metadata
 
     def _filter_samples_by_token_limit(
         self,

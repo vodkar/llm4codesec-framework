@@ -12,6 +12,7 @@ from benchmark.enums import (
     ModelType,
     TaskType,
 )
+from benchmark.sample_exclusions import SampleExclusion
 from benchmark.static_findings import ROOT_FINDINGS_PLACEHOLDER
 from entrypoints.utils import load_config_dict, normalize_config_schema
 
@@ -84,6 +85,8 @@ class DatasetConfig(BaseModel):
     cwe_type: str | None = None
     render_root_findings: bool = False
     """Fill the {root_static_findings} prompt placeholder with the sample's root findings."""
+    exclude_samples: list[SampleExclusion] = []
+    """Samples to drop by (source_row_ids, label), e.g. audited wrong labels."""
 
     def model_post_init(self, context: Any) -> None:
         if not self.path.exists():
@@ -172,6 +175,8 @@ class ExperimentConfig(BaseModel):
     """Global pinned seed; per-draw vLLM seeds are derived from it via draw_seed."""
     render_root_findings: bool = False
     """Copied from the dataset config; see DatasetConfig.render_root_findings."""
+    exclude_samples: list[SampleExclusion] = []
+    """Copied from the dataset config; see DatasetConfig.exclude_samples."""
     system_prompt_template: str
     user_prompt_template: str
     sample_limit: int | None
@@ -347,6 +352,7 @@ class ExperimentConfig(BaseModel):
             sampling_seed=model_config.sampling_seed,
             cwe_type=dataset_config.cwe_type,
             render_root_findings=dataset_config.render_root_findings,
+            exclude_samples=dataset_config.exclude_samples,
             system_prompt_template=prompt_config.system_prompt,
             user_prompt_template=prompt_config.user_prompt,
             sample_limit=sample_limit,

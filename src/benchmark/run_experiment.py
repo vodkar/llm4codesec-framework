@@ -252,6 +252,7 @@ def run_single_experiment(
         total_time=result.total_time,
         total_samples=result.total_samples,
         filtered_sample_ids=result.filtered_sample_ids,
+        run_metadata=result.run_metadata,
     )
 
     _LOGGER.info("Experiment completed successfully")

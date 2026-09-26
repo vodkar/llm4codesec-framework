@@ -16,8 +16,13 @@
                 "mult_amp_root_findings_off",
                 "mult_amp_root_findings_on"
             ],
-            "models": ["gemma4-12b-it-thinking-sc7-logprobs-seeded"],
-            "prompts": ["strict_exploitable_security_root_findings"]
+            "models": [
+                "lfm25-2.6b-fable5-heretic-thinking-sc7-logprobs-seeded",
+                "qwen3-8b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_root_findings"
+            ]
         },
         "static_findings_root_smoke": {
             "description": "Smoke test of the root static findings sweep",
@@ -28,8 +33,13 @@
                 "mult_amp_root_findings_off",
                 "mult_amp_root_findings_on"
             ],
-            "models": ["gemma4-12b-it-thinking-sc7-logprobs-seeded"],
-            "prompts": ["strict_exploitable_security_root_findings"],
+            "models": [
+                "lfm25-2.6b-fable5-heretic-thinking-sc7-logprobs-seeded",
+                "qwen3-8b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_root_findings"
+            ],
             "sample_limit": 40
         }
     },

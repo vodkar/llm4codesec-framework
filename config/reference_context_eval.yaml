@@ -2,7 +2,7 @@
 # Changing any value changes config_sha256 and invalidates llm_scanner caches.
 pins:
   llm_scanner_path: /home/somen/llm_scanner
-  llm_scanner_git_sha: "<fill with `git -C /home/somen/llm_scanner rev-parse HEAD` after Plan A lands>"
+  llm_scanner_git_sha: "7f190326ebcdd68256d291cca65a547259a1b111"
 
 llm_scanner:
   dataset_path: /var/opt/llm4codesec-framework/benchmarks/CleanVul/vulnerability_score_4.csv

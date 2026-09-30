@@ -14,8 +14,13 @@ _BINARY_PATTERN: Final[re.Pattern[str]] = re.compile(
 _BINARY_FALLBACK_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"\b(YES|NO|TRUE|FALSE|FOUND|DETECTED|NONE|CLEAN)\b", re.IGNORECASE
 )
+# Besides the requested ``{"is_vulnerable": <bool>}``, some models (LFM2.5) rename the
+# key, quote the boolean, or nest the verdict line inside another JSON string
+# (``"final_line": "{\"is_vulnerable\": false}"``); true means vulnerable for every key.
 _IS_VULNERABLE_JSON_PATTERN: Final[re.Pattern[str]] = re.compile(
-    r'"is_vulnerable"\s*:\s*(true|false)', re.IGNORECASE
+    r'\\?"(?:is_vulnerable|verdict|final_?verdict|vulnerable|vulnerability_status'
+    r'|judgment|conclusion)\\?"\s*:\s*(?:\\?")?(true|false)\b',
+    re.IGNORECASE,
 )
 _STATED_CONFIDENCE_PATTERN: Final[re.Pattern[str]] = re.compile(
     r'"confidence"\s*:\s*"?(\d+)\b'

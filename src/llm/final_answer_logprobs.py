@@ -8,6 +8,8 @@ from typing import Final, Protocol
 # Answer formats the binary parsers accept: (marker preceding the label, label spellings).
 _ANSWER_FORMATS: Final[tuple[tuple[str, Mapping[str, tuple[str, ...]]], ...]] = (
     ('"is_vulnerable":', {"VULNERABLE": ("true", "True"), "SAFE": ("false", "False")}),
+    ('\\"is_vulnerable\\":', {"VULNERABLE": ("true", "True"), "SAFE": ("false", "False")}),
+    ('"verdict":', {"VULNERABLE": ("true", "True"), "SAFE": ("false", "False")}),
     ("[[FINAL_ANSWER:", {"VULNERABLE": ("VULNERABLE",), "SAFE": ("SAFE",)}),
 )
 _STATED_CONFIDENCE_MARKER: Final[str] = '"confidence":'

@@ -759,6 +759,28 @@
             "use_quantization": false,
             "is_thinking_enabled": true
         },
+        "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded": {
+            "model_identifier": "LiquidAI/LFM2.5-8B-A1B",
+            "model_type": "lfm2.5",
+            "backend": "vllm",
+            "max_output_tokens": 8192,
+            "context_length": 24576,
+            "batch_size": 10,
+            "temperature": 0.7,
+            "top_k": 80,
+            "repetition_penalty": 1.15,
+            "use_quantization": true,
+            "vllm_quantization": "fp8",
+            "kv_cache_dtype": "none",
+            "is_thinking_enabled": true,
+            "gpu_memory_utilization": 0.92,
+            "max_num_seqs": 48,
+            "max_num_batched_tokens": 4096,
+            "enforce_eager": false,
+            "self_consistency_samples": 7,
+            "enable_logprobs": true,
+            "sampling_seed": 20260925
+        },
         "qwen3-30b-a3b-instruct-gguf": {
             "model_identifier": "hf://unsloth/Qwen3-30B-A3B-Instruct-2507-GGUF/Qwen3-30B-A3B-Instruct-2507-UD-Q2_K_XL.gguf",
             "model_type": "qwen-3",

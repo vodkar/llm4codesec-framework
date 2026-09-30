@@ -78,6 +78,68 @@
                 1.0
             ],
             "sample_limit": 40
+        },
+        "static_findings_target_sweep": {
+            "description": "Four context conditions with the target function marked (commented) and context rendered as reference only; function-only baseline reused from static_findings_root_sweep",
+            "datasets": [
+                "cpg_structural_target_findings_off",
+                "cpg_structural_target_findings_on",
+                "mult_amp_target_findings_off",
+                "mult_amp_target_findings_on"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_root_findings"
+            ]
+        },
+        "static_findings_v2_sweep": {
+            "description": "Prompt v2 (missing controls, guard bypass, impact scope) on function-only and the four target-marked context conditions",
+            "datasets": [
+                "cleanvul_python_matched_root_findings",
+                "cpg_structural_target_findings_off",
+                "cpg_structural_target_findings_on",
+                "mult_amp_target_findings_off",
+                "mult_amp_target_findings_on"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_v2_root_findings"
+            ]
+        },
+        "static_findings_lfm_sweep": {
+            "description": "lfm2.5-8b-a1b (vLLM fp8, sc7, logprobs): v1 and v2 prompts on function-only and the four target-marked context conditions",
+            "datasets": [
+                "cleanvul_python_matched_root_findings",
+                "cpg_structural_target_findings_off",
+                "cpg_structural_target_findings_on",
+                "mult_amp_target_findings_off",
+                "mult_amp_target_findings_on"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_root_findings",
+                "strict_exploitable_security_v2_root_findings"
+            ]
+        },
+        "static_findings_lfm_smoke": {
+            "description": "Load/parse check of lfm2.5-8b-a1b on vLLM",
+            "datasets": [
+                "cleanvul_python_matched_root_findings",
+                "cpg_structural_target_findings_off"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "strict_exploitable_security_root_findings"
+            ],
+            "sample_limit": 10
         }
     },
     "output_settings": {

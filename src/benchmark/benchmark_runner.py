@@ -17,6 +17,7 @@ from benchmark.results import BenchmarkRunResult
 from benchmark.sample_exclusions import apply_sample_exclusions
 from benchmark.sampling_seeds import draw_seed
 from benchmark.static_findings import filter_root_findings, render_root_findings_block
+from benchmark.target_context import render_context_block
 from datasets.loaders.base import JsonDatasetLoader
 from llm.factory import create_llm_inference
 from llm.llm import ILLMInference, InferenceResult
@@ -90,14 +91,15 @@ def user_template_values(
     Raises:
         ValueError: If rendering is on but the sample carries no findings information.
     """
+    code: str = sample.code + render_context_block(sample.context)
     if not render_root_findings:
-        return {"code": sample.code, "root_static_findings": ""}
+        return {"code": code, "root_static_findings": ""}
     if sample.root_static_findings is None:
         raise ValueError(
             f"Sample {sample.id} has no static findings but its dataset sets render_root_findings"
         )
     return {
-        "code": sample.code,
+        "code": code,
         "root_static_findings": render_root_findings_block(
             sample.root_static_findings, omit_empty=omit_empty_root_findings
         ),

@@ -194,6 +194,22 @@ docker-compose run --rm llm4codesec-benchmark python cli.py merge-plan-results \
     --output-dir results/static_findings_root/merged_verify
 ```
 
+Target/context split: context datasets are one flat, comment-stripped snippet with
+nothing marking the function under test, so the model flags flaws in callers and
+callees. `split_target_context.py` puts the commented function-only code in `code`
+and the context (minus the target's lines, matched per top-level definition) in
+`context`, which renders after the target as reference-only code. Function-only
+prompts are unchanged, so plan `static_findings_target_sweep` runs only the four
+`*_target_findings_{off,on}` conditions and reuses the function-only report:
+```bash
+for c in cpg_structural multiplicative_amplification; do
+  PYTHONPATH=src uv run python src/entrypoints/split_target_context.py \
+    --context-dataset benchmarks/context-assembler-dataset/context_assembler_$c.json \
+    --function-dataset benchmarks/context-assembler-dataset/cleanvul_python_matched.json \
+    --output datasets_processed/context_assembler/${c}_target_split.json
+done
+```
+
 ## File layout notes
 
 - `src/` is copied to `/app/` inside Docker — paths inside the container have no `src/` prefix.

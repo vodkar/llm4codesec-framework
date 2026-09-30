@@ -18,6 +18,8 @@ class BenchmarkSample(BaseModel):
     severity: str | None = None
     root_static_findings: list[RootStaticFinding] | None = None
     """Findings inside the function under analysis; None when the dataset has no findings."""
+    context: str | None = None
+    """Reference-only repository context rendered after ``code``; None for function-only samples."""
 
     @model_validator(mode="before")
     @classmethod

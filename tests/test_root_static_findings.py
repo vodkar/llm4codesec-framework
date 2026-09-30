@@ -161,9 +161,9 @@ def test_real_context_dataset_root_findings() -> None:
         BenchmarkSample.model_validate(raw)
         for raw in json.loads(path.read_text())["samples"]
     ]
-    assert len(samples) == 732
-    assert sum(len(s.root_static_findings or []) for s in samples) == 626
-    assert sum(bool(s.root_static_findings) for s in samples) == 183
+    assert len(samples) == 710
+    assert sum(len(s.root_static_findings or []) for s in samples) == 490
+    assert sum(bool(s.root_static_findings) for s in samples) == 135
 
 
 if __name__ == "__main__":

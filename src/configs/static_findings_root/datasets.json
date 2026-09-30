@@ -182,6 +182,28 @@
                 {"source_row_ids": [5882], "label": 0, "reason": "incomplete_fix"},
                 {"source_row_ids": [1869], "label": 0, "reason": "other_vulnerability_remains"}
             ]
+        },
+        "cpg_structural_target_findings_off": {
+            "dataset_path": "datasets_processed/context_assembler/cpg_structural_target_split.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural context rendered as reference-only after the commented target function; root static findings stored, not shown"
+        },
+        "cpg_structural_target_findings_on": {
+            "dataset_path": "datasets_processed/context_assembler/cpg_structural_target_split.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural context rendered as reference-only after the commented target function; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "mult_amp_target_findings_off": {
+            "dataset_path": "datasets_processed/context_assembler/multiplicative_amplification_target_split.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification context rendered as reference-only after the commented target function; root static findings stored, not shown"
+        },
+        "mult_amp_target_findings_on": {
+            "dataset_path": "datasets_processed/context_assembler/multiplicative_amplification_target_split.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification context rendered as reference-only after the commented target function; root static findings in the prompt",
+            "render_root_findings": true
         }
     }
 }

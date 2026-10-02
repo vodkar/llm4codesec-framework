@@ -781,14 +781,18 @@ class VllmLLM(ILLMInference):
         )
         return prompt_tokens + generated_tokens
 
-    def _uses_qwen3_chat_template(self) -> bool:
-        """Return whether the configured tokenizer/model uses Qwen3 chat controls."""
+    def _uses_thinking_chat_template(self) -> bool:
+        """Return whether the chat template takes an ``enable_thinking`` switch (Qwen3, Gemma 4)."""
         candidate_identifiers: tuple[str, ...] = (
             self.config.model_identifier,
             self.config.tokenizer_identifier or "",
             self.config.hf_config_path or "",
         )
-        return any("qwen3" in identifier.lower() for identifier in candidate_identifiers)
+        return any(
+            family in identifier.lower()
+            for identifier in candidate_identifiers
+            for family in ("qwen3", "gemma-4", "gemma4")
+        )
 
     def _format_prompt(self, system_prompt: str, user_prompt: str) -> str:
         """
@@ -830,7 +834,7 @@ class VllmLLM(ILLMInference):
                 "tokenize": False,
                 "add_generation_prompt": True,
             }
-            if self._uses_qwen3_chat_template():
+            if self._uses_thinking_chat_template():
                 template_kwargs["enable_thinking"] = enable_thinking
 
             return str(apply_chat_template(messages, **template_kwargs))

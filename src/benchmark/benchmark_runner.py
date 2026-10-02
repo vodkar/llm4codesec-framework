@@ -14,6 +14,7 @@ from benchmark.response_parser import (
     has_explicit_binary_verdict,
 )
 from benchmark.results import BenchmarkRunResult
+from benchmark.root_sections import render_root_sections
 from benchmark.sample_exclusions import apply_sample_exclusions
 from benchmark.sampling_seeds import draw_seed
 from benchmark.static_findings import filter_root_findings, render_root_findings_block
@@ -91,7 +92,11 @@ def user_template_values(
     Raises:
         ValueError: If rendering is on but the sample carries no findings information.
     """
-    code: str = sample.code + render_context_block(sample.context)
+    code: str = (
+        render_root_sections(sample.roots)
+        if sample.roots is not None
+        else sample.code + render_context_block(sample.context)
+    )
     if not render_root_findings:
         return {"code": code, "root_static_findings": ""}
     if sample.root_static_findings is None:

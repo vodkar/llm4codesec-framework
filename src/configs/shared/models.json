@@ -821,6 +821,38 @@
                 "audio": 0
             },
             "is_thinking_enabled": true
+        },
+        "qwen3.8-27b-abliterated-iq3s-thinking": {
+            "model_identifier": "hf://huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S.gguf",
+            "model_type": "qwen-3.6",
+            "backend": "llama_cpp",
+            "max_output_tokens": 8192,
+            "context_length": 24576,
+            "n_gpu_layers": -1,
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 20,
+            "min_p": 0.0,
+            "repetition_penalty": 1.0,
+            "batch_size": 1,
+            "use_quantization": false,
+            "is_thinking_enabled": true
+        },
+        "qwen3.8-27b-abliterated-iq3xxs-thinking-16k": {
+            "model_identifier": "hf://huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_XXS.gguf",
+            "model_type": "qwen-3.6",
+            "backend": "llama_cpp",
+            "max_output_tokens": 16384,
+            "context_length": 32768,
+            "n_gpu_layers": -1,
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 20,
+            "min_p": 0.0,
+            "repetition_penalty": 1.0,
+            "batch_size": 1,
+            "use_quantization": false,
+            "is_thinking_enabled": true
         }
     }
 }

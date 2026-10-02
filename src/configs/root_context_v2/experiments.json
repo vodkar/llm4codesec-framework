@@ -1,0 +1,145 @@
+{
+    "experiment_metadata": {
+        "name": "Root/context split (context-assembler dataset v2)",
+        "description": "v2 samples rendered as ROOT code under analysis plus a separate reference-only context section, vs the function-only baseline in the same layout",
+        "version": "1.0",
+        "dataset": "CleanVul score-4 Python, context-assembler dataset v2 (710 samples, audited wrong labels already removed)",
+        "created_date": "2026-09-30"
+    },
+    "experiment_plans": {
+        "root_context_v2_lfm_sweep": {
+            "description": "lfm2.5-8b-a1b (vLLM fp8, sc7, logprobs), root-context v2 prompt: function-only as ROOT, cpg_structural and multiplicative_amplification v2 with root findings off/on",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_lfm_smoke": {
+            "description": "Smoke test of root_context_v2_lfm_sweep (first 20 samples = 10 vulnerable/fixed pairs per condition)",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ],
+            "sample_limit": 20
+        },
+        "root_context_v2_gemma_sweep": {
+            "description": "gemma4-12b (vLLM, sc7, logprobs), root-context v2 prompt: function-only as ROOT, cpg_structural and multiplicative_amplification v2 with root findings off/on",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_smoke": {
+            "description": "Smoke test of root_context_v2_gemma_sweep (first 20 samples = 10 vulnerable/fixed pairs per condition)",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ],
+            "sample_limit": 20
+        },
+        "root_context_v3_lfm_sweep": {
+            "description": "lfm2.5-8b-a1b (vLLM fp8, sc7, logprobs), prompt v3 (step procedure targeting the LFM error audit) on the five v2 conditions",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v3_root_findings"
+            ]
+        },
+        "root_context_v3_lfm_smoke": {
+            "description": "Smoke test of root_context_v3_lfm_sweep (first 20 samples = 10 vulnerable/fixed pairs per condition)",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v3_root_findings"
+            ],
+            "sample_limit": 20
+        },
+        "root_context_v2_qwen38_speedtest": {
+            "description": "Load and throughput check of Huihui-Qwen3.8-27B-abliterated IQ3_S (llama_cpp, thinking, 1 draw) on function-only and cpg_structural v2",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off"
+            ],
+            "models": [
+                "qwen3.8-27b-abliterated-iq3s-thinking"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ],
+            "sample_limit": 10
+        },
+        "root_context_v2_qwen38_iq3xxs_speedtest": {
+            "description": "Load, throughput and verdict-completion check of Huihui-Qwen3.8-27B-abliterated IQ3_XXS (llama_cpp, thinking, 16k output budget, 1 draw)",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off"
+            ],
+            "models": [
+                "qwen3.8-27b-abliterated-iq3xxs-thinking-16k"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ],
+            "sample_limit": 10
+        }
+    },
+    "output_settings": {
+        "base_output_dir": "results/root_context_v2",
+        "save_predictions": true,
+        "save_metrics": true,
+        "save_detailed_report": true,
+        "include_timestamp": true
+    }
+}

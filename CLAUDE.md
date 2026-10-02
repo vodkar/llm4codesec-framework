@@ -210,6 +210,36 @@ for c in cpg_structural multiplicative_amplification; do
 done
 ```
 
+## Root/context split (dataset v2)
+
+`benchmarks/context-assembler-dataset/v2/` (same 710 samples, audited wrong labels
+already removed, new sample ids) adds a `roots` field: per changed function
+(`file_path`, `line_start`, `line_end`, `code`) plus the context attributed to it.
+Samples with `roots` render `{code}` via `src/benchmark/root_sections.py`: a
+`## CODE UNDER ANALYSIS` section (one fenced `### ROOT n: file, lines a-b` block per
+root), then `## REFERENCE CONTEXT (read-only)` with a `### Context for ROOT n` block
+per non-empty context. The flat `code` field is kept only because static findings'
+`snippet_line` indexes into it. Prompt `root_context_security_v2_root_findings` is
+the v2 prompt plus an input-layout paragraph and a scope reminder after the code.
+v2 root code is comment-stripped (the function-only baseline is not). Every prompt
+fits LFM's 16k input budget (max 12.6k tokens), so none are filtered.
+
+One-time setup (function-only baseline as a single root, findings attached):
+```bash
+PYTHONPATH=src uv run python src/entrypoints/attach_root_findings.py --as-root \
+    --target benchmarks/context-assembler-dataset/v2/cleanvul_python_matched.json \
+    --findings-source benchmarks/context-assembler-dataset/v2/context_assembler_cpg_structural.json \
+    --output datasets_processed/context_assembler/v2/cleanvul_python_matched_root_findings.json
+```
+
+Run (`root_context_v2_lfm_smoke` for 20 samples per condition):
+```bash
+docker-compose run --rm llm4codesec-benchmark python cli.py run-plan context_assembler root_context_v2_lfm_sweep \
+    --config-dir configs/shared \
+    --experiments-config configs/root_context_v2/experiments.json \
+    --datasets-config configs/root_context_v2/datasets.json
+```
+
 ## File layout notes
 
 - `src/` is copied to `/app/` inside Docker — paths inside the container have no `src/` prefix.

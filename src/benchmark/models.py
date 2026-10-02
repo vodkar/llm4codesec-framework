@@ -4,6 +4,7 @@ from typing import Any
 from pydantic import BaseModel, Field, RootModel, field_validator, model_validator
 
 from benchmark.enums import TaskType
+from benchmark.root_sections import RootSection
 from benchmark.static_findings import RootStaticFinding, root_findings_from_raw
 
 
@@ -20,6 +21,11 @@ class BenchmarkSample(BaseModel):
     """Findings inside the function under analysis; None when the dataset has no findings."""
     context: str | None = None
     """Reference-only repository context rendered after ``code``; None for function-only samples."""
+    roots: list[RootSection] | None = None
+    """v2 root/context split; when set the prompt renders it instead of ``code`` and ``context``.
+
+    ``code`` keeps the dataset's flat snippet, which static findings' line numbers index into.
+    """
 
     @model_validator(mode="before")
     @classmethod

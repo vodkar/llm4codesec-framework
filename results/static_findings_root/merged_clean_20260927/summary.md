@@ -1,9 +1,0 @@
-| Condition | Acc | P | R | F1 | FPR | FNR | AP | Acc@25% | F1@25% | FPR@25% | Acc@50% | F1@50% | FPR@50% | Acc@75% | F1@75% | FPR@75% | Acc@100% | F1@100% | FPR@100% |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cleanvul_python_matched_root_findings · strict_exploitable_security_root_findings | **0.627** | **0.673** | 0.508 | 0.579 | 0.251 | 0.492 | 0.674 | 0.676 | 0.463 | 0.030 | 0.658 | 0.555 | **0.102** | 0.638 | 0.571 | 0.184 | **0.627** | 0.579 | 0.251 |
-| cpg_structural_root_findings_off · strict_exploitable_security_root_findings | 0.611 | 0.625 | 0.569 | 0.596 | 0.347 | 0.431 | 0.676 | 0.704 | 0.634 | 0.091 | 0.681 | **0.683** | 0.273 | 0.638 | **0.625** | 0.305 | 0.611 | 0.596 | 0.347 |
-| cpg_structural_root_findings_on · strict_exploitable_security_root_findings | 0.616 | 0.646 | 0.528 | 0.581 | 0.294 | 0.472 | 0.690 | **0.715** | 0.579 | 0.031 | 0.675 | 0.653 | 0.228 | 0.642 | 0.611 | 0.255 | 0.616 | 0.581 | 0.294 |
-| mult_amp_root_findings_off · strict_exploitable_security_root_findings | 0.612 | 0.611 | **0.636** | **0.623** | 0.412 | **0.364** | 0.666 | 0.709 | **0.644** | 0.101 | 0.661 | 0.677 | 0.355 | 0.621 | 0.616 | 0.370 | 0.612 | **0.623** | 0.412 |
-| mult_amp_root_findings_on · strict_exploitable_security_root_findings | 0.594 | 0.605 | 0.558 | 0.581 | 0.370 | 0.442 | 0.668 | 0.698 | 0.591 | 0.075 | 0.667 | 0.667 | 0.261 | 0.632 | 0.608 | 0.303 | 0.594 | 0.581 | 0.370 |
-| cpg_structural_root_findings_verify · finding_verification_root_findings | 0.619 | 0.667 | 0.489 | 0.564 | **0.249** | 0.511 | **0.702** | 0.682 | 0.447 | **0.000** | **0.686** | 0.619 | 0.135 | **0.653** | 0.581 | **0.166** | 0.619 | 0.564 | **0.249** |
-| mult_amp_root_findings_verify · finding_verification_root_findings | 0.591 | 0.616 | 0.503 | 0.554 | 0.319 | 0.497 | 0.666 | 0.670 | 0.449 | 0.040 | 0.661 | 0.628 | 0.207 | 0.640 | 0.587 | 0.208 | 0.591 | 0.554 | 0.319 |

@@ -1,8 +1,8 @@
 {
-  "plan_name": "static_findings_root_sweep",
-  "description": "Five-condition root static findings sweep",
-  "start_time": "2026-09-28T05:49:57.592699",
-  "end_time": "2026-09-28T14:18:08.133547",
+  "plan_name": "merged",
+  "description": "Merged recomputed results of: results/static_findings_root/static_findings_root_sweep, results/static_findings_root/static_findings_target_sweep",
+  "start_time": "2026-09-28T07:29:52.028759",
+  "end_time": "2026-09-29T03:09:29.272148",
   "experiments": [
     {
       "benchmark_info": {
@@ -235,7 +235,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cleanvul_python_matched_root_findings/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_072952.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -605,7 +608,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cpg_structural_root_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_091158.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -975,7 +981,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cpg_structural_root_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_105214.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1345,7 +1354,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/mult_amp_root_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_123637.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1715,7 +1727,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/mult_amp_root_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_141806.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1853,12 +1868,884 @@
         }
       },
       "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "static_findings_target_sweep",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler/cpg_structural_target_split.json",
+        "description": "cpg_structural context rendered as reference-only after the commented target function; root static findings stored, not shown",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-28T21:51:00.875241",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs-seeded",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": 20260925
+        },
+        "stats": {
+          "total_samples": 710,
+          "total_time_seconds": 6225.525251150131,
+          "avg_time_per_sample": 8.768345424155115,
+          "tokens_used_total": 12147645,
+          "tokens_used_avg": 17109.36056338028,
+          "processing_time_stats": {
+            "count": 710,
+            "min": 1.2524836957094896,
+            "max": 1.2524836957094896,
+            "mean": 1.2524836957094896,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 710,
+            "min": 5496.0,
+            "max": 89409.0,
+            "mean": 17109.36056338028,
+            "variance": 104629526.43680646,
+            "std": 10228.857533312626
+          },
+          "confidence_stats": {
+            "mean": 0.8184689283918913,
+            "min": 0.7712732455479082,
+            "max": 0.8930071941211978,
+            "count": 710.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.3838012030536122,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 710.0
+          }
+        },
+        "extra_metadata": {
+          "render_root_findings": false,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": [],
+          "recomputed_from": "results/static_findings_root/static_findings_target_sweep/cpg_structural_target_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_215100.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
+        },
+        "prompt_identifier": "strict_exploitable_security_root_findings",
+        "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
+        "timestamp_utc": "2026-09-28T21:51:00.875263+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6183098591549295,
+        "summary": {
+          "accuracy": 0.6183098591549295,
+          "precision": 0.6627906976744186,
+          "recall": 0.48169014084507045,
+          "f1_score": 0.5579119086460032,
+          "specificity": 0.7549295774647887,
+          "mcc": 0.24598023703486996,
+          "roc_auc": 0.6570482047212854,
+          "pr_auc": 0.6807048436187592,
+          "precision_at_recall_50": 0.6496598639455783,
+          "precision_at_recall_80": 0.5514563106796116,
+          "precision_at_recall_90": 0.5,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6797752808988764,
+          "precision_at_coverage_25": 0.9310344827586207,
+          "recall_at_coverage_25": 0.32926829268292684,
+          "f1_score_at_coverage_25": 0.4864864864864865,
+          "fpr_at_coverage_25": 0.020833333333333332,
+          "fnr_at_coverage_25": 0.6707317073170732,
+          "accuracy_at_coverage_50": 0.6732394366197183,
+          "precision_at_coverage_50": 0.8173076923076923,
+          "recall_at_coverage_50": 0.46703296703296704,
+          "f1_score_at_coverage_50": 0.5944055944055944,
+          "fpr_at_coverage_50": 0.10982658959537572,
+          "fnr_at_coverage_50": 0.532967032967033,
+          "accuracy_at_coverage_75": 0.6435272045028143,
+          "precision_at_coverage_75": 0.7065217391304348,
+          "recall_at_coverage_75": 0.48872180451127817,
+          "f1_score_at_coverage_75": 0.5777777777777777,
+          "fpr_at_coverage_75": 0.20224719101123595,
+          "fnr_at_coverage_75": 0.5112781954887218,
+          "accuracy_at_coverage_100": 0.6183098591549295,
+          "precision_at_coverage_100": 0.6627906976744186,
+          "recall_at_coverage_100": 0.48169014084507045,
+          "f1_score_at_coverage_100": 0.5579119086460033,
+          "fpr_at_coverage_100": 0.24507042253521127,
+          "fnr_at_coverage_100": 0.5183098591549296,
+          "answer_probability_correctness_auroc": 0.5734939353949348
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 171,
+            "true_negatives": 268,
+            "false_positives": 87,
+            "false_negatives": 184
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 710,
+            "total_samples": 710
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 710,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 710,
+            "total_samples": 710,
+            "correctness_auroc": 0.5734939353949348,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 178,
+                "min_answer_probability": 0.9999999838013742,
+                "accuracy": 0.6797752808988764,
+                "precision": 0.9310344827586207,
+                "recall": 0.32926829268292684,
+                "f1_score": 0.4864864864864865,
+                "fpr": 0.020833333333333332,
+                "fnr": 0.6707317073170732
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 355,
+                "min_answer_probability": 0.9999997407088179,
+                "accuracy": 0.6732394366197183,
+                "precision": 0.8173076923076923,
+                "recall": 0.46703296703296704,
+                "f1_score": 0.5944055944055944,
+                "fpr": 0.10982658959537572,
+                "fnr": 0.532967032967033
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 533,
+                "min_answer_probability": 0.7142956958753439,
+                "accuracy": 0.6435272045028143,
+                "precision": 0.7065217391304348,
+                "recall": 0.48872180451127817,
+                "f1_score": 0.5777777777777777,
+                "fpr": 0.20224719101123595,
+                "fnr": 0.5112781954887218
+              },
+              {
+                "coverage": 1.0,
+                "selected_samples": 710,
+                "min_answer_probability": 0.5711167490225756,
+                "accuracy": 0.6183098591549295,
+                "precision": 0.6627906976744186,
+                "recall": 0.48169014084507045,
+                "f1_score": 0.5579119086460033,
+                "fpr": 0.24507042253521127,
+                "fnr": 0.5183098591549296
+              }
+            ]
+          },
+          "confidence_methods": {},
+          "confidence_stats": {
+            "mean": 0.8184689283918913,
+            "min": 0.7712732455479082,
+            "max": 0.8930071941211978,
+            "count": 710
+          }
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "static_findings_target_sweep",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler/cpg_structural_target_split.json",
+        "description": "cpg_structural context rendered as reference-only after the commented target function; root static findings in the prompt",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-28T23:36:06.257942",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs-seeded",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": 20260925
+        },
+        "stats": {
+          "total_samples": 710,
+          "total_time_seconds": 6096.413050174713,
+          "avg_time_per_sample": 8.586497253767202,
+          "tokens_used_total": 12376291,
+          "tokens_used_avg": 17431.39718309859,
+          "processing_time_stats": {
+            "count": 710,
+            "min": 1.2265096102681918,
+            "max": 1.2265096102681918,
+            "mean": 1.2265096102681918,
+            "variance": 0.0,
+            "std": 0.0
+          },
+          "tokens_used_stats": {
+            "count": 710,
+            "min": 5752.0,
+            "max": 107518.0,
+            "mean": 17431.39718309859,
+            "variance": 119480812.3131091,
+            "std": 10930.727894934953
+          },
+          "confidence_stats": {
+            "mean": 0.8177250106202668,
+            "min": 0.7639990747541978,
+            "max": 0.8957438209807639,
+            "count": 710.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.3511612238332876,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 710.0
+          }
+        },
+        "extra_metadata": {
+          "render_root_findings": true,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": [],
+          "recomputed_from": "results/static_findings_root/static_findings_target_sweep/cpg_structural_target_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_233606.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
+        },
+        "prompt_identifier": "strict_exploitable_security_root_findings",
+        "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
+        "timestamp_utc": "2026-09-28T23:36:06.257977+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6253521126760564,
+        "summary": {
+          "accuracy": 0.6253521126760564,
+          "precision": 0.6893617021276596,
+          "recall": 0.4563380281690141,
+          "f1_score": 0.5491525423728814,
+          "specificity": 0.7943661971830986,
+          "mcc": 0.26638469601498627,
+          "roc_auc": 0.6526720888712557,
+          "pr_auc": 0.6785605248742447,
+          "precision_at_recall_50": 0.6592592592592592,
+          "precision_at_recall_80": 0.5434782608695652,
+          "precision_at_recall_90": 0.5,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6853932584269663,
+          "precision_at_coverage_25": 0.9523809523809523,
+          "recall_at_coverage_25": 0.26666666666666666,
+          "f1_score_at_coverage_25": 0.4166666666666667,
+          "fpr_at_coverage_25": 0.009708737864077669,
+          "fnr_at_coverage_25": 0.7333333333333333,
+          "accuracy_at_coverage_50": 0.6563380281690141,
+          "precision_at_coverage_50": 0.8125,
+          "recall_at_coverage_50": 0.37790697674418605,
+          "f1_score_at_coverage_50": 0.5158730158730159,
+          "fpr_at_coverage_50": 0.08196721311475409,
+          "fnr_at_coverage_50": 0.622093023255814,
+          "accuracy_at_coverage_75": 0.6454033771106942,
+          "precision_at_coverage_75": 0.7421383647798742,
+          "recall_at_coverage_75": 0.44360902255639095,
+          "f1_score_at_coverage_75": 0.5552941176470588,
+          "fpr_at_coverage_75": 0.15355805243445692,
+          "fnr_at_coverage_75": 0.556390977443609,
+          "accuracy_at_coverage_100": 0.6253521126760564,
+          "precision_at_coverage_100": 0.6893617021276596,
+          "recall_at_coverage_100": 0.4563380281690141,
+          "f1_score_at_coverage_100": 0.5491525423728814,
+          "fpr_at_coverage_100": 0.2056338028169014,
+          "fnr_at_coverage_100": 0.543661971830986,
+          "answer_probability_correctness_auroc": 0.5458367201788255
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 162,
+            "true_negatives": 282,
+            "false_positives": 73,
+            "false_negatives": 193
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 710,
+            "total_samples": 710
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 710,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 710,
+            "total_samples": 710,
+            "correctness_auroc": 0.5458367201788255,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 178,
+                "min_answer_probability": 0.9999999932985068,
+                "accuracy": 0.6853932584269663,
+                "precision": 0.9523809523809523,
+                "recall": 0.26666666666666666,
+                "f1_score": 0.4166666666666667,
+                "fpr": 0.009708737864077669,
+                "fnr": 0.7333333333333333
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 355,
+                "min_answer_probability": 0.9999998474764389,
+                "accuracy": 0.6563380281690141,
+                "precision": 0.8125,
+                "recall": 0.37790697674418605,
+                "f1_score": 0.5158730158730159,
+                "fpr": 0.08196721311475409,
+                "fnr": 0.622093023255814
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 533,
+                "min_answer_probability": 0.8571410652960009,
+                "accuracy": 0.6454033771106942,
+                "precision": 0.7421383647798742,
+                "recall": 0.44360902255639095,
+                "f1_score": 0.5552941176470588,
+                "fpr": 0.15355805243445692,
+                "fnr": 0.556390977443609
+              },
+              {
+                "coverage": 1.0,
+                "selected_samples": 710,
+                "min_answer_probability": 0.5714029577312776,
+                "accuracy": 0.6253521126760564,
+                "precision": 0.6893617021276596,
+                "recall": 0.4563380281690141,
+                "f1_score": 0.5491525423728814,
+                "fpr": 0.2056338028169014,
+                "fnr": 0.543661971830986
+              }
+            ]
+          },
+          "confidence_methods": {},
+          "confidence_stats": {
+            "mean": 0.8177250106202668,
+            "min": 0.7639990747541978,
+            "max": 0.8957438209807639,
+            "count": 710
+          }
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "static_findings_target_sweep",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler/multiplicative_amplification_target_split.json",
+        "description": "multiplicative_amplification context rendered as reference-only after the commented target function; root static findings stored, not shown",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-29T01:24:05.557486",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs-seeded",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": 20260925
+        },
+        "stats": {
+          "total_samples": 710,
+          "total_time_seconds": 6270.304949998856,
+          "avg_time_per_sample": 8.831415422533599,
+          "tokens_used_total": 14094740,
+          "tokens_used_avg": 19851.74647887324,
+          "processing_time_stats": {
+            "count": 710,
+            "min": 1.2614987152203228,
+            "max": 1.2614987152203228,
+            "mean": 1.261498715220323,
+            "variance": 4.937334650096248e-32,
+            "std": 2.2220113973821664e-16
+          },
+          "tokens_used_stats": {
+            "count": 710,
+            "min": 5642.0,
+            "max": 90199.0,
+            "mean": 19851.74647887324,
+            "variance": 109191275.38556586,
+            "std": 10449.462923306914
+          },
+          "confidence_stats": {
+            "mean": 0.8173034197519178,
+            "min": 0.7637457682672542,
+            "max": 0.8906516575320832,
+            "count": 710.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.3980888610133742,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 710.0
+          }
+        },
+        "extra_metadata": {
+          "render_root_findings": false,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": [],
+          "recomputed_from": "results/static_findings_root/static_findings_target_sweep/mult_amp_target_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260929_012405.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
+        },
+        "prompt_identifier": "strict_exploitable_security_root_findings",
+        "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
+        "timestamp_utc": "2026-09-29T01:24:05.557506+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6253521126760564,
+        "summary": {
+          "accuracy": 0.6253521126760564,
+          "precision": 0.6666666666666666,
+          "recall": 0.5014084507042254,
+          "f1_score": 0.5723472668810289,
+          "specificity": 0.7492957746478873,
+          "mcc": 0.25878107513059895,
+          "roc_auc": 0.651727831779409,
+          "pr_auc": 0.674431528980713,
+          "precision_at_recall_50": 0.6691729323308271,
+          "precision_at_recall_80": 0.5428571428571428,
+          "precision_at_recall_90": 0.5,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6573033707865169,
+          "precision_at_coverage_25": 0.9090909090909091,
+          "recall_at_coverage_25": 0.3409090909090909,
+          "f1_score_at_coverage_25": 0.49586776859504134,
+          "fpr_at_coverage_25": 0.03333333333333333,
+          "fnr_at_coverage_25": 0.6590909090909091,
+          "accuracy_at_coverage_50": 0.6816901408450704,
+          "precision_at_coverage_50": 0.7952755905511811,
+          "recall_at_coverage_50": 0.5372340425531915,
+          "f1_score_at_coverage_50": 0.6412698412698413,
+          "fpr_at_coverage_50": 0.15568862275449102,
+          "fnr_at_coverage_50": 0.4627659574468085,
+          "accuracy_at_coverage_75": 0.6435272045028143,
+          "precision_at_coverage_75": 0.6951871657754011,
+          "recall_at_coverage_75": 0.49429657794676807,
+          "f1_score_at_coverage_75": 0.5777777777777777,
+          "fpr_at_coverage_75": 0.2111111111111111,
+          "fnr_at_coverage_75": 0.5057034220532319,
+          "accuracy_at_coverage_100": 0.6253521126760564,
+          "precision_at_coverage_100": 0.6666666666666666,
+          "recall_at_coverage_100": 0.5014084507042254,
+          "f1_score_at_coverage_100": 0.572347266881029,
+          "fpr_at_coverage_100": 0.2507042253521127,
+          "fnr_at_coverage_100": 0.49859154929577465,
+          "answer_probability_correctness_auroc": 0.5532581453634086
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 178,
+            "true_negatives": 266,
+            "false_positives": 89,
+            "false_negatives": 177
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 710,
+            "total_samples": 710
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 710,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 710,
+            "total_samples": 710,
+            "correctness_auroc": 0.5532581453634086,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 178,
+                "min_answer_probability": 0.9999999671721119,
+                "accuracy": 0.6573033707865169,
+                "precision": 0.9090909090909091,
+                "recall": 0.3409090909090909,
+                "f1_score": 0.49586776859504134,
+                "fpr": 0.03333333333333333,
+                "fnr": 0.6590909090909091
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 355,
+                "min_answer_probability": 0.9999992150365694,
+                "accuracy": 0.6816901408450704,
+                "precision": 0.7952755905511811,
+                "recall": 0.5372340425531915,
+                "f1_score": 0.6412698412698413,
+                "fpr": 0.15568862275449102,
+                "fnr": 0.4627659574468085
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 533,
+                "min_answer_probability": 0.7142884459308745,
+                "accuracy": 0.6435272045028143,
+                "precision": 0.6951871657754011,
+                "recall": 0.49429657794676807,
+                "f1_score": 0.5777777777777777,
+                "fpr": 0.2111111111111111,
+                "fnr": 0.5057034220532319
+              },
+              {
+                "coverage": 1.0,
+                "selected_samples": 710,
+                "min_answer_probability": 0.5712805585726694,
+                "accuracy": 0.6253521126760564,
+                "precision": 0.6666666666666666,
+                "recall": 0.5014084507042254,
+                "f1_score": 0.572347266881029,
+                "fpr": 0.2507042253521127,
+                "fnr": 0.49859154929577465
+              }
+            ]
+          },
+          "confidence_methods": {},
+          "confidence_stats": {
+            "mean": 0.8173034197519178,
+            "min": 0.7637457682672542,
+            "max": 0.8906516575320832,
+            "count": 710
+          }
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "static_findings_target_sweep",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler/multiplicative_amplification_target_split.json",
+        "description": "multiplicative_amplification context rendered as reference-only after the commented target function; root static findings in the prompt",
+        "cwe_type": null,
+        "batch_size": 2,
+        "timestamp": "2026-09-29T03:09:29.272148",
+        "model": {
+          "model_name": "gemma4-12b-it-thinking-sc7-logprobs-seeded",
+          "model_type": "gemma-4",
+          "backend": "vllm",
+          "context_length": 24576,
+          "max_output_tokens": 8192,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 64,
+          "min_p": 0.01,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 7,
+          "enable_logprobs": true,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": 20260925
+        },
+        "stats": {
+          "total_samples": 710,
+          "total_time_seconds": 6113.8930580616,
+          "avg_time_per_sample": 8.611116983185351,
+          "tokens_used_total": 14308700,
+          "tokens_used_avg": 20153.1,
+          "processing_time_stats": {
+            "count": 710,
+            "min": 1.2300175657694488,
+            "max": 1.2300175657694488,
+            "mean": 1.230017565769449,
+            "variance": 4.937334650096248e-32,
+            "std": 2.2220113973821664e-16
+          },
+          "tokens_used_stats": {
+            "count": 710,
+            "min": 5533.0,
+            "max": 107979.0,
+            "mean": 20153.1,
+            "variance": 122878598.07884343,
+            "std": 11085.061933920055
+          },
+          "confidence_stats": {
+            "mean": 0.8167449024686446,
+            "min": 0.7655726713168326,
+            "max": 0.8868328420621282,
+            "count": 710.0
+          },
+          "binary_label_confidence_stats": {
+            "mean": 0.3588523314803915,
+            "min": 0.0,
+            "max": 1.0,
+            "count": 710.0
+          }
+        },
+        "extra_metadata": {
+          "render_root_findings": true,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": [],
+          "recomputed_from": "results/static_findings_root/static_findings_target_sweep/mult_amp_target_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260929_030929.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
+        },
+        "prompt_identifier": "strict_exploitable_security_root_findings",
+        "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
+        "timestamp_utc": "2026-09-29T03:09:29.272173+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.6028169014084507,
+        "summary": {
+          "accuracy": 0.6028169014084507,
+          "precision": 0.6514522821576764,
+          "recall": 0.4422535211267606,
+          "f1_score": 0.5268456375838927,
+          "specificity": 0.7633802816901408,
+          "mcc": 0.21713404227222657,
+          "roc_auc": 0.6582146399523904,
+          "pr_auc": 0.6833059537662438,
+          "precision_at_recall_50": 0.6521739130434783,
+          "precision_at_recall_80": 0.556420233463035,
+          "precision_at_recall_90": 0.5,
+          "precision_at_recall_95": 0.5,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": 0.6910112359550562,
+          "precision_at_coverage_25": 0.9583333333333334,
+          "recall_at_coverage_25": 0.2987012987012987,
+          "f1_score_at_coverage_25": 0.45544554455445546,
+          "fpr_at_coverage_25": 0.009900990099009901,
+          "fnr_at_coverage_25": 0.7012987012987013,
+          "accuracy_at_coverage_50": 0.6845070422535211,
+          "precision_at_coverage_50": 0.8214285714285714,
+          "recall_at_coverage_50": 0.41566265060240964,
+          "f1_score_at_coverage_50": 0.552,
+          "fpr_at_coverage_50": 0.07936507936507936,
+          "fnr_at_coverage_50": 0.5843373493975904,
+          "accuracy_at_coverage_75": 0.6472795497185742,
+          "precision_at_coverage_75": 0.7245508982035929,
+          "recall_at_coverage_75": 0.4600760456273764,
+          "f1_score_at_coverage_75": 0.5627906976744186,
+          "fpr_at_coverage_75": 0.17037037037037037,
+          "fnr_at_coverage_75": 0.5399239543726235,
+          "accuracy_at_coverage_100": 0.6028169014084507,
+          "precision_at_coverage_100": 0.6514522821576764,
+          "recall_at_coverage_100": 0.4422535211267606,
+          "f1_score_at_coverage_100": 0.5268456375838926,
+          "fpr_at_coverage_100": 0.23661971830985915,
+          "fnr_at_coverage_100": 0.5577464788732395,
+          "answer_probability_correctness_auroc": 0.6035038443693246
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 157,
+            "true_negatives": 271,
+            "false_positives": 84,
+            "false_negatives": 198
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": "binary_label_confidence",
+            "scored_samples": 710,
+            "total_samples": 710
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 710,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 710,
+            "total_samples": 710,
+            "correctness_auroc": 0.6035038443693246,
+            "levels": [
+              {
+                "coverage": 0.25,
+                "selected_samples": 178,
+                "min_answer_probability": 0.9999999889512122,
+                "accuracy": 0.6910112359550562,
+                "precision": 0.9583333333333334,
+                "recall": 0.2987012987012987,
+                "f1_score": 0.45544554455445546,
+                "fpr": 0.009900990099009901,
+                "fnr": 0.7012987012987013
+              },
+              {
+                "coverage": 0.5,
+                "selected_samples": 355,
+                "min_answer_probability": 0.9999998134691063,
+                "accuracy": 0.6845070422535211,
+                "precision": 0.8214285714285714,
+                "recall": 0.41566265060240964,
+                "f1_score": 0.552,
+                "fpr": 0.07936507936507936,
+                "fnr": 0.5843373493975904
+              },
+              {
+                "coverage": 0.75,
+                "selected_samples": 533,
+                "min_answer_probability": 0.833332217953204,
+                "accuracy": 0.6472795497185742,
+                "precision": 0.7245508982035929,
+                "recall": 0.4600760456273764,
+                "f1_score": 0.5627906976744186,
+                "fpr": 0.17037037037037037,
+                "fnr": 0.5399239543726235
+              },
+              {
+                "coverage": 1.0,
+                "selected_samples": 710,
+                "min_answer_probability": 0.5628430841271412,
+                "accuracy": 0.6028169014084507,
+                "precision": 0.6514522821576764,
+                "recall": 0.4422535211267606,
+                "f1_score": 0.5268456375838926,
+                "fpr": 0.23661971830985915,
+                "fnr": 0.5577464788732395
+              }
+            ]
+          },
+          "confidence_methods": {},
+          "confidence_stats": {
+            "mean": 0.8167449024686446,
+            "min": 0.7655726713168326,
+            "max": 0.8868328420621282,
+            "count": 710
+          }
+        }
+      },
+      "is_success": true
     }
   ],
   "summary": {
-    "total_experiments": 5,
-    "successful_experiments": 5,
+    "total_experiments": 9,
+    "successful_experiments": 9,
     "failed_experiments": 0
   },
-  "output_dir": "results/static_findings_root/static_findings_root_sweep"
+  "output_dir": "results/static_findings_root/merged_target_20260929"
 }

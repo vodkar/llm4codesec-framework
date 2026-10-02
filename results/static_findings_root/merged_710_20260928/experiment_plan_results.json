@@ -1,8 +1,8 @@
 {
-  "plan_name": "static_findings_root_sweep",
-  "description": "Five-condition root static findings sweep",
-  "start_time": "2026-09-28T05:49:57.592699",
-  "end_time": "2026-09-28T14:18:08.133547",
+  "plan_name": "merged",
+  "description": "Merged recomputed results of: results/static_findings_root/static_findings_root_sweep",
+  "start_time": "2026-09-28T07:29:52.028759",
+  "end_time": "2026-09-28T14:18:06.342842",
   "experiments": [
     {
       "benchmark_info": {
@@ -235,7 +235,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cleanvul_python_matched_root_findings/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_072952.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -605,7 +608,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cpg_structural_root_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_091158.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -975,7 +981,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/cpg_structural_root_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_105214.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1345,7 +1354,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/mult_amp_root_findings_off/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_123637.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1715,7 +1727,10 @@
               "label": 0,
               "reason": "other_vulnerability_remains"
             }
-          ]
+          ],
+          "recomputed_from": "results/static_findings_root/static_findings_root_sweep/mult_amp_root_findings_on/gemma4-12b-it-thinking-sc7-logprobs-seeded/strict_exploitable_security_root_findings/benchmark_report_20260928_141806.json",
+          "merge_excluded_samples": [],
+          "analysis_exclude_finding_rules": []
         },
         "prompt_identifier": "strict_exploitable_security_root_findings",
         "prompt_template_sha256": "0ed45eede601e08cacd3fe4444f8e7573c63a99bdbac3c52b34ac10afcfafae0",
@@ -1860,5 +1875,5 @@
     "successful_experiments": 5,
     "failed_experiments": 0
   },
-  "output_dir": "results/static_findings_root/static_findings_root_sweep"
+  "output_dir": "results/static_findings_root/merged_710_20260928"
 }

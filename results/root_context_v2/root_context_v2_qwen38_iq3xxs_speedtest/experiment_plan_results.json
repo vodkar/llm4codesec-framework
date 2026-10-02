@@ -1,0 +1,326 @@
+{
+  "plan_name": "root_context_v2_qwen38_iq3xxs_speedtest",
+  "description": "Load, throughput and verdict-completion check of Huihui-Qwen3.8-27B-abliterated IQ3_XXS (llama_cpp, thinking, 16k output budget, 1 draw)",
+  "start_time": "2026-10-02T07:45:01.254871",
+  "end_time": "2026-10-02T09:22:21.263981",
+  "experiments": [
+    {
+      "benchmark_info": {
+        "experiment_name": "root_context_v2_qwen38_iq3xxs_speedtest",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "datasets_processed/context_assembler/v2/cleanvul_python_matched_root_findings.json",
+        "description": "CleanVul function-only baseline (v2 sample ids) rendered as a single ROOT without context; root static findings stored, not shown (1=vulnerable, 0=safe)",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-10-02T08:41:31.165507",
+        "model": {
+          "model_name": "qwen3.8-27b-abliterated-iq3xxs-thinking-16k",
+          "model_type": "qwen-3.6",
+          "backend": "llama_cpp",
+          "context_length": 32768,
+          "max_output_tokens": 16384,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 20,
+          "min_p": 0.0,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": null
+        },
+        "stats": {
+          "total_samples": 10,
+          "total_time_seconds": 2696.5553398132324,
+          "avg_time_per_sample": 269.65553398132323,
+          "tokens_used_total": 118809,
+          "tokens_used_avg": 11880.9,
+          "processing_time_stats": {
+            "count": 10,
+            "min": 32.856948137283325,
+            "max": 498.98024559020996,
+            "mean": 269.65426528453827,
+            "variance": 30400.013013310672,
+            "std": 174.35599505985067
+          },
+          "tokens_used_stats": {
+            "count": 10,
+            "min": 3310.0,
+            "max": 18698.0,
+            "mean": 11880.9,
+            "variance": 29507426.544444446,
+            "std": 5432.073871409008
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {
+          "render_root_findings": false,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": []
+        },
+        "prompt_identifier": "root_context_security_v2_root_findings",
+        "prompt_template_sha256": "694d2a14dda6cef93a9dae32a16da74170d8a63248db752786ce5bcf352b3124",
+        "timestamp_utc": "2026-10-02T08:41:31.166010+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.4,
+        "summary": {
+          "accuracy": 0.4,
+          "precision": 0.42857142857142855,
+          "recall": 0.6,
+          "f1_score": 0.5,
+          "specificity": 0.2,
+          "mcc": -0.2182178902359924,
+          "roc_auc": null,
+          "pr_auc": null,
+          "precision_at_recall_50": null,
+          "precision_at_recall_80": null,
+          "precision_at_recall_90": null,
+          "precision_at_recall_95": null,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": null,
+          "precision_at_coverage_25": null,
+          "recall_at_coverage_25": null,
+          "f1_score_at_coverage_25": null,
+          "fpr_at_coverage_25": null,
+          "fnr_at_coverage_25": null,
+          "accuracy_at_coverage_50": null,
+          "precision_at_coverage_50": null,
+          "recall_at_coverage_50": null,
+          "f1_score_at_coverage_50": null,
+          "fpr_at_coverage_50": null,
+          "fnr_at_coverage_50": null,
+          "accuracy_at_coverage_75": null,
+          "precision_at_coverage_75": null,
+          "recall_at_coverage_75": null,
+          "f1_score_at_coverage_75": null,
+          "fpr_at_coverage_75": null,
+          "fnr_at_coverage_75": null,
+          "accuracy_at_coverage_100": null,
+          "precision_at_coverage_100": null,
+          "recall_at_coverage_100": null,
+          "f1_score_at_coverage_100": null,
+          "fpr_at_coverage_100": null,
+          "fnr_at_coverage_100": null,
+          "answer_probability_correctness_auroc": null
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 3,
+            "true_negatives": 1,
+            "false_positives": 4,
+            "false_negatives": 2
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": null,
+            "scored_samples": 0,
+            "total_samples": 10,
+            "skipped_reason": "no per-sample P(VULNERABLE) scores available"
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 10,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 0,
+            "total_samples": 10,
+            "correctness_auroc": null,
+            "levels": [],
+            "skipped_reason": "no per-sample answer_probability scores available"
+          },
+          "confidence_methods": {}
+        }
+      },
+      "is_success": true
+    },
+    {
+      "benchmark_info": {
+        "experiment_name": "root_context_v2_qwen38_iq3xxs_speedtest",
+        "task_type": "binary_vulnerability",
+        "dataset_path": "benchmarks/context-assembler-dataset/v2/context_assembler_cpg_structural.json",
+        "description": "cpg_structural v2: ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown",
+        "cwe_type": null,
+        "batch_size": 1,
+        "timestamp": "2026-10-02T09:22:20.553994",
+        "model": {
+          "model_name": "qwen3.8-27b-abliterated-iq3xxs-thinking-16k",
+          "model_type": "qwen-3.6",
+          "backend": "llama_cpp",
+          "context_length": 32768,
+          "max_output_tokens": 16384,
+          "temperature": 1.0,
+          "top_p": 0.95,
+          "top_k": 20,
+          "min_p": 0.0,
+          "presence_penalty": null,
+          "repetition_penalty": 1.0,
+          "use_quantization": false,
+          "is_thinking_enabled": true,
+          "self_consistency_samples": 1,
+          "enable_logprobs": false,
+          "binary_decision_mode": "text",
+          "binary_logprob_threshold": null,
+          "confidence_methods": [],
+          "sampling_seed": null
+        },
+        "stats": {
+          "total_samples": 10,
+          "total_time_seconds": 2288.5783364772797,
+          "avg_time_per_sample": 228.85783364772797,
+          "tokens_used_total": 110997,
+          "tokens_used_avg": 11099.7,
+          "processing_time_stats": {
+            "count": 10,
+            "min": 23.08438777923584,
+            "max": 494.2903690338135,
+            "mean": 228.85715353488922,
+            "variance": 23369.505603512738,
+            "std": 152.87087886027456
+          },
+          "tokens_used_stats": {
+            "count": 10,
+            "min": 2847.0,
+            "max": 18084.0,
+            "mean": 11099.7,
+            "variance": 30094301.122222222,
+            "std": 5485.827296062302
+          },
+          "confidence_stats": null,
+          "binary_label_confidence_stats": null
+        },
+        "extra_metadata": {
+          "render_root_findings": false,
+          "exclude_finding_rules": [],
+          "omit_empty_root_findings": false,
+          "coverage_levels": [
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ],
+          "excluded_samples": [],
+          "unmatched_exclusions": []
+        },
+        "prompt_identifier": "root_context_security_v2_root_findings",
+        "prompt_template_sha256": "694d2a14dda6cef93a9dae32a16da74170d8a63248db752786ce5bcf352b3124",
+        "timestamp_utc": "2026-10-02T09:22:20.554538+00:00"
+      },
+      "metrics": {
+        "task_type": "binary",
+        "accuracy": 0.4,
+        "summary": {
+          "accuracy": 0.4,
+          "precision": 0.4,
+          "recall": 0.4,
+          "f1_score": 0.4000000000000001,
+          "specificity": 0.4,
+          "mcc": -0.2,
+          "roc_auc": null,
+          "pr_auc": null,
+          "precision_at_recall_50": null,
+          "precision_at_recall_80": null,
+          "precision_at_recall_90": null,
+          "precision_at_recall_95": null,
+          "paired_ranking_accuracy": null,
+          "paired_mean_score_margin": null,
+          "accuracy_at_coverage_25": null,
+          "precision_at_coverage_25": null,
+          "recall_at_coverage_25": null,
+          "f1_score_at_coverage_25": null,
+          "fpr_at_coverage_25": null,
+          "fnr_at_coverage_25": null,
+          "accuracy_at_coverage_50": null,
+          "precision_at_coverage_50": null,
+          "recall_at_coverage_50": null,
+          "f1_score_at_coverage_50": null,
+          "fpr_at_coverage_50": null,
+          "fnr_at_coverage_50": null,
+          "accuracy_at_coverage_75": null,
+          "precision_at_coverage_75": null,
+          "recall_at_coverage_75": null,
+          "f1_score_at_coverage_75": null,
+          "fpr_at_coverage_75": null,
+          "fnr_at_coverage_75": null,
+          "accuracy_at_coverage_100": null,
+          "precision_at_coverage_100": null,
+          "recall_at_coverage_100": null,
+          "f1_score_at_coverage_100": null,
+          "fpr_at_coverage_100": null,
+          "fnr_at_coverage_100": null,
+          "answer_probability_correctness_auroc": null
+        },
+        "details": {
+          "confusion_matrix": {
+            "true_positives": 2,
+            "true_negatives": 2,
+            "false_positives": 3,
+            "false_negatives": 3
+          },
+          "labels": [
+            0,
+            1
+          ],
+          "ranking_metrics": {
+            "score_source": null,
+            "scored_samples": 0,
+            "total_samples": 10,
+            "skipped_reason": "no per-sample P(VULNERABLE) scores available"
+          },
+          "paired_ranking": {
+            "score_source": null,
+            "scored_pairs": 0,
+            "total_pairs": 0,
+            "wins": 0,
+            "ties": 0,
+            "losses": 0,
+            "unpaired_samples": 10,
+            "skipped_reason": "no pre/post sample pairs found"
+          },
+          "selective_prediction": {
+            "score_source": "answer_probability",
+            "scored_samples": 0,
+            "total_samples": 10,
+            "correctness_auroc": null,
+            "levels": [],
+            "skipped_reason": "no per-sample answer_probability scores available"
+          },
+          "confidence_methods": {}
+        }
+      },
+      "is_success": true
+    }
+  ],
+  "summary": {
+    "total_experiments": 2,
+    "successful_experiments": 2,
+    "failed_experiments": 0
+  },
+  "output_dir": "results/root_context_v2/root_context_v2_qwen38_iq3xxs_speedtest"
+}

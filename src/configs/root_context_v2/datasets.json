@@ -26,6 +26,172 @@
             "task_type": "binary_vulnerability",
             "description": "multiplicative_amplification v2: ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
             "render_root_findings": true
+        },
+        "cleanvul_python_matched_v2_2k_root": {
+            "dataset_path": "datasets_processed/context_assembler/v2_2k/cleanvul_python_matched_root_findings.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul function-only baseline of dataset v2_2k (2048-token context budget, CleanVul score 4 (616 samples; pairs whose function alone exceeds 2048 tokens left out)) rendered as a single ROOT without context; root static findings stored, not shown (1=vulnerable, 0=safe)"
+        },
+        "cpg_structural_v2_2k_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_2k (2048-token context budget, CleanVul score 4 (616 samples; pairs whose function alone exceeds 2048 tokens left out)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "cpg_structural_v2_2k_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_2k (2048-token context budget, CleanVul score 4 (616 samples; pairs whose function alone exceeds 2048 tokens left out)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "mult_amp_v2_2k_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_2k (2048-token context budget, CleanVul score 4 (616 samples; pairs whose function alone exceeds 2048 tokens left out)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "mult_amp_v2_2k_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_2k (2048-token context budget, CleanVul score 4 (616 samples; pairs whose function alone exceeds 2048 tokens left out)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "cleanvul_python_matched_v2_score34_root": {
+            "dataset_path": "datasets_processed/context_assembler/v2_score34/cleanvul_python_matched_root_findings.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul function-only baseline of dataset v2_score34 (4096-token context budget, CleanVul score 3 + 4 (880 samples; score-3 labels unaudited)) rendered as a single ROOT without context; root static findings stored, not shown (1=vulnerable, 0=safe)"
+        },
+        "cpg_structural_v2_score34_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_score34/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_score34 (4096-token context budget, CleanVul score 3 + 4 (880 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "cpg_structural_v2_score34_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_score34/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_score34 (4096-token context budget, CleanVul score 3 + 4 (880 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "mult_amp_v2_score34_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_score34/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_score34 (4096-token context budget, CleanVul score 3 + 4 (880 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "mult_amp_v2_score34_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_score34/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_score34 (4096-token context budget, CleanVul score 3 + 4 (880 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "cleanvul_python_matched_v2_2k_score34_root": {
+            "dataset_path": "datasets_processed/context_assembler/v2_2k_score34/cleanvul_python_matched_root_findings.json",
+            "task_type": "binary_vulnerability",
+            "description": "CleanVul function-only baseline of dataset v2_2k_score34 (2048-token context budget, CleanVul score 3 + 4 (766 samples; score-3 labels unaudited)) rendered as a single ROOT without context; root static findings stored, not shown (1=vulnerable, 0=safe)"
+        },
+        "cpg_structural_v2_2k_score34_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k_score34/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_2k_score34 (2048-token context budget, CleanVul score 3 + 4 (766 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "cpg_structural_v2_2k_score34_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k_score34/context_assembler_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2_2k_score34 (2048-token context budget, CleanVul score 3 + 4 (766 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "mult_amp_v2_2k_score34_findings_off": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k_score34/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_2k_score34 (2048-token context budget, CleanVul score 3 + 4 (766 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings stored, not shown"
+        },
+        "mult_amp_v2_2k_score34_findings_on": {
+            "dataset_path": "benchmarks/context-assembler-dataset/v2_2k_score34/context_assembler_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2_2k_score34 (2048-token context budget, CleanVul score 3 + 4 (766 samples; score-3 labels unaudited)): ROOT code under analysis, per-root context in a separate reference-only section; root static findings in the prompt",
+            "render_root_findings": true
+        },
+        "compare_rankings_v2_current": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy current, best-tuned coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_cpg_structural": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_cpg_structural.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy cpg_structural, best-tuned; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_evidence_budgeted": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_evidence_budgeted.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy evidence_budgeted, best-tuned; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_multiplicative_amplification": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_multiplicative_amplification.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy multiplicative_amplification, best-tuned; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_depth_repeats_context": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_depth_repeats_context.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy depth_repeats_context; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_random_picking": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_random_picking.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy random_picking (seed 42); ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_dummy": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_dummy.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy dummy (fetch order: depth, file, line); ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_current_default": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_current_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy current, default coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_multiplicative_amplification_default": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_multiplicative_amplification_default.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy multiplicative_amplification, default coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_current_last": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_current_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy current, last-trial coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_cpg_structural_last": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_cpg_structural_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy cpg_structural, last-trial coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_evidence_budgeted_last": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_evidence_budgeted_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy evidence_budgeted, last-trial coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "compare_rankings_v2_multiplicative_amplification_last": {
+            "dataset_path": "benchmarks/context-assembler-dataset/cleanvul_compare_rankings/cleanvul_context_benchmark_multiplicative_amplification_last.json",
+            "task_type": "binary_vulnerability",
+            "description": "cleanvul_compare_rankings (v2 samples and roots, 4096-token context, llm_scanner 2487105), ranking strategy multiplicative_amplification, last-trial coefficients; ROOT/REFERENCE CONTEXT layout; root static findings stored, not shown"
+        },
+        "cpg_structural_v2_4k_changed": {
+            "dataset_path": "datasets_processed/context_assembler/v2_4k_vs_6k/cpg_structural_4k_changed.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2 at a 4096-token context budget (llm_scanner c123fb7), only the vulnerable/fixed pairs whose context differs between the 4096 and 6144 budgets (scripts/build_ctx_size_subsets.py); root static findings stored, not shown"
+        },
+        "cpg_structural_v2_6k_changed": {
+            "dataset_path": "datasets_processed/context_assembler/v2_4k_vs_6k/cpg_structural_6k_changed.json",
+            "task_type": "binary_vulnerability",
+            "description": "cpg_structural v2 at a 6144-token context budget (llm_scanner c123fb7), only the vulnerable/fixed pairs whose context differs between the 4096 and 6144 budgets (scripts/build_ctx_size_subsets.py); root static findings stored, not shown"
+        },
+        "mult_amp_v2_4k_changed": {
+            "dataset_path": "datasets_processed/context_assembler/v2_4k_vs_6k/multiplicative_amplification_4k_changed.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2 at a 4096-token context budget (llm_scanner c123fb7), only the vulnerable/fixed pairs whose context differs between the 4096 and 6144 budgets (scripts/build_ctx_size_subsets.py); root static findings stored, not shown"
+        },
+        "mult_amp_v2_6k_changed": {
+            "dataset_path": "datasets_processed/context_assembler/v2_4k_vs_6k/multiplicative_amplification_6k_changed.json",
+            "task_type": "binary_vulnerability",
+            "description": "multiplicative_amplification v2 at a 6144-token context budget (llm_scanner c123fb7), only the vulnerable/fixed pairs whose context differs between the 4096 and 6144 budgets (scripts/build_ctx_size_subsets.py); root static findings stored, not shown"
         }
     }
 }

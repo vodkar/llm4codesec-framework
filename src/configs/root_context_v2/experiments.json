@@ -41,7 +41,7 @@
             "sample_limit": 20
         },
         "root_context_v2_gemma_sweep": {
-            "description": "gemma4-12b (vLLM, sc7, logprobs), root-context v2 prompt: function-only as ROOT, cpg_structural and multiplicative_amplification v2 with root findings off/on",
+            "description": "gemma4-12b (vLLM, thinking on since 13bddd5, 3 draws, logprobs, 16k output), root-context v2 prompt: function-only as ROOT, cpg_structural and multiplicative_amplification v2 with root findings off/on",
             "datasets": [
                 "cleanvul_python_matched_v2_root",
                 "cpg_structural_v2_findings_off",
@@ -50,7 +50,7 @@
                 "mult_amp_v2_findings_on"
             ],
             "models": [
-                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+                "gemma4-12b-it-thinking-sc3-logprobs-seeded-16k"
             ],
             "prompts": [
                 "root_context_security_v2_root_findings"
@@ -66,7 +66,7 @@
                 "mult_amp_v2_findings_on"
             ],
             "models": [
-                "gemma4-12b-it-thinking-sc7-logprobs-seeded"
+                "gemma4-12b-it-thinking-sc3-logprobs-seeded-16k"
             ],
             "prompts": [
                 "root_context_security_v2_root_findings"
@@ -133,6 +133,167 @@
                 "root_context_security_v2_root_findings"
             ],
             "sample_limit": 10
+        },
+        "root_context_v2_qwen35_sweep": {
+            "description": "Qwen3.5-9B (vLLM fp8, thinking, 7 draws, logprobs, 16k output), root-context v2 prompt on the five v2 conditions: function-only as ROOT, cpg_structural and multiplicative_amplification with root findings off/on",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "qwen3.5-9b-thinking-sc7-logprobs-seeded-16k"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_qwen3_8b_sweep": {
+            "description": "Qwen3-8B (vLLM fp8 weights and KV, thinking, 7 draws, logprobs, 16k output), root-context v2 prompt on the five v2 conditions: function-only as ROOT, cpg_structural and multiplicative_amplification with root findings off/on",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "cpg_structural_v2_findings_off",
+                "cpg_structural_v2_findings_on",
+                "mult_amp_v2_findings_off",
+                "mult_amp_v2_findings_on"
+            ],
+            "models": [
+                "qwen3-8b-thinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_score34_gemma_nothinking_sweep": {
+            "description": "gemma4-12b without thinking (vLLM, 7 draws, logprobs, seeded), root-context v2 prompt on the five v2_score34 conditions (4096-token context, CleanVul score 3 + 4, 880 samples): function-only as ROOT, cpg_structural and multiplicative_amplification with root findings off/on",
+            "datasets": [
+                "cleanvul_python_matched_v2_score34_root",
+                "cpg_structural_v2_score34_findings_off",
+                "cpg_structural_v2_score34_findings_on",
+                "mult_amp_v2_score34_findings_off",
+                "mult_amp_v2_score34_findings_on"
+            ],
+            "models": [
+                "gemma4-12b-it-nothinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_sampling_sweep": {
+            "description": "Gemma-12B without thinking, one-factor sampling sweep (28 configs, 3 draws each; temperature 0 with 1 draw) around the default temperature 1.0 / top_p 0.95 / top_k 64 / min_p 0.01, on cpg_structural v2 without findings (710 samples)",
+            "datasets": [
+                "cpg_structural_v2_findings_off"
+            ],
+            "models": [
+                "gemma4-12b-nt-sc3-base",
+                "gemma4-12b-nt-sc3-temp-000",
+                "gemma4-12b-nt-sc3-temp-030",
+                "gemma4-12b-nt-sc3-temp-060",
+                "gemma4-12b-nt-sc3-temp-080",
+                "gemma4-12b-nt-sc3-temp-120",
+                "gemma4-12b-nt-sc3-top-p-070",
+                "gemma4-12b-nt-sc3-top-p-075",
+                "gemma4-12b-nt-sc3-top-p-080",
+                "gemma4-12b-nt-sc3-top-p-090",
+                "gemma4-12b-nt-sc3-top-p-100",
+                "gemma4-12b-nt-sc3-top-k-020",
+                "gemma4-12b-nt-sc3-top-k-040",
+                "gemma4-12b-nt-sc3-top-k-100",
+                "gemma4-12b-nt-sc3-min-p-000",
+                "gemma4-12b-nt-sc3-min-p-005",
+                "gemma4-12b-nt-sc3-min-p-010",
+                "gemma4-12b-nt-sc3-presence-025",
+                "gemma4-12b-nt-sc3-presence-050",
+                "gemma4-12b-nt-sc3-presence-100",
+                "gemma4-12b-nt-sc3-presence-150",
+                "gemma4-12b-nt-sc3-presence-200",
+                "gemma4-12b-nt-sc3-repeat-105",
+                "gemma4-12b-nt-sc3-repeat-110",
+                "gemma4-12b-nt-sc3-repeat-120",
+                "gemma4-12b-nt-sc3-repeat-130",
+                "gemma4-12b-nt-sc3-repeat-140",
+                "gemma4-12b-nt-sc3-repeat-150"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_sampling_combos": {
+            "description": "Gemma-12B without thinking, combinations of the one-factor sweep winners (temperature 1.2, repetition_penalty 1.1, presence_penalty 1.5, top_k 20), 3 draws each, on cpg_structural v2 without findings (710 samples), paired with root_context_v2_gemma_sampling_sweep",
+            "datasets": [
+                "cpg_structural_v2_findings_off"
+            ],
+            "models": [
+                "gemma4-12b-nt-sc3-combo-t120-rep110",
+                "gemma4-12b-nt-sc3-combo-t120-pres150",
+                "gemma4-12b-nt-sc3-combo-t120-topk020",
+                "gemma4-12b-nt-sc3-combo-rep110-pres150",
+                "gemma4-12b-nt-sc3-combo-rep110-topk020",
+                "gemma4-12b-nt-sc3-combo-t120-rep110-pres150",
+                "gemma4-12b-nt-sc3-combo-t120-rep110-topk020",
+                "gemma4-12b-nt-sc3-combo-t120-rep110-pres150-topk020"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_temperature_sc7": {
+            "description": "Gemma-12B without thinking, temperature 1.0 (control) / 1.2 / 1.5 / 1.8 with 7 draws each (other settings as gemma4-12b-nt-sc3-base), on cpg_structural v2 without findings (710 samples); tests whether higher temperature pays off with more self-consistency draws",
+            "datasets": [
+                "cpg_structural_v2_findings_off"
+            ],
+            "models": [
+                "gemma4-12b-nt-sc7-temp-100",
+                "gemma4-12b-nt-sc7-temp-120",
+                "gemma4-12b-nt-sc7-temp-150",
+                "gemma4-12b-nt-sc7-temp-180"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_compare_rankings": {
+            "description": "Gemma-12B without thinking (T1.2, repetition_penalty 1.1, 7 draws) on the 13 cleanvul_compare_rankings context-ranking strategies plus the v2 function-only baseline (710 samples each, findings off)",
+            "datasets": [
+                "cleanvul_python_matched_v2_root",
+                "compare_rankings_v2_current",
+                "compare_rankings_v2_cpg_structural",
+                "compare_rankings_v2_evidence_budgeted",
+                "compare_rankings_v2_multiplicative_amplification",
+                "compare_rankings_v2_depth_repeats_context",
+                "compare_rankings_v2_random_picking",
+                "compare_rankings_v2_dummy",
+                "compare_rankings_v2_current_default",
+                "compare_rankings_v2_multiplicative_amplification_default",
+                "compare_rankings_v2_current_last",
+                "compare_rankings_v2_cpg_structural_last",
+                "compare_rankings_v2_evidence_budgeted_last",
+                "compare_rankings_v2_multiplicative_amplification_last"
+            ],
+            "models": [
+                "gemma4-12b-it-nothinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
+        },
+        "root_context_v2_gemma_ctx_4k_vs_6k": {
+            "description": "Gemma-12B without thinking (T1.2, repetition_penalty 1.1, 7 draws): v2 4096- vs 6144-token context for cpg_structural (174 samples) and multiplicative_amplification (316 samples), restricted to pairs whose context differs between the budgets",
+            "datasets": [
+                "cpg_structural_v2_4k_changed",
+                "cpg_structural_v2_6k_changed",
+                "mult_amp_v2_4k_changed",
+                "mult_amp_v2_6k_changed"
+            ],
+            "models": [
+                "gemma4-12b-it-nothinking-sc7-logprobs-seeded"
+            ],
+            "prompts": [
+                "root_context_security_v2_root_findings"
+            ]
         }
     },
     "output_settings": {

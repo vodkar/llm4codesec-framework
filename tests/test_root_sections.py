@@ -137,6 +137,129 @@ def test_v3_prompt_drops_path_examples_and_keeps_placeholders() -> None:
     assert "{code}{root_static_findings}\n\nReminder: judge only the ROOT code" in prompt["user_prompt"]
 
 
+def test_every_dataset_variant_has_five_conditions() -> None:
+    datasets = json.loads((CONFIGS / "root_context_v2" / "datasets.json").read_text())["datasets"]
+    for variant in ("v2", "v2_2k", "v2_score34", "v2_2k_score34"):
+        names = [name.replace("v2", variant, 1) for name in DATASETS]
+        assert all(name in datasets for name in names), variant
+        assert [datasets[name].get("render_root_findings", False) for name in names] == [
+            False, False, True, False, True,
+        ]
+        for name in names[1:]:
+            assert f"context-assembler-dataset/{variant}/" in datasets[name]["dataset_path"]
+        assert datasets[names[0]]["dataset_path"] == (
+            f"datasets_processed/context_assembler/{variant}/cleanvul_python_matched_root_findings.json"
+        )
+
+
+def test_score34_gemma_nothinking_plan() -> None:
+    composed = compose_benchmark_config(
+        benchmark_name="context_assembler",
+        base_config=None,
+        config_directory=CONFIGS / "shared",
+        experiments_config=CONFIGS / "root_context_v2" / "experiments.json",
+        datasets_config=CONFIGS / "root_context_v2" / "datasets.json",
+    )
+    plan = ExperimentsPlanConfig.from_file(composed, "root_context_v2_score34_gemma_nothinking_sweep")
+    assert [e.dataset_name for e in plan.experiments] == [
+        name.replace("v2", "v2_score34", 1) for name in DATASETS
+    ]
+    assert {e.model_name for e in plan.experiments} == {"gemma4-12b-it-nothinking-sc7-logprobs-seeded"}
+    assert {e.is_thinking_enabled for e in plan.experiments} == {False}
+    assert {e.self_consistency_samples for e in plan.experiments} == {7}
+
+
+def test_gemma_sampling_sweep_varies_one_decoding_param() -> None:
+    models = json.loads((CONFIGS / "shared" / "models.json").read_text())["models"]
+    base = models["gemma4-12b-nt-sc3-base"]
+    plans = json.loads((CONFIGS / "root_context_v2" / "experiments.json").read_text())[
+        "experiment_plans"
+    ]
+    plan = plans["root_context_v2_gemma_sampling_sweep"]
+    assert plan["datasets"] == ["cpg_structural_v2_findings_off"]
+    assert len(plan["models"]) == 28 and plan["models"][0] == "gemma4-12b-nt-sc3-base"
+    decoding = {"temperature", "top_p", "top_k", "min_p", "presence_penalty", "repetition_penalty"}
+    for name in plan["models"]:
+        model = models[name]
+        changed = {key for key in set(model) | set(base) if model.get(key) != base.get(key)}
+        assert changed - {"self_consistency_samples"} <= decoding, name
+        assert len(changed & decoding) == (0 if name.endswith("-base") else 1), name
+        expected_draws = 1 if model["temperature"] == 0.0 else 3
+        assert model["self_consistency_samples"] == expected_draws, name
+        assert model["is_thinking_enabled"] is False
+
+
+def test_gemma_sampling_combos_only_combine_sweep_values() -> None:
+    models = json.loads((CONFIGS / "shared" / "models.json").read_text())["models"]
+    base = models["gemma4-12b-nt-sc3-base"]
+    plan = json.loads((CONFIGS / "root_context_v2" / "experiments.json").read_text())[
+        "experiment_plans"
+    ]["root_context_v2_gemma_sampling_combos"]
+    assert plan["datasets"] == ["cpg_structural_v2_findings_off"]
+    assert 6 <= len(plan["models"]) <= 9
+    winners = {"temperature": 1.2, "repetition_penalty": 1.1, "presence_penalty": 1.5, "top_k": 20}
+    for name in plan["models"]:
+        model = models[name]
+        changed = {key for key in set(model) | set(base) if model.get(key) != base.get(key)}
+        assert len(changed) >= 2 and all(model[key] == winners[key] for key in changed), name
+
+
+def test_gemma_temperature_sc7_plan_varies_only_temperature() -> None:
+    models = json.loads((CONFIGS / "shared" / "models.json").read_text())["models"]
+    base = models["gemma4-12b-nt-sc3-base"]
+    plan = json.loads((CONFIGS / "root_context_v2" / "experiments.json").read_text())[
+        "experiment_plans"
+    ]["root_context_v2_gemma_temperature_sc7"]
+    assert plan["datasets"] == ["cpg_structural_v2_findings_off"]
+    assert [models[name]["temperature"] for name in plan["models"]] == [1.0, 1.2, 1.5, 1.8]
+    for name in plan["models"]:
+        model = models[name]
+        changed = {key for key in set(model) | set(base) if model.get(key) != base.get(key)}
+        assert changed <= {"temperature", "self_consistency_samples"}, name
+        assert model["self_consistency_samples"] == 7, name
+
+
+def test_gemma_compare_rankings_plan() -> None:
+    composed = compose_benchmark_config(
+        benchmark_name="context_assembler",
+        base_config=None,
+        config_directory=CONFIGS / "shared",
+        experiments_config=CONFIGS / "root_context_v2" / "experiments.json",
+        datasets_config=CONFIGS / "root_context_v2" / "datasets.json",
+    )
+    plan = ExperimentsPlanConfig.from_file(composed, "root_context_v2_gemma_compare_rankings")
+    datasets = [e.dataset_name for e in plan.experiments]
+    assert datasets[0] == "cleanvul_python_matched_v2_root" and len(datasets) == 14
+    assert all(name.startswith("compare_rankings_v2_") for name in datasets[1:])
+    assert {e.render_root_findings for e in plan.experiments} == {False}
+    model = json.loads((CONFIGS / "shared" / "models.json").read_text())["models"][
+        "gemma4-12b-it-nothinking-sc7-logprobs-seeded"
+    ]
+    assert (model["temperature"], model["repetition_penalty"]) == (1.2, 1.1)
+    assert model["self_consistency_samples"] == 7 and model["is_thinking_enabled"] is False
+    datasets_config = json.loads((CONFIGS / "root_context_v2" / "datasets.json").read_text())
+    for name in datasets[1:]:
+        assert (REPO / datasets_config["datasets"][name]["dataset_path"]).exists(), name
+
+
+def test_ctx_4k_vs_6k_plan_pairs_budgets() -> None:
+    composed = compose_benchmark_config(
+        benchmark_name="context_assembler",
+        base_config=None,
+        config_directory=CONFIGS / "shared",
+        experiments_config=CONFIGS / "root_context_v2" / "experiments.json",
+        datasets_config=CONFIGS / "root_context_v2" / "datasets.json",
+    )
+    plan = ExperimentsPlanConfig.from_file(composed, "root_context_v2_gemma_ctx_4k_vs_6k")
+    assert [e.dataset_name for e in plan.experiments] == [
+        f"{strategy}_v2_{size}_changed"
+        for strategy in ("cpg_structural", "mult_amp")
+        for size in ("4k", "6k")
+    ]
+    assert {e.model_name for e in plan.experiments} == {"gemma4-12b-it-nothinking-sc7-logprobs-seeded"}
+    assert {e.render_root_findings for e in plan.experiments} == {False}
+
+
 def test_plans_resolve() -> None:
     composed = compose_benchmark_config(
         benchmark_name="context_assembler",
@@ -148,15 +271,18 @@ def test_plans_resolve() -> None:
     for name, limit, model in (
         ("root_context_v2_lfm_sweep", None, "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"),
         ("root_context_v2_lfm_smoke", 20, "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"),
-        ("root_context_v2_gemma_sweep", None, "gemma4-12b-it-thinking-sc7-logprobs-seeded"),
-        ("root_context_v2_gemma_smoke", 20, "gemma4-12b-it-thinking-sc7-logprobs-seeded"),
+        ("root_context_v2_gemma_sweep", None, "gemma4-12b-it-thinking-sc3-logprobs-seeded-16k"),
+        ("root_context_v2_gemma_smoke", 20, "gemma4-12b-it-thinking-sc3-logprobs-seeded-16k"),
+        ("root_context_v2_qwen35_sweep", None, "qwen3.5-9b-thinking-sc7-logprobs-seeded-16k"),
+        ("root_context_v2_qwen3_8b_sweep", None, "qwen3-8b-thinking-sc7-logprobs-seeded"),
         ("root_context_v3_lfm_sweep", None, "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"),
         ("root_context_v3_lfm_smoke", 20, "lfm2.5-8b-a1b-thinking-sc7-logprobs-seeded"),
     ):
         plan = ExperimentsPlanConfig.from_file(composed, name)
-        assert [e.dataset_name for e in plan.experiments] == DATASETS
+        expected = DATASETS
+        assert [e.dataset_name for e in plan.experiments] == expected
         assert [e.render_root_findings for e in plan.experiments] == [
-            False, False, True, False, True,
+            "_on" in dataset for dataset in expected
         ]
         assert {e.model_name for e in plan.experiments} == {model}
         prompt = "v3" if name.startswith("root_context_v3") else "v2"

@@ -224,12 +224,25 @@ the v2 prompt plus an input-layout paragraph and a scope reminder after the code
 v2 root code is comment-stripped (the function-only baseline is not). Every prompt
 fits LFM's 16k input budget (max 12.6k tokens), so none are filtered.
 
-One-time setup (function-only baseline as a single root, findings attached):
+Dataset variants (each a directory of the submodule, same five conditions, entries
+in `configs/root_context_v2/datasets.json` named with the variant, e.g.
+`cpg_structural_v2_2k_score34_findings_on`): `v2` (4096-token context, score 4, 710
+samples), `v2_2k` (2048-token, score 4, 616), `v2_score34` (4096-token, score 3 + 4,
+880) and `v2_2k_score34` (2048-token, score 3 + 4, 766). Score-3 labels are unaudited.
+In the score 3 + 4 sets `source_row_ids` index into two CSVs, so the join key is
+`(metadata.source_file, source_row_ids, label)`: predictions store `source_file`,
+the entrypoints join on it, and `exclude_samples` entries may set `source_file`
+(without it they match the key in any file).
+
+One-time setup (function-only baseline as a single root, findings attached), and
+again after every dataset rebuild:
 ```bash
-PYTHONPATH=src uv run python src/entrypoints/attach_root_findings.py --as-root \
-    --target benchmarks/context-assembler-dataset/v2/cleanvul_python_matched.json \
-    --findings-source benchmarks/context-assembler-dataset/v2/context_assembler_cpg_structural.json \
-    --output datasets_processed/context_assembler/v2/cleanvul_python_matched_root_findings.json
+for v in v2 v2_2k v2_score34 v2_2k_score34; do
+  PYTHONPATH=src uv run python src/entrypoints/attach_root_findings.py --as-root \
+    --target benchmarks/context-assembler-dataset/$v/cleanvul_python_matched.json \
+    --findings-source benchmarks/context-assembler-dataset/$v/context_assembler_cpg_structural.json \
+    --output datasets_processed/context_assembler/$v/cleanvul_python_matched_root_findings.json
+done
 ```
 
 Run (`root_context_v2_lfm_smoke` for 20 samples per condition):

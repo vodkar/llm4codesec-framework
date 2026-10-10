@@ -191,6 +191,7 @@ class BenchmarkResultProcessor(BaseModel):
             error_message=prediction.error_message,
             inference_data=inference_data,
             source_row_ids=prediction.source_row_ids,
+            source_file=prediction.source_file,
             root_static_findings=prediction.root_static_findings,
             root_findings_in_prompt=prediction.root_findings_in_prompt,
         )

@@ -11,8 +11,9 @@ Root static findings are resolved against the original context snippet and
 stored as ``root_static_findings``; ``metadata.target_line_coverage`` records the
 fraction of target lines found (and removed) in the context snippet.
 
-Samples are matched on ``(metadata.source_row_ids, label)``. Every context sample
-must match exactly one function-only sample, otherwise nothing is written.
+Samples are matched on ``(metadata.source_file, metadata.source_row_ids,
+label)``. Every context sample must match exactly one function-only sample,
+otherwise nothing is written.
 
 Usage (host):
     PYTHONPATH=src uv run python src/entrypoints/split_target_context.py \\
@@ -34,15 +35,24 @@ from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 
-SampleKey = tuple[tuple[int, ...], int]
+SampleKey = tuple[str | None, tuple[int, ...], int]
 
 
 def _sample_key(sample: dict[str, Any]) -> SampleKey:
-    """Join key that survives dataset rebuilds (sample ids do not)."""
-    row_ids: list[int] | None = sample.get("metadata", {}).get("source_row_ids")
+    """Join key that survives dataset rebuilds (sample ids do not).
+
+    ``metadata.source_file`` is part of it because datasets mixing CleanVul score
+    files reuse row ids across files.
+    """
+    metadata: dict[str, Any] = sample.get("metadata", {})
+    row_ids: list[int] | None = metadata.get("source_row_ids")
     if not row_ids:
         raise ValueError(f"Sample {sample.get('id')} has no metadata.source_row_ids")
-    return tuple(int(row_id) for row_id in row_ids), int(sample["label"])
+    return (
+        metadata.get("source_file"),
+        tuple(int(row_id) for row_id in row_ids),
+        int(sample["label"]),
+    )
 
 
 def split_target_context(

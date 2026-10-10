@@ -56,6 +56,20 @@ def test_key_uses_row_ids_and_label() -> None:
     assert SampleExclusion(source_row_ids=[3, 1], label=1).key == ((3, 1), 1)
 
 
+def test_exclusion_with_source_file_only_matches_that_file() -> None:
+    score4 = _sample("a", [7], 1)
+    score4.metadata["source_file"] = "vulnerability_score_4.csv"
+    score3 = _sample("b", [7], 1)
+    score3.metadata["source_file"] = "vulnerability_score_3.csv"
+    scoped = SampleExclusion(source_row_ids=[7], label=1, source_file="vulnerability_score_4.csv")
+    result = apply_sample_exclusions([score4, score3], [scoped])
+    assert [sample.id for sample in result.kept] == ["b"]
+    assert result.excluded == [scoped] and result.unmatched == []
+    # Without a source_file the exclusion keeps its old meaning: the key in any file.
+    unscoped = SampleExclusion(source_row_ids=[7], label=1)
+    assert apply_sample_exclusions([score4, score3], [unscoped]).kept == []
+
+
 def test_excludes_matching_samples_and_reports_unmatched() -> None:
     samples = [_sample("a", [1], 1), _sample("b", [1], 0), _sample("c", [2, 3], 1)]
     result = apply_sample_exclusions(samples, [

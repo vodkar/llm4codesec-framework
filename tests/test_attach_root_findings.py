@@ -59,6 +59,22 @@ def test_attaches_root_findings_by_row_ids_and_label() -> None:
     assert loaded.root_static_findings is not None and loaded.root_static_findings[0].repo_line == 10
 
 
+def test_score_files_with_shared_row_ids_stay_apart() -> None:
+    def tagged(sample: dict, source_file: str) -> dict:
+        return {**sample, "metadata": {**sample["metadata"], "source_file": source_file}}
+
+    sources = [
+        tagged(_source([5], 1, [_finding()]), "vulnerability_score_4.csv"),
+        tagged(_source([5], 1, []), "vulnerability_score_3.csv"),
+    ]
+    targets = [
+        tagged(_target([5], 1), "vulnerability_score_3.csv"),
+        tagged(_target([5], 1), "vulnerability_score_4.csv"),
+    ]
+    result = attach_root_findings({"samples": targets}, {"samples": sources})
+    assert [len(s["root_static_findings"]) for s in result["samples"]] == [0, 1]
+
+
 def test_unmatched_target_raises() -> None:
     source = {"samples": [_source([1], 1, [])]}
     _raises(ValueError, lambda: attach_root_findings({"samples": [_target([2], 1)]}, source))

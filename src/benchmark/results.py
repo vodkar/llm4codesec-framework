@@ -65,6 +65,8 @@ class PredictionRecord(BaseModel):
     inference_data: SampleInferenceData
     source_row_ids: list[int] | None = None
     """CleanVul source row ids; with true_label, a join key that survives dataset rebuilds."""
+    source_file: str | None = None
+    """CleanVul CSV the row ids index into; part of the join key when a dataset mixes score files."""
     root_static_findings: list[RootStaticFinding] | None = None
     """Root findings of the sample, stored whether or not they were shown to the model."""
     root_findings_in_prompt: bool = False

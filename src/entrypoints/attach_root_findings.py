@@ -7,8 +7,9 @@ llm_scanner with static findings) onto the matching samples of a function-only
 dataset, as ``root_static_findings``. The findings are stored for analysis only;
 they reach a prompt only when the dataset config sets ``render_root_findings``.
 
-Samples are matched on ``(metadata.source_row_ids, label)``. Every target sample
-must match exactly one source sample, otherwise nothing is written.
+Samples are matched on ``(metadata.source_file, metadata.source_row_ids,
+label)``. Every target sample must match exactly one source sample, otherwise
+nothing is written.
 
 With ``--as-root`` (for a v2 source with a ``roots`` field) the function-only code
 also becomes a single root, labelled with the source roots' file paths, so the
@@ -37,15 +38,24 @@ from logging_tools import setup_logging
 
 _LOGGER = logging.getLogger(__name__)
 
-SampleKey = tuple[tuple[int, ...], int]
+SampleKey = tuple[str | None, tuple[int, ...], int]
 
 
 def _sample_key(sample: dict[str, Any]) -> SampleKey:
-    """Join key that survives dataset rebuilds (sample ids do not)."""
-    row_ids: list[int] | None = sample.get("metadata", {}).get("source_row_ids")
+    """Join key that survives dataset rebuilds (sample ids do not).
+
+    ``metadata.source_file`` is part of it because datasets mixing CleanVul score
+    files reuse row ids across files.
+    """
+    metadata: dict[str, Any] = sample.get("metadata", {})
+    row_ids: list[int] | None = metadata.get("source_row_ids")
     if not row_ids:
         raise ValueError(f"Sample {sample.get('id')} has no metadata.source_row_ids")
-    return tuple(int(row_id) for row_id in row_ids), int(sample["label"])
+    return (
+        metadata.get("source_file"),
+        tuple(int(row_id) for row_id in row_ids),
+        int(sample["label"]),
+    )
 
 
 def _single_root(code: str, source: dict[str, Any]) -> dict[str, Any]:

@@ -171,7 +171,8 @@ def test_legacy_dataset_and_prompt_unchanged() -> None:
 
 def test_sample_provenance_keys() -> None:
     assert sample_provenance(_sample([FINDING]), True) == {
-        "source_row_ids": [4236], "root_static_findings": [FINDING], "root_findings_in_prompt": True,
+        "source_row_ids": [4236], "source_file": None,
+        "root_static_findings": [FINDING], "root_findings_in_prompt": True,
     }
 
 

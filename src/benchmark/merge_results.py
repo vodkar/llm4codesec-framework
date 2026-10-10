@@ -61,6 +61,7 @@ def record_to_prediction(record: PredictionRecord) -> PredictionResult:
         self_validation_probabilities=data.self_validation_probabilities,
         vote_counts=data.vote_counts,
         source_row_ids=record.source_row_ids,
+        source_file=record.source_file,
         root_static_findings=record.root_static_findings,
         root_findings_in_prompt=record.root_findings_in_prompt,
     )
@@ -93,9 +94,8 @@ def recompute_report(
     Raises:
         ValueError: If exclusions are configured but a prediction has no source_row_ids.
     """
-    excluded_keys: set[SampleKey] = {exclusion.key for exclusion in exclusions}
     kept: list[PredictionRecord] = []
-    dropped: list[SampleKey] = []
+    dropped: list[tuple[str | None, SampleKey]] = []
     for record in report.predictions:
         if exclusions and record.source_row_ids is None:
             raise ValueError(
@@ -104,8 +104,8 @@ def recompute_report(
             )
         if record.source_row_ids is not None:
             key: SampleKey = (tuple(record.source_row_ids), int(record.true_label))
-            if key in excluded_keys:
-                dropped.append(key)
+            if any(exclusion.matches(record.source_file, key) for exclusion in exclusions):
+                dropped.append((record.source_file, key))
                 continue
         kept.append(
             record.model_copy(
@@ -130,8 +130,12 @@ def recompute_report(
                 # Distinct from the runner's "excluded_samples", which records
                 # samples already dropped before inference.
                 "merge_excluded_samples": [
-                    {"source_row_ids": list(row_ids), "label": label}
-                    for row_ids, label in dropped
+                    {
+                        "source_row_ids": list(row_ids),
+                        "label": label,
+                        **({"source_file": source_file} if source_file is not None else {}),
+                    }
+                    for source_file, (row_ids, label) in dropped
                 ],
                 "analysis_exclude_finding_rules": list(analysis_exclude_rules),
                 "coverage_levels": list(coverage_levels),

@@ -15,7 +15,7 @@ from benchmark.response_parser import (
 )
 from benchmark.results import BenchmarkRunResult
 from benchmark.root_sections import render_root_sections
-from benchmark.sample_exclusions import apply_sample_exclusions
+from benchmark.sample_exclusions import apply_sample_exclusions, sample_source_file
 from benchmark.sampling_seeds import draw_seed
 from benchmark.static_findings import filter_root_findings, render_root_findings_block
 from benchmark.target_context import render_context_block
@@ -129,6 +129,7 @@ def sample_provenance(
         "source_row_ids": [int(row_id) for row_id in raw_row_ids]
         if raw_row_ids is not None
         else None,
+        "source_file": sample_source_file(sample),
         "root_static_findings": sample.root_static_findings,
         "root_findings_in_prompt": rendered,
     }
@@ -218,8 +219,12 @@ class BenchmarkRunner(BaseModel):
         if exclusion.excluded:
             _LOGGER.info("Excluded %d samples", len(exclusion.excluded))
         run_metadata: dict[str, Any] = {
-            "excluded_samples": [entry.model_dump() for entry in exclusion.excluded],
-            "unmatched_exclusions": [entry.model_dump() for entry in exclusion.unmatched],
+            "excluded_samples": [
+                entry.model_dump(exclude_none=True) for entry in exclusion.excluded
+            ],
+            "unmatched_exclusions": [
+                entry.model_dump(exclude_none=True) for entry in exclusion.unmatched
+            ],
         }
         kept: list[BenchmarkSample] = [
             sample.model_copy(
